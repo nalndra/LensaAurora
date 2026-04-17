@@ -1,16 +1,16 @@
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 
-import '../controllers/home_controller.dart';
+import '../controllers/scan_controller.dart';
 
-class HomeBinding extends Bindings {
+class ScanBinding extends Bindings {
   @override
   void dependencies() {
     Get.put<NavigationController>(
       NavigationController(),
     );
-    Get.lazyPut<HomeController>(
-      () => HomeController(),
+    Get.lazyPut<ScanController>(
+      () => ScanController(),
     );
   }
 }

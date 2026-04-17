@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
 import '../controllers/home_controller.dart';
 
@@ -8,26 +10,18 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final navController = Get.find<NavigationController>();
+    navController.changeIndex(0);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lensa Aurora'),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
-        elevation: 0,
+        elevation: 2,
       ),
-      body: Obx(
-        () => IndexedStack(
-          index: controller.selectedIndex.value,
-          children: [
-            _buildHomePage(),
-            _buildScanPage(),
-            _buildReportsPage(),
-            _buildGamesPage(),
-            _buildProfilePage(),
-          ],
-        ),
-      ),
+      body: _buildHomePage(),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
@@ -44,18 +38,15 @@ class HomeView extends GetView<HomeController> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Colors.deepPurple, Colors.purpleAccent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
+                gradient: AppTheme.primaryGradient,
+                borderRadius: AppTheme.br16,
+                boxShadow: AppTheme.shadowLg,
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome Back!',
+                    'Welcome Back, Munawir!',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -64,7 +55,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Discover amazing features',
+                    'Discover amazing features & games',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white70,
@@ -80,63 +71,95 @@ class HomeView extends GetView<HomeController> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: AppTheme.textDark,
               ),
             ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildStatCard('Total Views', '1.2K', Icons.visibility),
-                _buildStatCard('Recent Scans', '24', Icons.camera_alt),
-                _buildStatCard('Reports', '8', Icons.assessment),
+                _buildStatCard('Total Views', '1.2K', Icons.visibility, AppTheme.sageGreen),
+                _buildStatCard('Scans', '24', Icons.camera_alt, AppTheme.cyan),
+                _buildStatCard('Reports', '8', Icons.assessment, AppTheme.lightGreen),
               ],
             ),
             const SizedBox(height: 24),
             // Featured Section
             const Text(
-              'Featured',
+              'Quick Actions',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: AppTheme.textDark,
               ),
             ),
             const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.deepPurple, width: 2),
-                borderRadius: BorderRadius.circular(12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    icon: Icons.camera_alt,
+                    label: 'Scan',
+                    color: AppTheme.cyan,
+                    onTap: () => Get.offNamed('/scan'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildActionCard(
+                    icon: Icons.sports_esports,
+                    label: 'Games',
+                    color: AppTheme.sageGreen,
+                    onTap: () => Get.offNamed('/game'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    icon: Icons.assessment,
+                    label: 'Reports',
+                    color: AppTheme.lightGreen,
+                    onTap: () => Get.offNamed('/reports'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildActionCard(
+                    icon: Icons.person,
+                    label: 'Profile',
+                    color: AppTheme.accentTeal,
+                    onTap: () => Get.offNamed('/profile'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Featured Games
+            const Text(
+              'Featured Games',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textDark,
               ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'New Feature Available',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Try our latest enhancement that makes scanning even faster and more accurate.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'Learn More →',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.deepPurple,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+            ),
+            const SizedBox(height: 12),
+            _buildFeaturedGameCard(
+              title: 'Social Interaction Training',
+              description: 'Practice communication skills',
+              icon: Icons.people,
+              color: AppTheme.primaryBlue,
+            ),
+            const SizedBox(height: 12),
+            _buildFeaturedGameCard(
+              title: 'Collaborative Puzzle Game',
+              description: 'Team up with others',
+              icon: Icons.extension,
+              color: AppTheme.sageGreen,
             ),
           ],
         ),
@@ -144,121 +167,149 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildScanPage() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.camera_alt, size: 80, color: Colors.deepPurple),
-          const SizedBox(height: 16),
-          const Text(
-            'Scan Page',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Tap to start scanning',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReportsPage() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.assessment, size: 80, color: Colors.deepPurple),
-          const SizedBox(height: 16),
-          const Text(
-            'Reports',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'View your detailed reports',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGamesPage() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.sports_esports, size: 80, color: Colors.deepPurple),
-          const SizedBox(height: 16),
-          const Text(
-            'Games',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Play and earn rewards',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfilePage() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.person, size: 80, color: Colors.deepPurple),
-          const SizedBox(height: 16),
-          const Text(
-            'Profile',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Manage your account',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon) {
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: AppTheme.br12,
+          border: Border.all(
+            color: color.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [AppTheme.cardShadow],
         ),
         child: Column(
           children: [
-            Icon(icon, color: Colors.deepPurple, size: 32),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: color,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
               style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+                fontSize: 11,
+                color: AppTheme.textLight,
               ),
               textAlign: TextAlign.center,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppTheme.br12,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [color.withOpacity(0.8), color],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: AppTheme.br12,
+            boxShadow: AppTheme.shadowLg,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 32),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturedGameCard({
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: AppTheme.br12,
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1.5,
+        ),
+        boxShadow: [AppTheme.cardShadow],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textLight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios, color: color, size: 18),
+        ],
       ),
     );
   }
