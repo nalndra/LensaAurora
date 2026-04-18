@@ -43,3 +43,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# API Keys and Secrets
+lib/app/services/gemini_service.dart
+lib/app/services/secrets.dart
+lib/app/config/config_keys.dart
+
+# Local development
+local.properties
+
+# OS files
+Thumbs.db
