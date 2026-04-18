@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
+import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -20,8 +21,10 @@ class HomeView extends GetView<HomeController> {
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 2,
+        automaticallyImplyLeading: false,
       ),
       body: _buildHomePage(),
+      floatingActionButton: const ChatFAB(),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }

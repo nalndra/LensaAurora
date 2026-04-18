@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
+import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import '../controllers/reports_controller.dart';
 
 class ReportsView extends GetView<ReportsController> {
@@ -16,6 +17,7 @@ class ReportsView extends GetView<ReportsController> {
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 2,
+        automaticallyImplyLeading: false,
       ),
       body: Obx(
         () => controller.reports.isEmpty
@@ -59,6 +61,7 @@ class ReportsView extends GetView<ReportsController> {
                 ),
               ),
       ),
+      floatingActionButton: const ChatFAB(),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
@@ -306,19 +309,25 @@ class ReportsView extends GetView<ReportsController> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(
-                      'Score: ${result.score}/${result.maxScore}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textLight,
+                    Flexible(
+                      child: Text(
+                        'Score: ${result.score}/${result.maxScore}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textLight,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      'Time: ${result.getTimeString()}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textLight,
+                    Flexible(
+                      child: Text(
+                        'Time: ${result.getTimeString()}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textLight,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

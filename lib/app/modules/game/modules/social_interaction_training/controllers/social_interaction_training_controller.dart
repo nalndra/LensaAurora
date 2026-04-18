@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import '../models/social_scenario_model.dart';
 
 class SocialInteractionTrainingController extends GetxController {
@@ -184,6 +185,7 @@ class SocialInteractionTrainingController extends GetxController {
 
   @override
   void onClose() {
+    Get.find<NavigationController>().setGameSessionActive(false);
     super.onClose();
   }
 }

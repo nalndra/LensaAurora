@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
+import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -15,6 +16,7 @@ class ProfileView extends GetView<ProfileController> {
         centerTitle: true,
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         actions: [
           Obx(
             () => IconButton(
@@ -86,8 +88,7 @@ class ProfileView extends GetView<ProfileController> {
                   ],
                 ),
               ),
-      ),
-      bottomNavigationBar: const CustomBottomNavBar(),
+      ),      floatingActionButton: const ChatFAB(),      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 

@@ -5,20 +5,24 @@ abstract class Routes {
   Routes._();
   static const HOME = _Paths.HOME;
   static const SCAN = _Paths.SCAN;
+  static const GAZE_TRACKING = _Paths.GAZE_TRACKING;
   static const PROFILE = _Paths.PROFILE;
   static const GAME = _Paths.GAME;
   static const SOCIAL_INTERACTION_TRAINING = _Paths.SOCIAL_INTERACTION_TRAINING;
   static const COLLABORATIVE_PUZZLE_GAME = _Paths.COLLABORATIVE_PUZZLE_GAME;
   static const REPORTS = _Paths.REPORTS;
+  static const CHAT = _Paths.CHAT;
 }
 
 abstract class _Paths {
   _Paths._();
   static const HOME = '/home';
   static const SCAN = '/scan';
+  static const GAZE_TRACKING = '/gaze-tracking';
   static const PROFILE = '/profile';
   static const GAME = '/game';
   static const SOCIAL_INTERACTION_TRAINING = '/social-interaction-training';
   static const COLLABORATIVE_PUZZLE_GAME = '/collaborative-puzzle-game';
   static const REPORTS = '/reports';
+  static const CHAT = '/chat';
 }

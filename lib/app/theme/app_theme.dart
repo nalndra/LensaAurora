@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Color Palette
-  static const Color primaryBlue = Color(0xFF1E88E5); // Biru utama
-  static const Color primaryDark = Color(0xFF1565C0); // Biru gelap
-  static const Color sageGreen = Color(0xFF7CB342); // Sage green
-  static const Color lightGreen = Color(0xFF9CCC65); // Light green
-  static const Color cyan = Color(0xFF00BCD4); // Cyan
-  static const Color accentTeal = Color(0xFF00838F); // Teal accent
-  static const Color lightCyan = Color(0xFFB2EBF2); // Light cyan
-  static const Color bgLight = Color(0xFFF5F7FA); // Background light
-  static const Color textDark = Color(0xFF1F2937); // Text dark
-  static const Color textLight = Color(0xFF6B7280); // Text light
+  static const Color primaryBlue = Color(0xFF7AAACE); // Cyan medium
+  static const Color primaryDark = Color(0xFF355872); // Navy dark
+  static const Color sageGreen = Color(0xFF7AAACE); // Cyan medium
+  static const Color lightGreen = Color(0xFF9CD5FF); // Cyan light
+  static const Color cyan = Color(0xFF7AAACE); // Cyan medium
+  static const Color accentTeal = Color(0xFF355872); // Navy dark
+  static const Color lightCyan = Color(0xFF9CD5FF); // Cyan light
+  static const Color bgLight = Color(0xFFF7F8F0); // Background cream
+  static const Color textDark = Color(0xFF355872); // Text dark navy
+  static const Color textLight = Color(0xFF7B8799); // Text light
 
   // Light Theme
   static ThemeData lightTheme = ThemeData(
@@ -19,21 +19,21 @@ class AppTheme {
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
       primary: primaryBlue,
-      secondary: sageGreen,
-      tertiary: cyan,
+      secondary: primaryBlue,
+      tertiary: primaryBlue,
       surface: Colors.white,
       background: bgLight,
     ),
     scaffoldBackgroundColor: bgLight,
     appBarTheme: AppBarTheme(
-      backgroundColor: primaryBlue,
-      foregroundColor: Colors.white,
-      elevation: 2,
+      backgroundColor: Colors.white,
+      foregroundColor: textDark,
+      elevation: 1,
       centerTitle: true,
       titleTextStyle: const TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
+        color: textDark,
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -136,19 +136,19 @@ class AppTheme {
   );
 
   static LinearGradient greenGradient = const LinearGradient(
-    colors: [sageGreen, lightGreen],
+    colors: [primaryBlue, lightCyan],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static LinearGradient cyanGradient = const LinearGradient(
-    colors: [cyan, accentTeal],
+    colors: [primaryBlue, primaryDark],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static LinearGradient mixedGradient = const LinearGradient(
-    colors: [primaryBlue, cyan, sageGreen],
+    colors: [primaryBlue, lightCyan, primaryDark],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

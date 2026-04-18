@@ -34,7 +34,8 @@ class CustomBottomNavBar extends GetView<NavigationController> {
   }
 
   Widget _buildNavItem(int index) {
-    final isSelected = controller.selectedIndex.value == index;
+    // Use animatingIndex instead of selectedIndex for smooth transitions
+    final isSelected = controller.animatingIndex.value == index;
     final icons = [Icons.home, Icons.camera_alt, Icons.assessment, Icons.sports_esports, Icons.person];
     final labels = ['Home', 'Scan', 'Reports', 'Games', 'Profile'];
 
@@ -47,7 +48,7 @@ class CustomBottomNavBar extends GetView<NavigationController> {
           children: [
             // Animated box highlight
             AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
+              duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOutCubic,
               padding: EdgeInsets.symmetric(
                 horizontal: isSelected ? 16 : 8,
@@ -89,8 +90,10 @@ class CustomBottomNavBar extends GetView<NavigationController> {
 
     if (currentIndex == index) return;
 
+    // Update selectedIndex first to allow future navigation
     controller.changeIndex(index);
 
+    // Change page instantly without animation
     switch (index) {
       case 0:
         Get.offNamed('/home');
@@ -108,5 +111,8 @@ class CustomBottomNavBar extends GetView<NavigationController> {
         Get.offNamed('/profile');
         break;
     }
+
+    // Animate navbar smoothly through all intermediate indices
+    controller.animateNavbarToIndex(index);
   }
 }

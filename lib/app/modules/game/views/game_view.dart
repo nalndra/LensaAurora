@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
+import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import 'package:lensaaurora/app/modules/game/widgets/game_card.dart';
 import '../controllers/game_controller.dart';
 
@@ -17,6 +18,7 @@ class GameView extends GetView<GameController> {
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 2,
+        automaticallyImplyLeading: false,
       ),
       body: Obx(
         () => Container(
@@ -42,6 +44,7 @@ class GameView extends GetView<GameController> {
           ),
         ),
       ),
+      floatingActionButton: ChatFAB(),
       bottomNavigationBar: const CustomBottomNavBar(),
     );
   }

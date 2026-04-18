@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import '../models/puzzle_model.dart';
 
 class CollaborativePuzzleGameController extends GetxController {
@@ -220,6 +221,7 @@ class CollaborativePuzzleGameController extends GetxController {
 
   @override
   void onClose() {
+    Get.find<NavigationController>().setGameSessionActive(false);
     super.onClose();
   }
 }

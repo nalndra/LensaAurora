@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import '../models/game_model.dart';
 
 class GameController extends GetxController {
@@ -33,6 +34,9 @@ class GameController extends GetxController {
   }
 
   void playGame(String gameId) {
+    // Set game session active before navigating
+    Get.find<NavigationController>().setGameSessionActive(true);
+    
     switch (gameId) {
       case '1':
         Get.toNamed('/social-interaction-training');
