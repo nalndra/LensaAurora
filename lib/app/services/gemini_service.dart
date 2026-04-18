@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 
 class GeminiService {
   late final GenerativeModel model;
-  static const String apiKey = 'AQ.Ab8RN6Kc2Ydd9o4XDqHr5MoDnEvvkeaRbEwpP4705UV107RvSg';
+  // API key should be set from environment variables or secure storage
+  static const String apiKey = 'YOUR_GEMINI_API_KEY';
   
   GeminiService() {
     model = GenerativeModel(
