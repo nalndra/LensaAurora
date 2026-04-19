@@ -15,10 +15,16 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/reports/bindings/reports_binding.dart';
 import '../modules/reports/views/reports_view.dart';
-import '../modules/scan/bindings/scan_binding.dart';
 import '../modules/scan/bindings/gaze_tracking_binding.dart';
-import '../modules/scan/views/scan_view.dart';
+import '../modules/scan/bindings/scan_binding.dart';
 import '../modules/scan/views/gaze_tracking_view.dart';
+import '../modules/scan/views/scan_view.dart';
+import '../modules/speech/bindings/speech_binding.dart';
+import '../modules/speech/views/speech_view.dart';
+import '../modules/speech_analysis/bindings/speech_analysis_binding.dart';
+import '../modules/speech_analysis/views/speech_analysis_view.dart';
+import '../modules/motor_behavior/bindings/motor_behavior_binding.dart';
+import '../modules/motor_behavior/views/motor_behavior_view.dart';
 import 'transitions.dart';
 
 part 'app_routes.dart';
@@ -73,6 +79,21 @@ class AppPages {
       name: _Paths.CHAT,
       page: () => const ChatView(),
       binding: ChatBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPEECH,
+      page: () => const SpeechView(),
+      binding: SpeechBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPEECH_ANALYSIS,
+      page: () => const SpeechAnalysisView(),
+      binding: SpeechAnalysisBinding(),
+    ),
+    GetPage(
+      name: _Paths.MOTOR_BEHAVIOR,
+      page: () => const MotorBehaviorView(),
+      binding: MotorBehaviorBinding(),
     ),
   ];
 }

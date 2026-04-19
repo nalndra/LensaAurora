@@ -27,7 +27,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             case TestState.running:
               return _buildGazeTrackingContent();
             case TestState.completed:
-              return _buildTestResultsScreen();
+              return _buildCompletionScreen();
             case TestState.aborted:
               return _buildAbortedScreen();
             default:
@@ -122,6 +122,25 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Skip button (temporary)
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Get.toNamed(Routes.SPEECH_ANALYSIS),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'Lewati Gaze Tracking',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.primaryBlue,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -664,8 +683,8 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  Get.toNamed(Routes.SCAN);
-                  // TODO: Pass gaze statistics to next step (Speech Analysis)
+                  Get.toNamed(Routes.SPEECH);
+                  // TODO: Pass gaze statistics to speech analysis
                 },
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text('Lanjut ke Speech Analysis'),
@@ -739,5 +758,80 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
       case GazeDirection.unknown:
         return Colors.red;
     }
+  }
+
+  Widget _buildCompletionScreen() {
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  border: Border.all(
+                    color: AppTheme.primaryBlue,
+                    width: 3,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.check_circle_outline,
+                  color: AppTheme.primaryBlue,
+                  size: 64,
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Tes Fokus Selesai',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Anda telah berhasil menyelesaikan tes gaze tracking. Data fokus Anda telah tercatat.\n\nSelanjutnya, kami akan melakukan tes Speech Analysis untuk mengevaluasi kemampuan berbicara dan artikulasi Anda.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 14,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed(Routes.SPEECH_ANALYSIS);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Mulai Speech Analysis',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
