@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Color Palette
@@ -17,6 +18,8 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(),
+    primaryTextTheme: GoogleFonts.plusJakartaSansTextTheme(),
     colorScheme: ColorScheme.light(
       primary: primaryBlue,
       secondary: primaryBlue,
@@ -30,7 +33,7 @@ class AppTheme {
       foregroundColor: textDark,
       elevation: 1,
       centerTitle: true,
-      titleTextStyle: const TextStyle(
+      titleTextStyle: GoogleFonts.plusJakartaSans(
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: textDark,
@@ -92,40 +95,7 @@ class AppTheme {
         ),
       ),
     ),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: textDark,
-      ),
-      displayMedium: TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        color: textDark,
-      ),
-      headlineSmall: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: textDark,
-      ),
-      titleLarge: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-        color: textDark,
-      ),
-      bodyLarge: TextStyle(
-        fontSize: 16,
-        color: textDark,
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 14,
-        color: textLight,
-      ),
-      labelSmall: TextStyle(
-        fontSize: 12,
-        color: textLight,
-      ),
-    ),
+    // Typography is inherited from GoogleFonts.plusJakartaSansTextTheme().
   );
 
   // Gradients

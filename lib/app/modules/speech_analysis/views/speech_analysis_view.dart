@@ -200,7 +200,6 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                       color: Colors.white,
                       fontSize: 16,
                       height: 1.8,
-                      fontFamily: 'Garamond',
                     ),
                   ),
                 ),

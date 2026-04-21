@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1067543596698",
+    "project_id": "lensaaurora",
+    "storage_bucket": "lensaaurora.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067543596698:android:fc1094eea059ce6f8ad923",
+        "android_client_info": {
+          "package_name": "com.example.lensaaurora"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8IwVWTSfHAILBOzMVhmFTq6Ue0MxfB5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

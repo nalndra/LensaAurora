@@ -3,6 +3,7 @@ part of 'app_pages.dart';
 
 abstract class Routes {
   Routes._();
+  static const SPLASH = _Paths.SPLASH;
   static const HOME = _Paths.HOME;
   static const SCAN = _Paths.SCAN;
   static const GAZE_TRACKING = _Paths.GAZE_TRACKING;
@@ -15,10 +16,13 @@ abstract class Routes {
   static const REPORTS = _Paths.REPORTS;
   static const CHAT = _Paths.CHAT;
   static const SPEECH = _Paths.SPEECH;
+  static const LOGIN = _Paths.LOGIN;
+  static const REGISTER = _Paths.REGISTER;
 }
 
 abstract class _Paths {
   _Paths._();
+  static const SPLASH = '/splash';
   static const HOME = '/home';
   static const SCAN = '/scan';
   static const GAZE_TRACKING = '/gaze-tracking';
@@ -31,4 +35,6 @@ abstract class _Paths {
   static const REPORTS = '/reports';
   static const CHAT = '/chat';
   static const SPEECH = '/speech';
+  static const LOGIN = '/login';
+  static const REGISTER = '/register';
 }

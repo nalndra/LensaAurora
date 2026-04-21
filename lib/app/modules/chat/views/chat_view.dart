@@ -218,7 +218,6 @@ class ChatView extends GetView<ChatController> {
                       ? Colors.white.withOpacity(0.9)
                       : AppTheme.textDark,
                   fontSize: 13,
-                  fontFamily: 'monospace',
                 ),
               ),
             ),

@@ -11,8 +11,14 @@ import '../modules/game/modules/social_interaction_training/views/social_interac
 import '../modules/game/views/game_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/login/bindings/login_binding.dart';
+import '../modules/login/views/login_view.dart';
+import '../modules/motor_behavior/bindings/motor_behavior_binding.dart';
+import '../modules/motor_behavior/views/motor_behavior_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
+import '../modules/register/bindings/register_binding.dart';
+import '../modules/register/views/register_view.dart';
 import '../modules/reports/bindings/reports_binding.dart';
 import '../modules/reports/views/reports_view.dart';
 import '../modules/scan/bindings/gaze_tracking_binding.dart';
@@ -23,8 +29,8 @@ import '../modules/speech/bindings/speech_binding.dart';
 import '../modules/speech/views/speech_view.dart';
 import '../modules/speech_analysis/bindings/speech_analysis_binding.dart';
 import '../modules/speech_analysis/views/speech_analysis_view.dart';
-import '../modules/motor_behavior/bindings/motor_behavior_binding.dart';
-import '../modules/motor_behavior/views/motor_behavior_view.dart';
+import '../modules/splash/bindings/splash_binding.dart';
+import '../modules/splash/views/splash_view.dart';
 import 'transitions.dart';
 
 part 'app_routes.dart';
@@ -32,9 +38,14 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.HOME;
+  static const INITIAL = Routes.SPLASH;
 
   static final routes = [
+    GetPage(
+      name: _Paths.SPLASH,
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+    ),
     GetPage(
       name: _Paths.HOME,
       page: () => const HomeView(),
@@ -94,6 +105,16 @@ class AppPages {
       name: _Paths.MOTOR_BEHAVIOR,
       page: () => const MotorBehaviorView(),
       binding: MotorBehaviorBinding(),
+    ),
+    GetPage(
+      name: _Paths.LOGIN,
+      page: () => const LoginView(),
+      binding: LoginBinding(),
+    ),
+    GetPage(
+      name: _Paths.REGISTER,
+      page: () => const RegisterView(),
+      binding: RegisterBinding(),
     ),
   ];
 }

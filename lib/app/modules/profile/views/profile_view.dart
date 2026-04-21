@@ -81,6 +81,22 @@ class ProfileView extends GetView<ProfileController> {
                           ),
                           const SizedBox(height: 12),
                           _buildAchievements(),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () => controller.logout(),
+                              icon: const Icon(Icons.logout, color: Colors.white),
+                              label: const Text('Log Out', style: TextStyle(color: Colors.white, fontSize: 16)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 24),
                         ],
                       ),
