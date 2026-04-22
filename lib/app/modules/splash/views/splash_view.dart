@@ -33,46 +33,56 @@ class _SplashViewState extends State<SplashView> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo or App Icon
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.blue.withOpacity(0.1),
+      backgroundColor: Colors.white,
+      body: SizedBox(
+        width: screenSize.width,
+        height: screenSize.height,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Logo Image
+              Image.asset(
+                'assets/logo/LensaAuroraLogo.png',
+                width: screenSize.width * 0.6,
+                height: screenSize.width * 0.6,
+                fit: BoxFit.contain,
               ),
-              child: const Icon(
-                Icons.security,
-                size: 60,
-                color: Colors.blue,
+              const SizedBox(height: 40),
+              
+              // App Name
+              const Text(
+                'Lensa Aurora',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Lensa Aurora',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 12),
+              
+              // Subtitle
+              Text(
+                'Speech & Motor Behavior Analysis',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  letterSpacing: 0.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Speech & Motor Behavior Analysis',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+              const SizedBox(height: 60),
+              
+              // Loading Indicator
+              const CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6338F1)),
               ),
-            ),
-            const SizedBox(height: 40),
-            const CircularProgressIndicator(
-              strokeWidth: 2,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

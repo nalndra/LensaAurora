@@ -24,7 +24,7 @@ class CustomBottomNavBar extends GetView<NavigationController> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(5, (index) {
+            children: List.generate(4, (index) {
               return _buildNavItem(index);
             }),
           ),
@@ -36,8 +36,8 @@ class CustomBottomNavBar extends GetView<NavigationController> {
   Widget _buildNavItem(int index) {
     // Use animatingIndex instead of selectedIndex for smooth transitions
     final isSelected = controller.animatingIndex.value == index;
-    final icons = [Icons.home, Icons.camera_alt, Icons.assessment, Icons.sports_esports, Icons.person];
-    final labels = ['Home', 'Scan', 'Reports', 'Games', 'Profile'];
+    final icons = [Icons.home, Icons.camera_alt, Icons.sports_esports, Icons.person];
+    final labels = ['Home', 'Scan', 'Games', 'Profile'];
 
     return GestureDetector(
       onTap: () => _navigateTo(index),
@@ -102,12 +102,9 @@ class CustomBottomNavBar extends GetView<NavigationController> {
         Get.offNamed('/scan');
         break;
       case 2:
-        Get.offNamed('/reports');
-        break;
-      case 3:
         Get.offNamed('/game');
         break;
-      case 4:
+      case 3:
         Get.offNamed('/profile');
         break;
     }

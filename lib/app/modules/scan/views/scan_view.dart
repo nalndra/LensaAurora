@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
+import 'package:lensaaurora/app/widgets/screening_area_card.dart';
 import 'package:lensaaurora/app/routes/app_pages.dart';
 import '../controllers/scan_controller.dart';
 
@@ -12,11 +13,19 @@ class ScanView extends GetView<ScanController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Scanner'),
+        title: const Text(
+          'Skrining',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         automaticallyImplyLeading: false,
       ),
       body: Obx(
@@ -33,11 +42,9 @@ class ScanView extends GetView<ScanController> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Header Section - Mulai Skrining
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            color: Colors.white,
+          // Header Section with Title and Description
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -46,147 +53,110 @@ class ScanView extends GetView<ScanController> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
+                    color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.only(right: 24),
-                  child: const Text(
-                    'Sesi ini akan berlangsung selama kurang lebih 15 menit. Kami akan melakukan pemindaian awal terhadap indikator perkembangan saraf melalui teknologi AI yang aman dan non-invasif.',
-                    style: TextStyle(
+                const SizedBox(height: 16),
+                // Description with RichText
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textLight,
                       height: 1.6,
+                      color: Color(0xFF666666),
                     ),
+                    children: [
+                      const TextSpan(
+                        text: 'Sesi pemeriksaan akan berlangsung selama ',
+                      ),
+                      TextSpan(
+                        text: '15 menit',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF6338F1),
+                        ),
+                      ),
+                      const TextSpan(
+                        text: '. Kami akan menganalisis perkembangan dengan teknologi AI yang aman dan non-invasif.',
+                      ),
+                    ],
                   ),
+                  textAlign: TextAlign.left,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
           
-          // Area Analisis Utama Section
+          // Area Analisis Container
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'AREA ANALISIS UTAMA',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryBlue,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildFeatureCard(
-                  icon: Icons.remove_red_eye,
-                  title: 'Gaze Tracking',
-                  subtitle: 'Pola atensi visual',
-                  color: AppTheme.primaryBlue,
-                ),
-                const SizedBox(height: 12),
-                _buildFeatureCard(
-                  icon: Icons.audio_file,
-                  title: 'Speech Analysis',
-                  subtitle: 'Linguistik & intonasi',
-                  color: AppTheme.primaryBlue,
-                ),
-                const SizedBox(height: 12),
-                _buildFeatureCard(
-                  icon: Icons.accessibility,
-                  title: 'Motor Behavior',
-                  subtitle: 'Gerak motorik halus',
-                  color: AppTheme.primaryBlue,
-                ),
-                const SizedBox(height: 16),
-                _buildAIFusionCard(),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-          
-          // Preparation Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      'Persiapan',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '3 Langkah Sederhana',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textLight,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildPreparationStep(
-                  number: '1',
-                  title: 'Cahaya Ruangan',
-                  description: 'Pastikan ruangan cukup terang dan hindari silau langsung',
-                ),
-                const SizedBox(height: 12),
-                _buildPreparationStep(
-                  number: '2',
-                  title: 'Lingkungan Tenang',
-                  description: 'Kurangi kebisingan untuk hasil analisis yang lebih akurat',
-                ),
-                const SizedBox(height: 12),
-                _buildPreparationStep(
-                  number: '3',
-                  title: 'Posisi Perangkat',
-                  description: 'Letakkan perangkat pada jarak 30-40cm dari wajah Anda',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-          
-          // Start Screening Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Get.toNamed(Routes.GAZE_TRACKING),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F0FF),
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: Column(
+                children: [
+                  // Card 1: Gaze Tracking
+                  ScreeningAreaCard(
+                    title: 'Gaze Tracking',
+                    subtitle: 'Pola atensi visual',
+                    icon: Icons.visibility,
                   ),
-                  elevation: 4,
-                ),
-                child: const Text(
-                  'Mulai Skrining',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
+                  const SizedBox(height: 12),
+                  // Card 2: Speech Analysis
+                  ScreeningAreaCard(
+                    title: 'Speech Analysis',
+                    subtitle: 'Linguistik & intonasi',
+                    icon: Icons.mic,
+                  ),
+                  const SizedBox(height: 12),
+                  // Card 3: Motor Behavior
+                  ScreeningAreaCard(
+                    title: 'Motor Behavior',
+                    subtitle: 'Gerak motorik halus',
+                    icon: Icons.accessibility_new_rounded,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 48),
+          
+          // Bottom Button Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SafeArea(
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Get.toNamed(Routes.GAZE_TRACKING),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6338F1),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 52),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Mulai Scan',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 40),
         ],
       ),
     );

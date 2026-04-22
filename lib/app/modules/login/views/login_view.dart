@@ -69,7 +69,7 @@ class LoginView extends GetView<AuthController> {
                         
                         // Subheading
                         const Text(
-                          'Silakan masuk dengan akun Anda untuk\nmelanjutkan mengakses aplikasi.',
+                          'Masuk dan gunakan fitur-fitur menarik yang\nada di LensaAurora',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.grey,
@@ -179,7 +179,8 @@ class LoginView extends GetView<AuthController> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryPurple,
                               disabledBackgroundColor: Colors.grey.shade300,
-                              minimumSize: const Size(double.infinity, 50),
+                              minimumSize: const Size(double.infinity, 65),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
@@ -223,9 +224,7 @@ class LoginView extends GetView<AuthController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildSocialBtn(
-                              icon: Icons.g_mobiledata,
-                              color: Colors.red,
+                            InkWell(
                               onTap: controller.isLoading.value 
                                   ? () {} 
                                   : () async {
@@ -234,6 +233,22 @@ class LoginView extends GetView<AuthController> {
                                         Get.offAllNamed('/home');
                                       }
                                     },
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  color: Colors.white,
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'assets/logo/GoogleIcon.png', // ← ini path Flutter (BUKAN path C:\...)
+                                    height: 24,
+                                  ),
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 16),
                             _buildSocialBtn(

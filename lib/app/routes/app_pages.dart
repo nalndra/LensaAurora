@@ -19,8 +19,6 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
-import '../modules/reports/bindings/reports_binding.dart';
-import '../modules/reports/views/reports_view.dart';
 import '../modules/scan/bindings/gaze_tracking_binding.dart';
 import '../modules/scan/bindings/scan_binding.dart';
 import '../modules/scan/views/gaze_tracking_view.dart';
@@ -60,11 +58,6 @@ class AppPages {
       name: _Paths.GAZE_TRACKING,
       page: () => const GazeTrackingView(),
       binding: GazeTrackingBinding(),
-    ),
-    GetPage(
-      name: _Paths.REPORTS,
-      page: () => const ReportsView(),
-      binding: ReportsBinding(),
     ),
     GetPage(
       name: _Paths.GAME,

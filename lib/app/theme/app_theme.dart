@@ -14,6 +14,14 @@ class AppTheme {
   static const Color textDark = Color(0xFF355872); // Text dark navy
   static const Color textLight = Color(0xFF7B8799); // Text light
 
+  // Dashboard Colors
+  static const Color verdeTosca = Color(0xFF20B2AA); // Verde teal/tosca
+  static const Color purple = Color(0xFF7B68EE); // Medium purple
+  static const Color purpleLight = Color(0xFFB5A7FF); // Light purple
+  static const Color lightGreenPale = Color(0xFFF0FDFD); // Very light green/cyan
+  static const Color successGreen = Color(0xFF28A745); // Success green
+  static const Color warningOrange = Color(0xFFFFA500); // Warning orange
+
   // Light Theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
@@ -119,6 +127,13 @@ class AppTheme {
 
   static LinearGradient mixedGradient = const LinearGradient(
     colors: [primaryBlue, lightCyan, primaryDark],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Dashboard Gradients
+  static LinearGradient statusCardGradient = const LinearGradient(
+    colors: [verdeTosca, Color(0xFF6A5BDA)], // Verde tosca to purple-blue
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

@@ -62,7 +62,7 @@ class RegisterView extends GetView<AuthController> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Lengkapi form di bawah ini untuk membuat akun baru Anda.',
+                        'Mulai pengalaman digital eksklusif bersama\nLensaAurora hari ini',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -205,7 +205,8 @@ class RegisterView extends GetView<AuthController> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryPurple,
                                 disabledBackgroundColor: Colors.grey.shade300,
-                                minimumSize: const Size(double.infinity, 50),
+                                minimumSize: const Size(double.infinity, 65),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
@@ -248,29 +249,43 @@ class RegisterView extends GetView<AuthController> {
                       const SizedBox(height: 24),
 
                       // Social Icons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildSocialBtn(
-                            icon: Icons.g_mobiledata,
-                            color: Colors.red,
-                            onTap: controller.isLoading.value 
-                                ? () {} 
-                                : () async {
-                                    final success = await controller.signInWithGoogle();
-                                    if (success) {
-                                      Get.offAllNamed('/home');
-                                    }
-                                  },
-                          ),
-                          const SizedBox(width: 16),
-                          _buildSocialBtn(
-                            icon: Icons.apple,
-                            color: Colors.black,
-                            onTap: () {},
-                          ),
-                        ],
-                      ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: controller.isLoading.value 
+                                  ? () {} 
+                                  : () async {
+                                      final success = await controller.signInWithGoogle();
+                                      if (success) {
+                                        Get.offAllNamed('/home');
+                                      }
+                                    },
+                              borderRadius: BorderRadius.circular(50),
+                              child: Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  color: Colors.white,
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                    'assets/logo/GoogleIcon.png', // ← ini path Flutter (BUKAN path C:\...)
+                                    height: 24,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            _buildSocialBtn(
+                              icon: Icons.apple,
+                              color: Colors.black,
+                              onTap: () {},
+                            ),
+                          ],
+                        ),
                       const SizedBox(height: 32),
 
                       // Footer

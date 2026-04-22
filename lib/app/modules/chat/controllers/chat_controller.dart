@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'package:lensaaurora/app/services/gemini_service.dart';
@@ -18,20 +19,13 @@ class ChatController extends GetxController {
   late GeminiService geminiService;
   final messages = <ChatMessage>[].obs;
   final isLoading = false.obs;
+  late TextEditingController messageController;
 
   @override
   void onInit() {
     super.onInit();
+    messageController = TextEditingController();
     geminiService = GeminiService();
-    // Add welcome message
-    messages.add(
-      ChatMessage(
-        text:
-            'Halo! 👋 Aku RORAI, asistanmu yang ramah. Ada yang bisa aku bantu hari ini?',
-        isUser: false,
-        timestamp: DateTime.now(),
-      ),
-    );
   }
 
   void sendMessage(String userInput) async {
@@ -166,6 +160,7 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    messageController.dispose();
     super.onClose();
   }
 }

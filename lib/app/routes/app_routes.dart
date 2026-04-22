@@ -13,7 +13,6 @@ abstract class Routes {
   static const GAME = _Paths.GAME;
   static const SOCIAL_INTERACTION_TRAINING = _Paths.SOCIAL_INTERACTION_TRAINING;
   static const COLLABORATIVE_PUZZLE_GAME = _Paths.COLLABORATIVE_PUZZLE_GAME;
-  static const REPORTS = _Paths.REPORTS;
   static const CHAT = _Paths.CHAT;
   static const SPEECH = _Paths.SPEECH;
   static const LOGIN = _Paths.LOGIN;
@@ -32,7 +31,6 @@ abstract class _Paths {
   static const GAME = '/game';
   static const SOCIAL_INTERACTION_TRAINING = '/social-interaction-training';
   static const COLLABORATIVE_PUZZLE_GAME = '/collaborative-puzzle-game';
-  static const REPORTS = '/reports';
   static const CHAT = '/chat';
   static const SPEECH = '/speech';
   static const LOGIN = '/login';

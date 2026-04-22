@@ -4,6 +4,7 @@ class GameModel {
   final String description;
   final String imageUrl;
   final String type; // 'social_interaction', 'puzzle', etc
+  final String category; // 'cognitive', 'motor', 'speech'
   final int difficulty; // 1-5
 
   GameModel({
@@ -12,6 +13,7 @@ class GameModel {
     required this.description,
     required this.imageUrl,
     required this.type,
+    required this.category,
     required this.difficulty,
   });
 }
