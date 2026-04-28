@@ -15,11 +15,11 @@ class SpeechView extends GetView<SpeechController> {
         backgroundColor: Colors.white,
         foregroundColor: AppTheme.textDark,
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Obx(
         () => SingleChildScrollView(
           child: Container(
-            color: Colors.black,
+            color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +30,7 @@ class SpeechView extends GetView<SpeechController> {
                 const Text(
                   'Baca Paragraf dengan Jelas',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textDark,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -39,7 +39,7 @@ class SpeechView extends GetView<SpeechController> {
                 Text(
                   'Paragraf ${controller.currentParagraphIndex.value + 1} dari ${controller.paragraphs.length}',
                   style: const TextStyle(
-                    color: Colors.white70,
+                    color: AppTheme.textLight,
                     fontSize: 12,
                   ),
                 ),
@@ -49,14 +49,14 @@ class SpeechView extends GetView<SpeechController> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
-                    borderRadius: BorderRadius.circular(12),
+                    color: const Color(0xFFF5F1FF),
+                    border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.12)),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     controller.paragraphs[controller.currentParagraphIndex.value],
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppTheme.textDark,
                       fontSize: 16,
                       height: 1.6,
                       fontStyle: FontStyle.italic,
@@ -70,12 +70,12 @@ class SpeechView extends GetView<SpeechController> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: controller.isRecording.value 
                           ? Colors.red 
-                          : Colors.white.withOpacity(0.1),
+                          : AppTheme.primaryBlue.withOpacity(0.12),
                       width: controller.isRecording.value ? 2 : 1,
                     ),
                   ),
@@ -190,8 +190,8 @@ class SpeechView extends GetView<SpeechController> {
                         icon: const Icon(Icons.arrow_back),
                         label: const Text('Sebelumnya'),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white30),
+                          foregroundColor: AppTheme.primaryBlue,
+                          side: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.3)),
                         ),
                       ),
                     ),
@@ -293,14 +293,14 @@ class SpeechView extends GetView<SpeechController> {
               const Text(
                 'Akurasi Analisis',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: AppTheme.textLight,
                   fontSize: 12,
                 ),
               ),
               Text(
                 '${(controller.analysisConfidence.value * 100).toStringAsFixed(0)}%',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.textDark,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -319,7 +319,7 @@ class SpeechView extends GetView<SpeechController> {
         Text(
           label,
           style: const TextStyle(
-            color: Colors.white70,
+            color: AppTheme.textLight,
             fontSize: 12,
           ),
         ),

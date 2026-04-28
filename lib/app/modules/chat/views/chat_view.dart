@@ -213,7 +213,7 @@ class ChatView extends GetView<ChatController> {
             children: [
               // Logo - purple tinted image
               Image.asset(
-                'assets/logo/RoraiChat.png',
+                'assets/logo/RoraiChatbot.png',
                 width: 80,
                 height: 80,
                 fit: BoxFit.contain,

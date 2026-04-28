@@ -18,16 +18,16 @@ class _SplashViewState extends State<SplashView> {
 
   /// Check if user is already logged in
   Future<void> _checkLoginStatus() async {
-    // Simulate splash screen delay
-    await Future.delayed(const Duration(seconds: 2));
+    // Minimal delay for splash screen visibility (400ms instead of 2s)
+    await Future.delayed(const Duration(milliseconds: 400));
 
     // Check login status
     if (Get.isRegistered<AuthController>()) {
-      Get.find<AuthController>().checkLoginStatus();
+      await Get.find<AuthController>().checkLoginStatus();
     } else {
       // Register controller if not yet registered
       Get.put(AuthController());
-      Get.find<AuthController>().checkLoginStatus();
+      await Get.find<AuthController>().checkLoginStatus();
     }
   }
 

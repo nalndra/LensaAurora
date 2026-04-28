@@ -1,6 +1,4 @@
-import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
+import 'dart:ui' show Size;
 import 'package:flutter/foundation.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -23,11 +21,11 @@ class GazeDetectionService {
 
   void _initializeFaceDetector() {
     final options = FaceDetectorOptions(
-      enableLandmarks: false, // Disable for now - may improve detection
+      enableLandmarks: true,
       enableClassification: false, // Disable for now
       enableTracking: true,
-      minFaceSize: 0.01, // Make very small to detect faces at any distance
-      performanceMode: FaceDetectorMode.fast, // Use fast mode
+      minFaceSize: 0.08,
+      performanceMode: FaceDetectorMode.fast,
     );
     _faceDetector = FaceDetector(options: options);
     _isInitialized = true;
@@ -84,33 +82,39 @@ class GazeDetectionService {
   InputImage? _buildInputImage(CameraImage cameraImage, CameraDescription camera) {
     try {
       final planes = cameraImage.planes;
-      final buffer = BytesBuilder();
+      if (planes.isEmpty) {
+        _log('❌ No image planes found');
+        return null;
+      }
+      final buffer = WriteBuffer();
 
       for (Plane plane in planes) {
-        buffer.add(plane.bytes);
+        buffer.putUint8List(plane.bytes);
       }
 
-      final bytes = buffer.toBytes();
+      final bytes = buffer.done().buffer.asUint8List();
       _log('📷 Image bytes: ${bytes.length}, Planes: ${planes.length}, Format: ${cameraImage.format}');
 
-      final imageSize = ui.Size(
+      final imageSize = Size(
         cameraImage.width.toDouble(),
         cameraImage.height.toDouble(),
       );
       
       _log('📏 Size: ${imageSize.width}x${imageSize.height}');
 
-      final camera0Rotation =
+      final inputImageRotation =
           InputImageRotationValue.fromRawValue(camera.sensorOrientation) ?? InputImageRotation.rotation0deg;
+      final inputImageFormat =
+          InputImageFormatValue.fromRawValue(cameraImage.format.raw) ?? InputImageFormat.nv21;
       _log('🔄 Rotation: ${camera.sensorOrientation}');
 
       final inputImage = InputImage.fromBytes(
         bytes: bytes,
         metadata: InputImageMetadata(
           size: imageSize,
-          rotation: InputImageRotation.rotation0deg, // Try without rotation first
-          format: InputImageFormat.yuv420, // Try yuv420 instead of nv21
-          bytesPerRow: cameraImage.planes[0].bytesPerRow,
+          rotation: inputImageRotation,
+          format: inputImageFormat,
+          bytesPerRow: planes.first.bytesPerRow,
         ),
       );
       
@@ -129,10 +133,6 @@ class GazeDetectionService {
       final headYaw = face.headEulerAngleY ?? 0.0; // left/right
       final headPitch = face.headEulerAngleX ?? 0.0; // up/down
       final headRoll = face.headEulerAngleZ ?? 0.0; // tilt
-
-      // Get eye landmarks if available
-      final leftEye = face.landmarks[FaceLandmarkType.leftEye];
-      final rightEye = face.landmarks[FaceLandmarkType.rightEye];
 
       // Determine gaze direction based on head yaw
       // This is a simplified MVP approach

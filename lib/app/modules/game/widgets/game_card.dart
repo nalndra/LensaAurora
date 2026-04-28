@@ -147,6 +147,7 @@ class GameCard extends StatelessWidget {
         game.imageUrl,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
+          debugPrint('[GameCard] Asset image failed to load: ${game.imageUrl}, Error: $error');
           return _buildImagePlaceholder();
         },
       );
@@ -156,40 +157,69 @@ class GameCard extends StatelessWidget {
       game.imageUrl,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
+        debugPrint('[GameCard] Network image failed to load: ${game.imageUrl}, Error: $error');
         return _buildImagePlaceholder();
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Center(
+          child: CircularProgressIndicator(
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                : null,
+          ),
+        );
       },
     );
   }
 
   Widget _buildImagePlaceholder() {
+    // Create a nice fallback with game type icon and colors
     final iconMap = {
       'social_interaction': Icons.people,
       'puzzle': Icons.extension,
       'memory': Icons.memory,
     };
 
+    // Different colors for different categories
+    final colorMap = {
+      'cognitive': AppTheme.purple,
+      'motor': AppTheme.primaryBlue,
+      'speech': AppTheme.successGreen,
+    };
+
+    final bgColor = colorMap[game.category] ?? AppTheme.purple;
+    final icon = iconMap[game.type] ?? Icons.gamepad;
+
     return Container(
-      color: AppTheme.primaryBlue.withOpacity(0.2),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              iconMap[game.type] ?? Icons.gamepad,
-              size: 64,
-              color: AppTheme.primaryBlue,
+      color: bgColor.withOpacity(0.15),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 64,
+            color: bgColor,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            game.type.replaceAll('_', ' ').toUpperCase(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: bgColor,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 16),
-            Text(
-              game.type.replaceAll('_', ' ').toUpperCase(),
-              style: const TextStyle(
-                color: AppTheme.primaryBlue,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Level ${game.difficulty}',
+            style: TextStyle(
+              color: bgColor.withOpacity(0.7),
+              fontSize: 11,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

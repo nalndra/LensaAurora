@@ -17,6 +17,8 @@ abstract class Routes {
   static const SPEECH = _Paths.SPEECH;
   static const LOGIN = _Paths.LOGIN;
   static const REGISTER = _Paths.REGISTER;
+  static const TERMS = _Paths.TERMS;
+  static const ACCOUNT_TYPE = _Paths.ACCOUNT_TYPE;
 }
 
 abstract class _Paths {
@@ -35,4 +37,6 @@ abstract class _Paths {
   static const SPEECH = '/speech';
   static const LOGIN = '/login';
   static const REGISTER = '/register';
+  static const TERMS = '/terms';
+  static const ACCOUNT_TYPE = '/account-type';
 }

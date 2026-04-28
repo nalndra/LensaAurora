@@ -12,6 +12,8 @@ class AuthController extends GetxController {
   var isConfirmPasswordVisible = false.obs;
   var agreedToTerms = false.obs;
   var currentUser = Rxn<User>();
+  var userRole = Rxn<String>(); // 'parent' or 'personal'
+  var selectedChildId = Rxn<String>(); // For parent users, track selected child
 
   // Form keys
   final loginFormKey = GlobalKey<FormState>();
@@ -352,10 +354,60 @@ class AuthController extends GetxController {
 
   /// ==================== SESSION CHECK ====================
 
-  void checkLoginStatus() {
-    if (authService.isLoggedIn) {
-      Get.offAllNamed('/home');
-    } else {
+  /// Session Check - route to appropriate page based on login status and role setup
+  Future<void> checkLoginStatus() async {
+    try {
+      if (authService.isLoggedIn) {
+        // User is logged in, check if they've set their account role
+        final userId = authService.currentUser?.uid;
+        currentUser.value = authService.currentUser;
+        
+        if (userId != null) {
+          print('DEBUG [checkLoginStatus]: Checking role for user $userId');
+          
+          // Try to load user role
+          var role = await authService.getUserRole(userId);
+          
+          if (role == null) {
+            // Role is null, check if it was actually set in Firestore
+            print('DEBUG [checkLoginStatus]: getUserRole returned null, checking hasUserSetRole...');
+            final hasRole = await authService.hasUserSetRole(userId);
+            
+            if (!hasRole) {
+              // Truly new user - no role set yet
+              print('DEBUG [checkLoginStatus]: No role found (new user), redirecting to account-type');
+              Get.offAllNamed('/account-type');
+              return;
+            } else {
+              // Role field exists but returned null - retry once more
+              print('DEBUG [checkLoginStatus]: hasUserSetRole=true but getUserRole=null, retrying...');
+              await Future.delayed(const Duration(milliseconds: 300));
+              role = await authService.getUserRole(userId);
+              
+              if (role == null) {
+                // Still null after retry - something went wrong
+                print('ERROR [checkLoginStatus]: Role still null after retry, redirect to account-type');
+                Get.offAllNamed('/account-type');
+                return;
+              }
+            }
+          }
+          
+          // Role loaded successfully
+          userRole.value = role;
+          print('DEBUG [checkLoginStatus]: Role loaded: $role, navigating to home');
+          Get.offAllNamed('/home');
+        } else {
+          print('DEBUG [checkLoginStatus]: No user found, redirecting to login');
+          Get.offAllNamed('/login');
+        }
+      } else {
+        // User is not logged in - go to login
+        print('DEBUG [checkLoginStatus]: User not logged in, redirecting to login');
+        Get.offAllNamed('/login');
+      }
+    } catch (e) {
+      print('ERROR [checkLoginStatus]: Exception - $e');
       Get.offAllNamed('/login');
     }
   }

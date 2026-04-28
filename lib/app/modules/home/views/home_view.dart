@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
@@ -14,26 +13,77 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    final navController = Get.find<NavigationController>();
     final authController = Get.find<AuthController>();
-    navController.changeIndex(0);
     
     final userName = authController.currentUser.value?.displayName ?? 'User';
     
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
+      body: SafeArea(
+  child: Stack(
+    children: [
+      SingleChildScrollView(
             child: Column(
               children: [
-                // Header
-                DashboardHeader(
-                  userName: userName,
-                  userRole: 'Orang Tua',
-                  onNotificationTap: () {
-                    // Handle notification tap
+                // Header - Dynamic greeting based on role and selected child
+                Obx(
+                  () {
+                    final displayName = controller.selectedChild.value?.name ?? userName;
+                    final roleDisplay = authController.userRole.value == 'parent' 
+                        ? 'Orang Tua'
+                        : authController.userRole.value == 'personal'
+                            ? 'Personal'
+                            : 'Pengguna'; // Fallback for null/unknown role
+                    
+                    return DashboardHeader(
+                      userName: displayName,
+                      userRole: roleDisplay,
+                      onNotificationTap: () {
+                        // Handle notification tap
+                      },
+                    );
                   },
+                ),
+                // Children selector for parent users
+                Obx(
+                  () => authController.userRole.value == 'parent' &&
+                          controller.childrenList.isNotEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                ...controller.childrenList.map((child) {
+                                  final isSelected =
+                                      controller.selectedChild.value?.id ==
+                                          child.id;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: GestureDetector(
+                                      onTap: () =>
+                                          controller.selectChild(child),
+                                      child: Chip(
+                                        label: Text(child.name),
+                                        backgroundColor: isSelected
+                                            ? const Color(0xFF7C4DFF)
+                                            : Colors.grey[200],
+                                        labelStyle: TextStyle(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.black87,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ),
                 // Main Content
                 Padding(
@@ -72,32 +122,38 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Progress Detail Cards
-                      ProgressDetailCard(
-                        title: 'Gaze & Attention',
-                        percentage: 62,
-                        statusLabel: 'OPTIMAL',
-                        statusColor: AppTheme.verdeTosca,
-                        icon: Icons.visibility,
-                        iconBgColor: AppTheme.purple,
+                      // Progress Detail Cards - Dynamic from controller
+                      Obx(
+                        () => ProgressDetailCard(
+                          title: 'Gaze & Attention',
+                          percentage: controller.gazeAttentionScore.value.toDouble(),
+                          statusLabel: _getStatusLabel(controller.gazeAttentionScore.value),
+                          statusColor: _getStatusColor(controller.gazeAttentionScore.value),
+                          icon: Icons.visibility,
+                          iconBgColor: AppTheme.purple,
+                        ),
                       ),
                       const SizedBox(height: 12),
-                      ProgressDetailCard(
-                        title: 'Motor Behavior',
-                        percentage: 78,
-                        statusLabel: 'SANGAT BAIK',
-                        statusColor: AppTheme.successGreen,
-                        icon: Icons.directions_run,
-                        iconBgColor: AppTheme.purple,
+                      Obx(
+                        () => ProgressDetailCard(
+                          title: 'Motor Behavior',
+                          percentage: controller.motorBehaviorScore.value.toDouble(),
+                          statusLabel: controller.motorBehaviorScore.value == 0 ? 'BELUM DITEST' : _getStatusLabel(controller.motorBehaviorScore.value),
+                          statusColor: controller.motorBehaviorScore.value == 0 ? Colors.grey : _getStatusColor(controller.motorBehaviorScore.value),
+                          icon: Icons.directions_run,
+                          iconBgColor: AppTheme.purple,
+                        ),
                       ),
                       const SizedBox(height: 12),
-                      ProgressDetailCard(
-                        title: 'Cognitive Skill',
-                        percentage: 85,
-                        statusLabel: 'SEMPURNA',
-                        statusColor: AppTheme.verdeTosca,
-                        icon: Icons.psychology,
-                        iconBgColor: AppTheme.purple,
+                      Obx(
+                        () => ProgressDetailCard(
+                          title: 'Cognitive Skill',
+                          percentage: controller.cognitiveSkillScore.value.toDouble(),
+                          statusLabel: controller.cognitiveSkillScore.value == 0 ? 'BELUM DITEST' : _getStatusLabel(controller.cognitiveSkillScore.value),
+                          statusColor: controller.cognitiveSkillScore.value == 0 ? Colors.grey : _getStatusColor(controller.cognitiveSkillScore.value),
+                          icon: Icons.psychology,
+                          iconBgColor: AppTheme.purple,
+                        ),
                       ),
                       const SizedBox(height: 80),
                     ],
@@ -107,6 +163,7 @@ class HomeView extends GetView<HomeController> {
             ),
           ),
         ],
+      ),
       ),
       floatingActionButton: const ChatFAB(),
       bottomNavigationBar: const CustomBottomNavBar(),
@@ -150,6 +207,8 @@ class HomeView extends GetView<HomeController> {
             ),
             child: Text(
               'STATUS DETEKSI TERKINI',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: chipFontSize,
                 fontWeight: FontWeight.bold,
@@ -159,25 +218,35 @@ class HomeView extends GetView<HomeController> {
             ),
           ),
           const SizedBox(height: 12),
-          // Risk Status Title (Two lines)
-          Text(
-            'Risiko\nRendah',
-            style: TextStyle(
-              fontSize: titleFontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Subtitle
-          Text(
-            'Perkembangan anak menunjukkan tren positif dan konsisten meningkat dibandingkan periode sebelumnya.',
-            style: TextStyle(
-              fontSize: descFontSize,
-              fontWeight: FontWeight.w500,
-              color: Colors.white70,
-              height: 1.4,
+          // Risk Status Title (Two lines) - with Expanded to prevent overflow
+Flexible(
+  fit: FlexFit.loose,
+  child: Text(
+    'Risiko\nRendah',
+    style: TextStyle(
+      fontSize: titleFontSize,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+      height: 1.2,
+    ),
+    maxLines: 2,
+    overflow: TextOverflow.visible, // penting
+  ),
+),
+          SizedBox(height: cardHeight * 0.05),
+          // Subtitle - with Expanded to prevent overflow
+          Padding(
+            padding: EdgeInsets.only(top: cardHeight * 0.05),
+            child: Text(
+              'Perkembangan anak menunjukkan tren positif dan konsisten meningkat dibandingkan periode sebelumnya.',
+              style: TextStyle(
+                fontSize: descFontSize,
+                fontWeight: FontWeight.w500,
+                color: Colors.white70,
+                height: 1.4,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -347,5 +416,21 @@ class HomeView extends GetView<HomeController> {
         ],
       ),
     );
+  }
+
+  /// Get status label based on percentage
+  String _getStatusLabel(int percentage) {
+    if (percentage >= 80) return 'SEMPURNA';
+    if (percentage >= 60) return 'OPTIMAL';
+    if (percentage >= 40) return 'SANGAT BAIK';
+    return 'PERLU PENINGKATAN';
+  }
+
+  /// Get status color based on percentage
+  Color _getStatusColor(int percentage) {
+    if (percentage >= 80) return AppTheme.verdeTosca;
+    if (percentage >= 60) return AppTheme.successGreen;
+    if (percentage >= 40) return Colors.orange;
+    return Colors.red;
   }
 }

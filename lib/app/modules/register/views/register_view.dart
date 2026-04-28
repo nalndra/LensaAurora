@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import '../../../controllers/auth_controller.dart';
 
 class RegisterView extends GetView<AuthController> {
@@ -199,7 +200,8 @@ class RegisterView extends GetView<AuthController> {
                                       }
                                       final success = await controller.register();
                                       if (success) {
-                                        Get.offAllNamed('/home');
+                                        // Navigate to account type selection for new users
+                                        Get.offAllNamed('/account-type');
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
@@ -258,7 +260,9 @@ class RegisterView extends GetView<AuthController> {
                                   : () async {
                                       final success = await controller.signInWithGoogle();
                                       if (success) {
-                                        Get.offAllNamed('/home');
+                                        // For Google sign in (could be new user), 
+                                        // navigate to account-type to set role
+                                        Get.offAllNamed('/account-type');
                                       }
                                     },
                               borderRadius: BorderRadius.circular(50),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import 'package:lensaaurora/app/modules/scan/controllers/gaze_tracking_controller.dart';
 import 'package:lensaaurora/app/models/gaze_data.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
@@ -11,48 +12,65 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gaze Tracking - Step 1'),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.textDark,
-      ),
-      backgroundColor: Colors.black,
-      body: Obx(
-        () {
-          switch (controller.testState.value) {
-            case TestState.idle:
-              return _buildIdleState();
-            case TestState.running:
-              return _buildGazeTrackingContent();
-            case TestState.completed:
-              return _buildCompletionScreen();
-            case TestState.aborted:
-              return _buildAbortedScreen();
-            default:
-              return _buildIdleState();
-          }
-        },
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent automatic back navigation
+        // User must click an explicit button to go back
+        Get.snackbar(
+          'Info',
+          'Silakan gunakan tombol "Kembali ke Menu" untuk kembali',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+        return false; // Prevent default back behavior
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Gaze Tracking - Step 1'),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          foregroundColor: AppTheme.textDark,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              // Custom back button handling
+              Get.snackbar(
+                'Info',
+                'Silakan gunakan tombol "Kembali ke Menu" untuk kembali',
+                snackPosition: SnackPosition.BOTTOM,
+                duration: const Duration(seconds: 2),
+              );
+            },
+          ),
+        ),
+        backgroundColor: Colors.black,
+        body: Obx(
+          () {
+            switch (controller.testState.value) {
+              case TestState.idle:
+                return _buildIdleState();
+              case TestState.running:
+                return _buildGazeTrackingContent();
+              case TestState.completed:
+                return _buildCompletionScreen();
+              case TestState.aborted:
+                return _buildAbortedScreen();
+            }
+          },
+        ),
       ),
     );
   }
 
   Widget _buildIdleState() {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Column(
         children: [
-          // Camera preview at top - constrained with aspect ratio
+          // Camera preview with natural ratio (no squish).
           if (controller.isCameraReady.value)
             Expanded(
-              child: Container(
-                color: Colors.black,
-                child: AspectRatio(
-                  aspectRatio: controller.cameraController.value.aspectRatio,
-                  child: CameraPreview(controller.cameraController),
-                ),
-              ),
+              child: _buildCameraPreviewCard(),
             )
           else
             Expanded(
@@ -67,10 +85,14 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
               ),
             ),
 
-          // Bottom instruction panel - fixed height
+          // Bottom instruction panel
           Container(
-            color: Colors.black.withOpacity(0.9),
-            padding: const EdgeInsets.all(24),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F1FF),
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -83,7 +105,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                 const Text(
                   'Tes Gaze Tracking',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textDark,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -93,7 +115,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                   'Fokuskan mata ke titik di tengah layar selama 30 detik',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: AppTheme.textLight,
                     fontSize: 13,
                     height: 1.4,
                   ),
@@ -198,56 +220,10 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
   Widget _buildGazeTrackingContent() {
     return Column(
       children: [
-        // Camera preview at top - same layout as idle state (not stretched)
+        // Camera preview with natural ratio (no squish).
         if (controller.isCameraReady.value)
           Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.black,
-              child: AspectRatio(
-                aspectRatio: controller.cameraController.value.aspectRatio,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Camera preview
-                    CameraPreview(controller.cameraController),
-
-                    // Semi-transparent overlay
-                    Container(
-                      color: Colors.black.withOpacity(0.15),
-                    ),
-
-                    // Center fixation point (only overlay on camera)
-                    Center(
-                      child: Obx(
-                        () => Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: _getGazeIndicatorColor(),
-                              width: 3,
-                            ),
-                            color: _getGazeIndicatorColor().withOpacity(0.1),
-                          ),
-                          child: Center(
-                            child: Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: _getGazeIndicatorColor(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            child: _buildCameraPreviewCard(showTrackingOverlay: true),
           )
         else
           Expanded(
@@ -269,11 +245,73 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
     );
   }
 
+  Widget _buildCameraPreviewCard({bool showTrackingOverlay = false}) {
+    final previewAspectRatio = 1 / controller.cameraController.value.aspectRatio;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: AspectRatio(
+        aspectRatio: previewAspectRatio,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CameraPreview(controller.cameraController),
+            if (showTrackingOverlay) ...[
+              Container(color: Colors.black.withOpacity(0.12)),
+              Center(
+                child: Obx(
+                  () => Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _getGazeIndicatorColor(),
+                        width: 3,
+                      ),
+                      color: _getGazeIndicatorColor().withOpacity(0.1),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _getGazeIndicatorColor(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildScanInfoPanel() {
     return Obx(
       () => Container(
-        color: Colors.black.withOpacity(0.9),
-        padding: const EdgeInsets.all(24),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F1FF),
+          borderRadius: BorderRadius.circular(24),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -287,7 +325,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             const Text(
               'Tes Gaze Tracking',
               style: TextStyle(
-                color: Colors.white,
+                color: AppTheme.textDark,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -307,9 +345,9 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.15)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -319,7 +357,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                       const Text(
                         'Data Points',
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: AppTheme.textLight,
                           fontSize: 11,
                         ),
                       ),
@@ -327,7 +365,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                       Text(
                         '${controller.gazeHistory.length}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppTheme.textDark,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -339,7 +377,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                       const Text(
                         'FPS',
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: AppTheme.textLight,
                           fontSize: 11,
                         ),
                       ),
@@ -347,7 +385,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                       Text(
                         '${controller.gazeFPS.value}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppTheme.textDark,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -547,7 +585,11 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             SizedBox(
               width: 200,
               child: OutlinedButton.icon(
-                onPressed: () => Get.back(),
+                onPressed: () {
+                  controller.refreshHomeMetricsIfAvailable();
+                  Get.find<NavigationController>().syncIndex(0);
+                  Get.offNamed(Routes.HOME);
+                },
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Kembali'),
                 style: OutlinedButton.styleFrom(
@@ -825,6 +867,24 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    controller.refreshHomeMetricsIfAvailable();
+                    Get.find<NavigationController>().syncIndex(0);
+                    Get.offNamed(Routes.HOME);
+                  },
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('Kembali ke Menu'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white30),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),

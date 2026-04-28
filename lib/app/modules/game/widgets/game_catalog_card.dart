@@ -34,22 +34,7 @@ class GameCatalogCard extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             // Background Image
-            Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 48,
-                      color: Colors.grey,
-                    ),
-                  ),
-                );
-              },
-            ),
+            _buildImageBackground(),
             // Dark Gradient Overlay
             Positioned.fill(
               child: DecoratedBox(
@@ -134,4 +119,69 @@ class GameCatalogCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildImageBackground() {
+    if (imageUrl.isEmpty) {
+      return _buildImagePlaceholder();
+    }
+    
+    // Check if it's an asset image
+    if (imageUrl.startsWith('assets/')) {
+      return Image.asset(
+        imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          debugPrint('[GameCatalogCard] Asset image failed: $imageUrl');
+          return _buildImagePlaceholder();
+        },
+      );
+    }
+    
+    // Network image
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        debugPrint('[GameCatalogCard] Network image failed: $imageUrl');
+        return _buildImagePlaceholder();
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Center(
+          child: CircularProgressIndicator(
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                : null,
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Container(
+      color: const Color(0xFF6338F1).withOpacity(0.2),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.image_not_supported_outlined,
+            size: 48,
+            color: const Color(0xFF6338F1),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Game Image',
+            style: TextStyle(
+              color: Color(0xFF6338F1),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+

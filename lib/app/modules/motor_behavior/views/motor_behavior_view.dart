@@ -16,7 +16,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
         foregroundColor: AppTheme.textDark,
         automaticallyImplyLeading: false,
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Obx(
         () {
           switch (controller.testState.value) {
@@ -30,8 +30,6 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
               }
             case MotorTestState.completed:
               return _buildCompletionScreen();
-            default:
-              return _buildMenuScreen();
           }
         },
       ),
@@ -40,7 +38,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildMenuScreen() {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -66,7 +64,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
             const Text(
               'Motor Behavior Test',
               style: TextStyle(
-                color: Colors.white,
+                color: AppTheme.textDark,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
@@ -76,7 +74,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
               'Tes ini mengevaluasi koordinasi motorik, ketepatan, dan kontrol gerakan Anda. Ada dua jenis tes yang akan dilakukan.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: AppTheme.textLight,
                 fontSize: 14,
                 height: 1.6,
               ),
@@ -142,11 +140,11 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFFF5F1FF),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.5),
-          width: 2,
+          color: AppTheme.primaryBlue.withOpacity(0.15),
+          width: 1.5,
         ),
       ),
       child: Column(
@@ -164,7 +162,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
           Text(
             description,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: AppTheme.textDark,
               fontSize: 13,
               height: 1.5,
             ),
@@ -186,7 +184,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                     child: Text(
                       metric,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: AppTheme.textLight,
                         fontSize: 12,
                       ),
                     ),
@@ -202,12 +200,12 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildTraceTestScreen() {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Column(
         children: [
           // Header
           Container(
-            color: Colors.black.withOpacity(0.9),
+            color: const Color(0xFFF5F1FF),
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +223,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                   () => Text(
                     'Level ${controller.traceLevel.value + 1}/3',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppTheme.textDark,
                       fontSize: 13,
                     ),
                   ),
@@ -238,9 +236,9 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: const Color(0xFFF5F1FF),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
               ),
               child: Center(
                 child: Column(
@@ -256,7 +254,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                       'Gesture drawing area\n(Canvas akan diimplementasikan)',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
+                        color: AppTheme.textLight,
                         fontSize: 13,
                       ),
                     ),
@@ -267,7 +265,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
           ),
           // Controls
           Container(
-            color: Colors.black.withOpacity(0.9),
+            color: const Color(0xFFF5F1FF),
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
@@ -293,12 +291,12 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildTapTargetScreen() {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Column(
         children: [
           // Header
           Container(
-            color: Colors.black.withOpacity(0.9),
+            color: const Color(0xFFF5F1FF),
             padding: const EdgeInsets.all(16),
             child: const Text(
               'Tap Target Test',
@@ -314,9 +312,9 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: const Color(0xFFF5F1FF),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
               ),
               child: Center(
                 child: Column(
@@ -339,7 +337,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                       'Tap the circle\n(Target akan bergerak acak)',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
+                        color: AppTheme.textLight,
                         fontSize: 13,
                       ),
                     ),
@@ -350,7 +348,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
           ),
           // Controls
           Container(
-            color: Colors.black.withOpacity(0.9),
+            color: const Color(0xFFF5F1FF),
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
@@ -376,7 +374,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildCompletionScreen() {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -403,7 +401,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
               const Text(
                 'Motor Behavior Test Selesai',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.textDark,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -413,7 +411,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                 'Semua tes telah berhasil diselesaikan. Data koordinasi motorik dan ketepatan Anda telah terekam. Analisis lengkap akan ditampilkan di layar hasil akhir.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: AppTheme.textLight,
                   fontSize: 14,
                   height: 1.6,
                 ),

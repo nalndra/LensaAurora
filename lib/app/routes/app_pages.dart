@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 
 import '../controllers/navigation_controller.dart';
+import '../modules/account_type/bindings/account_type_binding.dart';
+import '../modules/account_type/views/account_type_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/game/bindings/game_binding.dart';
@@ -29,6 +31,8 @@ import '../modules/speech_analysis/bindings/speech_analysis_binding.dart';
 import '../modules/speech_analysis/views/speech_analysis_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
+import '../modules/terms/bindings/terms_binding.dart';
+import '../modules/terms/views/terms_view.dart';
 import 'transitions.dart';
 
 part 'app_routes.dart';
@@ -108,6 +112,16 @@ class AppPages {
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
+    ),
+    GetPage(
+      name: _Paths.TERMS,
+      page: () => const TermsView(),
+      binding: TermsBinding(),
+    ),
+    GetPage(
+      name: _Paths.ACCOUNT_TYPE,
+      page: () => const AccountTypeView(),
+      binding: AccountTypeBinding(),
     ),
   ];
 }

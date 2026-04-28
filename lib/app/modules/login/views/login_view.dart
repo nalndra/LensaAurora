@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import '../../../controllers/auth_controller.dart';
 
 class LoginView extends GetView<AuthController> {
@@ -173,7 +174,8 @@ class LoginView extends GetView<AuthController> {
                                 : () async {
                                     final success = await controller.login();
                                     if (success) {
-                                      Get.offAllNamed('/home');
+                                      // Use checkLoginStatus to handle role validation
+                                      await controller.checkLoginStatus();
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
@@ -230,7 +232,8 @@ class LoginView extends GetView<AuthController> {
                                   : () async {
                                       final success = await controller.signInWithGoogle();
                                       if (success) {
-                                        Get.offAllNamed('/home');
+                                        // Use checkLoginStatus to handle role validation
+                                        await controller.checkLoginStatus();
                                       }
                                     },
                               borderRadius: BorderRadius.circular(50),

@@ -13,6 +13,12 @@ class NavigationController extends GetxController {
     selectedIndex.value = index;
   }
 
+  /// Keep selected and visual navbar index in sync for route-based navigation.
+  void syncIndex(int index) {
+    changeIndex(index);
+    animatingIndex.value = index;
+  }
+
   /// Smoothly animate the navbar through all intermediate indices
   void animateNavbarToIndex(int targetIndex) {
     final currentIndex = animatingIndex.value;
@@ -46,27 +52,27 @@ class NavigationController extends GetxController {
   }
 
   void navigateToHome() {
-    changeIndex(0);
+    syncIndex(0);
     Get.offNamed('/home');
   }
 
   void navigateToScan() {
-    changeIndex(1);
+    syncIndex(1);
     Get.offNamed('/scan');
   }
 
   void navigateToReports() {
-    changeIndex(2);
+    syncIndex(2);
     Get.offNamed('/reports');
   }
 
   void navigateToGame() {
-    changeIndex(3);
+    syncIndex(2);
     Get.offNamed('/game');
   }
 
   void navigateToProfile() {
-    changeIndex(4);
+    syncIndex(3);
     Get.offNamed('/profile');
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 
 class ScanController extends GetxController {
   final scannedImage = Rxn<File>();
@@ -156,6 +157,9 @@ class ScanController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    if (Get.isRegistered<NavigationController>()) {
+      Get.find<NavigationController>().syncIndex(1);
+    }
   }
 
   @override
