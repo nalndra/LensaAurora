@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
-import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import 'package:lensaaurora/app/widgets/screening_area_card.dart';
 import 'package:lensaaurora/app/routes/app_pages.dart';
@@ -34,12 +33,12 @@ class ScanView extends GetView<ScanController> {
             : _buildScannerView(),
       ),
       floatingActionButton: const ChatFAB(),
-      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
   Widget _buildScannerView() {
     return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
       child: Column(
         children: [
           // Header Section with Title and Description

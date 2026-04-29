@@ -7,18 +7,22 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
+  final bool isStreaming; // Track if message is being streamed
+  final Rx<String> streamingText; // For reactive streaming text updates
 
   ChatMessage({
     required this.text,
     required this.isUser,
     required this.timestamp,
-  });
+    this.isStreaming = false,
+  }) : streamingText = text.obs;
 }
 
 class ChatController extends GetxController {
   late GeminiService geminiService;
   final messages = <ChatMessage>[].obs;
   final isLoading = false.obs;
+  final isAnalyzing = false.obs; // Show "analyzing..." indicator
   late TextEditingController messageController;
 
   @override
@@ -26,6 +30,30 @@ class ChatController extends GetxController {
     super.onInit();
     messageController = TextEditingController();
     geminiService = GeminiService();
+  }
+
+  /// Check if question is basic/instant (no API needed)
+  String? _getInstantResponse(String input) {
+    final lower = input.toLowerCase().trim();
+    
+    // Basic greetings
+    if (lower == 'halo' || lower == 'hai' || lower == 'hello') {
+      return 'Hai! 👋 Aku RORAI, teman chatmu yang siap membantu dengan topik Autism. Ada yang ingin kita bahas hari ini?';
+    }
+    if (lower == 'apa kabar' || lower == 'gimana kabar' || lower == 'kabar') {
+      return 'Baik-baik saja, terima kasih sudah bertanya! 😊 Gimana denganmu? Ada yang bisa aku bantu?';
+    }
+    
+    // Math (for testing streaming)
+    final mathPattern = RegExp(r'^(\d+)\s*\+\s*(\d+)$');
+    final mathMatch = mathPattern.firstMatch(lower);
+    if (mathMatch != null) {
+      final a = int.parse(mathMatch.group(1)!);
+      final b = int.parse(mathMatch.group(2)!);
+      return '$a + $b = ${a + b}';
+    }
+    
+    return null;
   }
 
   void sendMessage(String userInput) async {
@@ -43,11 +71,14 @@ class ChatController extends GetxController {
     );
 
     isLoading.value = true;
+    isAnalyzing.value = true;
 
     // Check if message is related to ASD
     if (!_isASDRelated(userInput)) {
       if (kDebugMode) print('⚠️ Off-topic: Redirecting user');
-      // Show topical boundary message
+      isLoading.value = false;
+      isAnalyzing.value = false;
+      
       messages.add(
         ChatMessage(
           text:
@@ -56,25 +87,59 @@ class ChatController extends GetxController {
           timestamp: DateTime.now(),
         ),
       );
-      isLoading.value = false;
       return;
     }
 
     try {
-      if (kDebugMode) print('📡 Mengirim ke Gemini API...');
-      // Get AI response
-      final response = await geminiService.sendMessage(userInput);
-      if (kDebugMode) print('📥 Response: ${response.substring(0, 50)}...');
+      // Check for instant response (greetings, basic math, etc)
+      final instantResponse = _getInstantResponse(userInput);
       
-      messages.add(
-        ChatMessage(
-          text: response,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ),
+      if (instantResponse != null) {
+        if (kDebugMode) print('✨ Instant response: $instantResponse');
+        isAnalyzing.value = false;
+        
+        // Stream the instant response word-by-word
+        await _streamMessage(instantResponse);
+        isLoading.value = false;
+        return;
+      }
+
+      if (kDebugMode) print('📡 Analyzing dengan Gemini API...');
+      
+      // Wait a bit to show "analyzing..." state
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      // Create streaming message
+      final streamingMessage = ChatMessage(
+        text: '',
+        isUser: false,
+        timestamp: DateTime.now(),
+        isStreaming: true,
+      );
+      messages.add(streamingMessage);
+      
+      // Get AI response stream
+      isAnalyzing.value = false;
+      
+      geminiService.sendMessageStream(userInput).listen(
+        (chunk) {
+          streamingMessage.streamingText.value += chunk;
+          if (kDebugMode) print('📥 Chunk: $chunk');
+        },
+        onError: (error) {
+          if (kDebugMode) print('❌ Streaming error: $error');
+          streamingMessage.streamingText.value = 'Maaf, ada kesalahan: $error';
+          isLoading.value = false;
+        },
+        onDone: () {
+          if (kDebugMode) print('✅ Stream complete');
+          isLoading.value = false;
+        },
       );
     } catch (e) {
       if (kDebugMode) print('❌ Error dalam chat_controller: $e');
+      isLoading.value = false;
+      isAnalyzing.value = false;
       messages.add(
         ChatMessage(
           text: 'Maaf, ada kesalahan saat memproses: ${e.toString()}',
@@ -83,8 +148,27 @@ class ChatController extends GetxController {
         ),
       );
     }
+  }
 
-    isLoading.value = false;
+  /// Stream message word-by-word for instant responses
+  Future<void> _streamMessage(String text) async {
+    final words = text.split(' ');
+    final streamingMessage = ChatMessage(
+      text: '',
+      isUser: false,
+      timestamp: DateTime.now(),
+      isStreaming: true,
+    );
+    
+    messages.add(streamingMessage);
+    
+    for (int i = 0; i < words.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 30));
+      streamingMessage.streamingText.value += words[i];
+      if (i < words.length - 1) {
+        streamingMessage.streamingText.value += ' ';
+      }
+    }
   }
 
   // Check if user input is related to ASD topics
@@ -96,12 +180,12 @@ class ChatController extends GetxController {
       'asd', 'autism', 'autis',
       'sosial', 'social', 'interaksi', 'interaction',
       'emosi', 'emotion', 'perasaan', 'feeling',
-      'sensor', 'sensori', 'sensory', 'suara', 'cahaya', 'cahaya',
+      'sensor', 'sensori', 'sensory', 'suara', 'cahaya',
       'rutin', 'routine', 'jadwal', 'schedule',
       'komunikasi', 'communication', 'berbicara', 'speak', 'berbahasa', 'language',
       'perilaku', 'behavior', 'kebiasaan', 'habit',
       'keterlambatan', 'delay', 'perkembangan', 'development',
-      'interaksi', 'interaction', 'sosialisasi', 'socialization', 'persahabatan', 'friendship',
+      'sosialisasi', 'socialization', 'persahabatan', 'friendship',
       'bullying', 'perundungan', 'teasing', 'mengejek',
       'kecemasan', 'anxiety', 'kekhawatiran', 'worry',
       'fokus', 'focus', 'konsentrasi', 'concentration',
@@ -137,7 +221,6 @@ class ChatController extends GetxController {
     }
     
     // Default: allow if no strong indicators either way
-    // (could be genuine ASD question in different words)
     return true;
   }
 
@@ -151,11 +234,6 @@ class ChatController extends GetxController {
         timestamp: DateTime.now(),
       ),
     );
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
   }
 
   @override

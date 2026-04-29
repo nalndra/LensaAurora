@@ -9,7 +9,9 @@ class CustomBottomNavBar extends GetView<NavigationController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final selectedIndex = controller.animatingIndex.value;
+      // Use selectedIndex as source of truth (always synced with current page)
+      // This works for both swipe navigation and route-based navigation
+      final selectedIndex = controller.selectedIndex.value;
 
       return Container(
         height: 70,
@@ -108,8 +110,6 @@ class _NavItem extends GetView<NavigationController> {
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = controller.animatingIndex.value == index;
-
     final icons = [
       Icons.home,
       Icons.camera_alt,
@@ -125,24 +125,34 @@ class _NavItem extends GetView<NavigationController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AnimatedScale(
-            duration: const Duration(milliseconds: 200),
-            scale: isSelected ? 1.1 : 1.0,
-            child: Icon(
-              icons[index],
-              size: 26,
-              color: isSelected ? AppTheme.purple : AppTheme.textLight,
-            ),
+          Obx(
+            () {
+              final selected = controller.selectedIndex.value == index;
+              return AnimatedScale(
+                duration: const Duration(milliseconds: 200),
+                scale: selected ? 1.1 : 1.0,
+                child: Icon(
+                  icons[index],
+                  size: 26,
+                  color: selected ? AppTheme.purple : AppTheme.textLight,
+                ),
+              );
+            },
           ),
           const SizedBox(height: 4),
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppTheme.purple : AppTheme.textLight,
-            ),
-            child: Text(labels[index]),
+          Obx(
+            () {
+              final selected = controller.selectedIndex.value == index;
+              return AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected ? AppTheme.purple : AppTheme.textLight,
+                ),
+                child: Text(labels[index]),
+              );
+            },
           ),
         ],
       ),

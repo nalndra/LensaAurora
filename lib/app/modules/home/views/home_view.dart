@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
-import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import 'package:lensaaurora/app/widgets/dashboard_header.dart';
 import 'package:lensaaurora/app/widgets/progress_detail_card.dart';
@@ -23,6 +22,7 @@ class HomeView extends GetView<HomeController> {
   child: Stack(
     children: [
       SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
                 // Header - Dynamic greeting based on role and selected child
@@ -53,6 +53,7 @@ class HomeView extends GetView<HomeController> {
                               horizontal: 20, vertical: 12),
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
+                            physics: const ClampingScrollPhysics(),
                             child: Row(
                               children: [
                                 ...controller.childrenList.map((child) {
@@ -166,7 +167,6 @@ class HomeView extends GetView<HomeController> {
       ),
       ),
       floatingActionButton: const ChatFAB(),
-      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 

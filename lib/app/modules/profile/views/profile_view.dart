@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
-import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import '../controllers/profile_controller.dart';
 
@@ -36,6 +35,7 @@ class ProfileView extends GetView<ProfileController> {
                 child: CircularProgressIndicator(),
               )
             : SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
                 child: Column(
                   children: [
                     // Profile Header
@@ -115,7 +115,8 @@ class ProfileView extends GetView<ProfileController> {
                   ],
                 ),
               ),
-      ),      floatingActionButton: const ChatFAB(),      bottomNavigationBar: const CustomBottomNavBar(),
+      ),
+      floatingActionButton: const ChatFAB(),
     );
   }
 

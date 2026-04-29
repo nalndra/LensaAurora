@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lensaaurora/app/theme/app_theme.dart';
-import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import 'package:lensaaurora/app/modules/game/widgets/game_catalog_card.dart';
 import '../controllers/game_controller.dart';
@@ -29,6 +27,7 @@ class GameView extends GetView<GameController> {
       ),
       body: Obx(
         () => SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
           child: Column(
             children: [
               // Header Section
@@ -152,7 +151,6 @@ class GameView extends GetView<GameController> {
         ),
       ),
       floatingActionButton: const ChatFAB(),
-      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 

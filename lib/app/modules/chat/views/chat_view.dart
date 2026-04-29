@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:lensaaurora/app/theme/app_theme.dart';
 import '../controllers/chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
@@ -61,24 +60,34 @@ class ChatView extends GetView<ChatController> {
                     ),
             ),
           ),
-          // Loading indicator
+          // Typing indicator or analyzing state
           Obx(
-            () => controller.isLoading.value
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    child: Text(
-                      'Menganalisis pertanyaan...',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
-                        fontStyle: FontStyle.italic,
+            () {
+              if (controller.isAnalyzing.value) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'RORAI sedang berpikir',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                      const SizedBox(width: 4),
+                      _buildTypingIndicator(),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
           // Input Field
           SafeArea(
@@ -89,7 +98,7 @@ class ChatView extends GetView<ChatController> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 12,
                     offset: const Offset(0, -4),
                   ),
@@ -152,7 +161,7 @@ class ChatView extends GetView<ChatController> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF6338F1).withOpacity(0.3),
+                            color: const Color(0xFF6338F1).withValues(alpha: 0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -202,7 +211,7 @@ class ChatView extends GetView<ChatController> {
             height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFEBE9FF).withOpacity(0.5),
+              color: const Color(0xFFEBE9FF).withValues(alpha: 0.5),
             ),
           ),
         ),
@@ -277,7 +286,25 @@ class ChatView extends GetView<ChatController> {
         ),
       );
     } else {
-      // AI message (left-aligned in light purple bubble)
+      // AI message (left-aligned) - with streaming support
+      final styleSheet = MarkdownStyleSheet(
+        p: const TextStyle(
+          color: Colors.black87,
+          fontSize: 14,
+          height: 1.4,
+        ),
+        strong: const TextStyle(
+          color: Colors.black87,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+        em: const TextStyle(
+          color: Colors.black87,
+          fontSize: 14,
+          fontStyle: FontStyle.italic,
+        ),
+      );
+
       return Align(
         alignment: Alignment.centerLeft,
         child: Container(
@@ -290,29 +317,100 @@ class ChatView extends GetView<ChatController> {
             color: const Color(0xFFF1F0F7),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: MarkdownBody(
-            data: message.text,
-            selectable: true,
-            styleSheet: MarkdownStyleSheet(
-              p: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                height: 1.4,
-              ),
-              strong: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-              em: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
+          child: message.isStreaming
+              // Streaming message - update reactively
+              ? Obx(
+                  () => MarkdownBody(
+                    data: message.streamingText.value,
+                    selectable: true,
+                    styleSheet: styleSheet,
+                  ),
+                )
+              // Non-streaming message - static
+              : MarkdownBody(
+                  data: message.text,
+                  selectable: true,
+                  styleSheet: styleSheet,
+                ),
         ),
       );
     }
+  }
+
+  // Typing indicator animation dots
+  Widget _buildTypingIndicator() {
+    return SizedBox(
+      width: 20,
+      height: 12,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _TypingDot(delay: 0),
+          _TypingDot(delay: 150),
+          _TypingDot(delay: 300),
+        ],
+      ),
+    );
+  }
+}
+
+/// Animated typing indicator dot
+class _TypingDot extends StatefulWidget {
+  final int delay;
+  const _TypingDot({required this.delay});
+
+  @override
+  State<_TypingDot> createState() => _TypingDotState();
+}
+
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    // Delay start based on position
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) {
+        _controller.repeat(reverse: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, -6 * _animation.value),
+          child: Container(
+            width: 3,
+            height: 3,
+            decoration: BoxDecoration(
+              color: Colors.grey[500],
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+      },
+    );
   }
 }

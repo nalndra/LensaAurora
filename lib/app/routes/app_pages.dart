@@ -1,30 +1,21 @@
 import 'package:get/get.dart';
 
-import '../controllers/navigation_controller.dart';
 import '../modules/account_type/bindings/account_type_binding.dart';
 import '../modules/account_type/views/account_type_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/views/chat_view.dart';
-import '../modules/game/bindings/game_binding.dart';
 import '../modules/game/modules/collaborative_puzzle_game/bindings/collaborative_puzzle_game_binding.dart';
 import '../modules/game/modules/collaborative_puzzle_game/views/collaborative_puzzle_game_view.dart';
 import '../modules/game/modules/social_interaction_training/bindings/social_interaction_training_binding.dart';
 import '../modules/game/modules/social_interaction_training/views/social_interaction_training_view.dart';
-import '../modules/game/views/game_view.dart';
-import '../modules/home/bindings/home_binding.dart';
-import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/motor_behavior/bindings/motor_behavior_binding.dart';
 import '../modules/motor_behavior/views/motor_behavior_view.dart';
-import '../modules/profile/bindings/profile_binding.dart';
-import '../modules/profile/views/profile_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/scan/bindings/gaze_tracking_binding.dart';
-import '../modules/scan/bindings/scan_binding.dart';
 import '../modules/scan/views/gaze_tracking_view.dart';
-import '../modules/scan/views/scan_view.dart';
 import '../modules/speech/bindings/speech_binding.dart';
 import '../modules/speech/views/speech_view.dart';
 import '../modules/speech_analysis/bindings/speech_analysis_binding.dart';
@@ -33,7 +24,8 @@ import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/terms/bindings/terms_binding.dart';
 import '../modules/terms/views/terms_view.dart';
-import 'transitions.dart';
+import '../views/main_shell.dart';
+import '../views/main_shell_binding.dart';
 
 part 'app_routes.dart';
 
@@ -50,13 +42,13 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.HOME,
-      page: () => const HomeView(),
-      binding: HomeBinding(),
+      page: () => const MainShell(),
+      binding: MainShellBinding(),
     ),
     GetPage(
       name: _Paths.SCAN,
-      page: () => const ScanView(),
-      binding: ScanBinding(),
+      page: () => const MainShell(),
+      binding: MainShellBinding(),
     ),
     GetPage(
       name: _Paths.GAZE_TRACKING,
@@ -65,13 +57,13 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.GAME,
-      page: () => const GameView(),
-      binding: GameBinding(),
+      page: () => const MainShell(),
+      binding: MainShellBinding(),
     ),
     GetPage(
       name: _Paths.PROFILE,
-      page: () => const ProfileView(),
-      binding: ProfileBinding(),
+      page: () => const MainShell(),
+      binding: MainShellBinding(),
     ),
     GetPage(
       name: _Paths.SOCIAL_INTERACTION_TRAINING,
