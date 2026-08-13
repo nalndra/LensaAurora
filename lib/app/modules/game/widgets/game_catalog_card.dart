@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 
 class GameCatalogCard extends StatelessWidget {
   final String title;
@@ -89,7 +90,7 @@ class GameCatalogCard extends StatelessWidget {
                       child: ElevatedButton.icon(
                         onPressed: onPlayPressed,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6338F1),
+                          backgroundColor: AppTheme.accentGreen,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -161,20 +162,20 @@ class GameCatalogCard extends StatelessWidget {
 
   Widget _buildImagePlaceholder() {
     return Container(
-      color: const Color(0xFF6338F1).withOpacity(0.2),
+      color: AppTheme.accentGreen.withValues(alpha: 0.2),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.image_not_supported_outlined,
             size: 48,
-            color: const Color(0xFF6338F1),
+            color: AppTheme.accentGreen,
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Game Image',
             style: TextStyle(
-              color: Color(0xFF6338F1),
+              color: AppTheme.accentGreen,
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),

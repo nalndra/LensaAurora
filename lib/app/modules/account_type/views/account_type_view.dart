@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 import '../controllers/account_type_controller.dart';
 
 class AccountTypeView extends GetView<AccountTypeController> {
@@ -22,8 +23,8 @@ class AccountTypeView extends GetView<AccountTypeController> {
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF9C88D8).withOpacity(0.25),
-                    const Color(0xFFE8C1E0).withOpacity(0.15),
+                    AppTheme.primaryBlue.withValues(alpha: 0.25),
+                    AppTheme.accentGreen.withValues(alpha: 0.15),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -110,7 +111,7 @@ class AccountTypeView extends GetView<AccountTypeController> {
                               ? null
                               : () => controller.continueToNextStep(),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7C4DFF),
+                            backgroundColor: AppTheme.accentGreen,
                             disabledBackgroundColor: Colors.grey[400],
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),
@@ -168,7 +169,7 @@ class AccountTypeView extends GetView<AccountTypeController> {
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF7C4DFF)
+                ? AppTheme.accentGreen
                 : Colors.grey[300] ?? Colors.grey,
             width: isSelected ? 2 : 1.5,
           ),
@@ -190,7 +191,7 @@ class AccountTypeView extends GetView<AccountTypeController> {
           boxShadow: isSelected
               ? [
                 BoxShadow(
-                  color: const Color(0xFF7C4DFF).withOpacity(0.15),
+                  color: AppTheme.accentGreen.withOpacity(0.15),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -232,11 +233,11 @@ class AccountTypeView extends GetView<AccountTypeController> {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF7C4DFF)
+                          ? AppTheme.accentGreen
                           : Colors.grey[400] ?? Colors.grey,
                       width: 2,
                     ),
-                    color: isSelected ? const Color(0xFF7C4DFF) : Colors.transparent,
+                    color: isSelected ? AppTheme.accentGreen : Colors.transparent,
                   ),
                   child: isSelected
                       ? const Icon(

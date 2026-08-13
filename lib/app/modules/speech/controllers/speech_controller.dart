@@ -1,4 +1,7 @@
 import 'package:get/get.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SpeechController extends GetxController {
   // Speech analysis state
@@ -6,12 +9,12 @@ class SpeechController extends GetxController {
   RxBool isAnalyzing = false.obs;
   RxInt currentParagraphIndex = 0.obs;
   RxDouble confidenceScore = 0.0.obs;
-  
+
   // Analysis results
   RxString nervousnessLevel = 'Belum Dianalisis'.obs; // High/Medium/Low
   RxBool hasStuttering = false.obs;
   RxString speechPace = 'Normal'.obs; // Slow/Normal/Fast
-  RxDouble analysisConfidence = 0.0.obs;
+  RxDouble analysisConfidence = 0.0.obs; // 0.0 - 1.0
 
   // Paragraphs for reading
   final List<String> paragraphs = [
@@ -20,44 +23,138 @@ class SpeechController extends GetxController {
     'Sekolah adalah tempat yang menyenangkan untuk belajar. Saya belajar matematika, bahasa Indonesia, dan sains. Guru-guru saya sangat baik dan membantu saya belajar.',
   ];
 
+  // STT
+  late stt.SpeechToText _speech;
+  String _lastTranscript = '';
+  double _lastConfidence = 0.0;
+  DateTime? _recordStart;
+
   @override
   void onInit() {
     super.onInit();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
+    _speech = stt.SpeechToText();
   }
 
   @override
   void onClose() {
+    if (_speech.isListening) {
+      _speech.stop();
+    }
     super.onClose();
   }
 
-  void startRecording() {
+  Future<void> startRecording() async {
+    final available = await _speech.initialize(
+        onStatus: (s) {
+          print('STT status: $s');
+        },
+        onError: (e) {
+          print('STT error: ${e.toJson()}');
+          Get.snackbar('STT Error', e.errorMsg ?? 'Unknown');
+        },
+        debugLogging: true);
+    if (!available) {
+      Get.snackbar('Error', 'Speech recognition not available on this device');
+      return;
+    }
+
+    _lastTranscript = '';
+    _lastConfidence = 0.0;
+    _recordStart = DateTime.now();
     isRecording.value = true;
-    // TODO: Implement actual speech recording with STT
+
+    await _speech.listen(onResult: (result) {
+      _lastTranscript = result.recognizedWords;
+      _lastConfidence = result.confidence;
+      print('STT result: ${result.recognizedWords} (conf: ${result.confidence})');
+    }, listenFor: const Duration(seconds: 60));
   }
 
-  void stopRecording() {
+  Future<void> stopRecording() async {
+    if (_speech.isListening) {
+      await _speech.stop();
+    }
     isRecording.value = false;
-    // TODO: Implement speech-to-text and analysis
+
+    // After stopping, run analysis on the captured transcript
+    await analyzeSpeech();
   }
 
   Future<void> analyzeSpeech() async {
     isAnalyzing.value = true;
-    
-    // Simulate analysis delay
-    await Future.delayed(const Duration(seconds: 2));
-    
-    // TODO: Replace with actual ML analysis
-    // For now, generate mock results
-    nervousnessLevel.value = ['Rendah', 'Sedang', 'Tinggi'][DateTime.now().microsecond % 3];
-    hasStuttering.value = DateTime.now().microsecond % 5 == 0;
-    speechPace.value = ['Lambat', 'Normal', 'Cepat'][DateTime.now().microsecond % 3];
-    analysisConfidence.value = 0.75 + (DateTime.now().microsecond % 25) / 100;
-    
+
+    final transcript = _lastTranscript.trim();
+    final confidence = _lastConfidence;
+    final recordEnd = DateTime.now();
+    final durationSeconds = _recordStart == null ? 1.0 : recordEnd.difference(_recordStart!).inMilliseconds / 1000.0;
+
+    // Basic text-based metrics
+    final words = transcript.isEmpty ? <String>[] : transcript.split(RegExp(r'\s+'));
+    final wordCount = words.length;
+    final wpm = durationSeconds > 0 ? (wordCount / durationSeconds) * 60.0 : 0.0;
+
+    // Heuristic for stuttering: repeated consecutive words count
+    int repeated = 0;
+    for (var i = 1; i < words.length; i++) {
+      if (words[i].toLowerCase() == words[i - 1].toLowerCase()) repeated++;
+    }
+
+    // Determine nervousness roughly based on confidence and wpm
+    String nervousness;
+    if (confidence > 0.8 && wpm >= 90) {
+      nervousness = 'Tinggi';
+    } else if (confidence > 0.6 && wpm >= 70) {
+      nervousness = 'Sedang';
+    } else {
+      nervousness = 'Rendah';
+    }
+
+    // Pace categorization
+    String pace;
+    if (wpm < 90) pace = 'Lambat';
+    else if (wpm <= 150) pace = 'Normal';
+    else pace = 'Cepat';
+
+    // Analysis confidence: combine STT confidence and heuristics
+    double score = (confidence * 0.6) + ((1.0 - (repeated / (wordCount > 0 ? wordCount : 1))) * 0.4);
+    score = score.clamp(0.0, 1.0);
+
+    // Update observable states
+    nervousnessLevel.value = nervousness;
+    hasStuttering.value = repeated > 0;
+    speechPace.value = pace;
+    analysisConfidence.value = score;
+
+    // Save result to Firestore under users/{uid}/screenings
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final docRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('screenings')
+            .doc();
+
+        await docRef.set({
+          'type': 'speech',
+          'transcript': transcript,
+          'wordCount': wordCount,
+          'wpm': wpm,
+          'repeatedWords': repeated,
+          'nervousness': nervousness,
+          'hasStuttering': repeated > 0,
+          'pace': pace,
+          'score': score,
+          'sttConfidence': confidence,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      print('ERROR saving speech analysis: $e');
+    }
+
+    // small delay to show analyzing state
+    await Future.delayed(const Duration(milliseconds: 400));
     isAnalyzing.value = false;
   }
 

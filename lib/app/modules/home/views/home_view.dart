@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/accessibility_controller.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
-import 'package:lensaaurora/app/widgets/dashboard_header.dart';
-import 'package:lensaaurora/app/widgets/progress_detail_card.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -13,327 +12,457 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
-    
+    final a11y = Get.find<AccessibilityController>();
     final userName = authController.currentUser.value?.displayName ?? 'User';
-    
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-  child: Stack(
-    children: [
-      SingleChildScrollView(
+
+    return Obx(() {
+      final accent = a11y.accentColor;
+      final outline = a11y.useOutline.value;
+
+      return Scaffold(
+        backgroundColor: AppTheme.bgLight,
+        body: SafeArea(
+          child: CustomScrollView(
             physics: const ClampingScrollPhysics(),
-            child: Column(
-              children: [
-                // Header - Dynamic greeting based on role and selected child
-                Obx(
-                  () {
-                    final displayName = controller.selectedChild.value?.name ?? userName;
-                    final roleDisplay = authController.userRole.value == 'parent' 
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: _Header(
+                    name: controller.selectedChild.value?.name ?? userName,
+                    role: authController.userRole.value == 'parent'
                         ? 'Orang Tua'
                         : authController.userRole.value == 'personal'
                             ? 'Personal'
-                            : 'Pengguna'; // Fallback for null/unknown role
-                    
-                    return DashboardHeader(
-                      userName: displayName,
-                      userRole: roleDisplay,
-                      onNotificationTap: () {
-                        // Handle notification tap
-                      },
-                    );
-                  },
+                            : 'Pengguna',
+                    accent: accent,
+                  ),
                 ),
-                // Children selector for parent users
-                Obx(
-                  () => authController.userRole.value == 'parent' &&
-                          controller.childrenList.isNotEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            physics: const ClampingScrollPhysics(),
-                            child: Row(
-                              children: [
-                                ...controller.childrenList.map((child) {
-                                  final isSelected =
-                                      controller.selectedChild.value?.id ==
-                                          child.id;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          controller.selectChild(child),
-                                      child: Chip(
-                                        label: Text(child.name),
-                                        backgroundColor: isSelected
-                                            ? const Color(0xFF7C4DFF)
-                                            : Colors.grey[200],
-                                        labelStyle: TextStyle(
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.black87,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ],
+              ),
+              if (authController.userRole.value == 'parent' &&
+                  controller.childrenList.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                    child: SizedBox(
+                      height: 36,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.childrenList.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (_, i) {
+                          final child = controller.childrenList[i];
+                          final selected =
+                              controller.selectedChild.value?.id == child.id;
+                          return ChoiceChip(
+                            label: Text(child.name),
+                            selected: selected,
+                            onSelected: (_) => controller.selectChild(child),
+                            selectedColor: accent,
+                            backgroundColor: Colors.white,
+                            labelStyle: TextStyle(
+                              color: selected ? Colors.white : AppTheme.textDark,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
                             ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
+                            side: BorderSide(color: accent),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 ),
-                // Main Content
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 24),
-                      // Status Card (Banner Utama)
-                      _buildStatusCard(context),
-                      const SizedBox(height: 24),
-                      // Progress Label
-                      const Text(
-                        'Progress',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _StatusBanner(
+                      label: controller.overallRiskLabel.value
+                          .replaceAll('\n', ' '),
+                      description: controller.overallRiskDescription.value,
+                      accent: accent,
+                      outline: outline,
+                      onScan: controller.navigateToScan,
+                    ),
+                    const SizedBox(height: 16),
+                    _WeeklyRow(
+                      delta: controller.weeklyProgressDelta.value,
+                      accent: accent,
+                      outline: outline,
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Perkembangan',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textDark,
                       ),
-                      const SizedBox(height: 20),
-                      // Progress Card (Weekly)
-                      _buildProgressCard(),
-                      const SizedBox(height: 20),
-                      // CTA Card (Test Baru)
-                      _buildCtaCard(),
-                      const SizedBox(height: 24),
-                      // Detail Perkembangan Header
-                      const Text(
-                        'Detail Perkembangan',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          letterSpacing: 0,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Progress Detail Cards - Dynamic from controller
-                      Obx(
-                        () => ProgressDetailCard(
-                          title: 'Gaze & Attention',
-                          percentage: controller.gazeAttentionScore.value.toDouble(),
-                          statusLabel: _getStatusLabel(controller.gazeAttentionScore.value),
-                          statusColor: _getStatusColor(controller.gazeAttentionScore.value),
-                          icon: Icons.visibility,
-                          iconBgColor: AppTheme.purple,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Obx(
-                        () => ProgressDetailCard(
-                          title: 'Motor Behavior',
-                          percentage: controller.motorBehaviorScore.value.toDouble(),
-                          statusLabel: controller.motorBehaviorScore.value == 0 ? 'BELUM DITEST' : _getStatusLabel(controller.motorBehaviorScore.value),
-                          statusColor: controller.motorBehaviorScore.value == 0 ? Colors.grey : _getStatusColor(controller.motorBehaviorScore.value),
-                          icon: Icons.directions_run,
-                          iconBgColor: AppTheme.purple,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Obx(
-                        () => ProgressDetailCard(
-                          title: 'Cognitive Skill',
-                          percentage: controller.cognitiveSkillScore.value.toDouble(),
-                          statusLabel: controller.cognitiveSkillScore.value == 0 ? 'BELUM DITEST' : _getStatusLabel(controller.cognitiveSkillScore.value),
-                          statusColor: controller.cognitiveSkillScore.value == 0 ? Colors.grey : _getStatusColor(controller.cognitiveSkillScore.value),
-                          icon: Icons.psychology,
-                          iconBgColor: AppTheme.purple,
-                        ),
-                      ),
-                      const SizedBox(height: 80),
-                    ],
+                    ),
+                    const SizedBox(height: 12),
+                    _MetricTile(
+                      title: 'Gaze & Attention',
+                      score: controller.gazeAttentionScore.value,
+                      icon: Icons.visibility_outlined,
+                      color: AppTheme.primaryBlue,
+                      accent: accent,
+                      outline: outline,
+                    ),
+                    const SizedBox(height: 10),
+                    _MetricTile(
+                      title: 'Motor Behavior',
+                      score: controller.motorBehaviorScore.value,
+                      icon: Icons.directions_run_outlined,
+                      color: AppTheme.accentGreen,
+                      accent: accent,
+                      outline: outline,
+                    ),
+                    const SizedBox(height: 10),
+                    _MetricTile(
+                      title: 'Cognitive Skill',
+                      score: controller.cognitiveSkillScore.value,
+                      icon: Icons.psychology_outlined,
+                      color: AppTheme.accentGreenDark,
+                      accent: accent,
+                      outline: outline,
+                    ),
+                  ]),
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: const ChatFAB(),
+      );
+    });
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.name,
+    required this.role,
+    required this.accent,
+  });
+
+  final String name;
+  final String role;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+            border: Border.all(color: accent, width: 1.5),
+          ),
+          child: Icon(Icons.waving_hand_rounded, color: accent, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hai, $name',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textDark,
+                ),
+              ),
+              Text(
+                role,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.textLight,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusBanner extends StatelessWidget {
+  const _StatusBanner({
+    required this.label,
+    required this.description,
+    required this.accent,
+    required this.outline,
+    required this.onScan,
+  });
+
+  final String label;
+  final String description;
+  final Color accent;
+  final bool outline;
+  final VoidCallback onScan;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppTheme.primaryBlue, accent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: outline
+            ? Border.all(color: AppTheme.primaryDark, width: 2)
+            : null,
+        boxShadow: AppTheme.shadowLg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text(
+              'STATUS TERKINI',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.4,
+              color: Colors.white.withValues(alpha: 0.88),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 46,
+            child: FilledButton.icon(
+              onPressed: onScan,
+              icon: const Icon(Icons.camera_alt_outlined, size: 18),
+              label: const Text(
+                'Mulai Skrining',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: accent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: outline
+                      ? BorderSide(color: AppTheme.primaryDark, width: 1.5)
+                      : BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeeklyRow extends StatelessWidget {
+  const _WeeklyRow({
+    required this.delta,
+    required this.accent,
+    required this.outline,
+  });
+
+  final int? delta;
+  final Color accent;
+  final bool outline;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasDelta = delta != null;
+    final deltaText = hasDelta ? '${delta! >= 0 ? '+' : ''}$delta%' : '—';
+    final hint = hasDelta ? 'vs minggu lalu' : 'Belum ada perbandingan';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: outline ? accent : accent.withValues(alpha: 0.25),
+          width: outline ? 2 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.trending_up_rounded, color: accent, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Progres mingguan',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+                Text(
+                  hint,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textLight,
                   ),
                 ),
               ],
             ),
           ),
+          Text(
+            deltaText,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: accent,
+            ),
+          ),
         ],
       ),
-      ),
-      floatingActionButton: const ChatFAB(),
     );
   }
+}
 
-  Widget _buildStatusCard(BuildContext context) {
-    // Calculate dimensions based on screen size
-    // Base dimensions: 382x273, scale to screen
-    final screenWidth = MediaQuery.of(context).size.width;
-    final horizontalPadding = 20.0;
-    final availableWidth = screenWidth - (horizontalPadding * 2);
-    
-    // Maintain aspect ratio 382:273 ≈ 1.4
-    final cardHeight = availableWidth / 1.4;
-    
-    // Scale font sizes based on card height
-    final titleFontSize = (cardHeight * 0.35).clamp(28.0, 48.0);
-    final chipFontSize = (cardHeight * 0.08).clamp(10.0, 14.0);
-    final descFontSize = (cardHeight * 0.12).clamp(12.0, 16.0);
-    
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({
+    required this.title,
+    required this.score,
+    required this.icon,
+    required this.color,
+    required this.accent,
+    required this.outline,
+  });
+
+  final String title;
+  final int score;
+  final IconData icon;
+  final Color color;
+  final Color accent;
+  final bool outline;
+
+  @override
+  Widget build(BuildContext context) {
+    final untested = score == 0;
+    final status = untested
+        ? 'Belum ditest'
+        : score >= 80
+            ? 'Sempurna'
+            : score >= 60
+                ? 'Optimal'
+                : score >= 40
+                    ? 'Baik'
+                    : 'Perlu peningkatan';
+
     return Container(
-      width: double.infinity,
-      height: cardHeight,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: AppTheme.statusCardGradient,
-        borderRadius: AppTheme.br16,
-        boxShadow: AppTheme.shadowLg,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: outline ? accent : const Color(0xFFE4EBE8),
+          width: outline ? 2 : 1,
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          // Status Chip
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(24),
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              'STATUS DETEKSI TERKINI',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: chipFontSize,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 0.3,
-              ),
-            ),
+            child: Icon(icon, color: color, size: 22),
           ),
-          const SizedBox(height: 12),
-          // Risk Status Title (Two lines) - with Expanded to prevent overflow
-Flexible(
-  fit: FlexFit.loose,
-  child: Text(
-    'Risiko\nRendah',
-    style: TextStyle(
-      fontSize: titleFontSize,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
-      height: 1.2,
-    ),
-    maxLines: 2,
-    overflow: TextOverflow.visible, // penting
-  ),
-),
-          SizedBox(height: cardHeight * 0.05),
-          // Subtitle - with Expanded to prevent overflow
-          Padding(
-            padding: EdgeInsets.only(top: cardHeight * 0.05),
-            child: Text(
-              'Perkembangan anak menunjukkan tren positif dan konsisten meningkat dibandingkan periode sebelumnya.',
-              style: TextStyle(
-                fontSize: descFontSize,
-                fontWeight: FontWeight.w500,
-                color: Colors.white70,
-                height: 1.4,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.lightGreenPale,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [AppTheme.cardShadow],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top Row: Trend Icon and Status Badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Trend Icon
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.verdeTosca.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.trending_up,
-                  color: Color(0xFF005D4B),
-                  size: 22,
-                ),
-              ),
-              // Status Badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF005D4B),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'SANGAT BAIK',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.3,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textDark,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Label
-          const Text(
-            'Progres Mingguan',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF666666),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: score / 100,
+                    minHeight: 6,
+                    backgroundColor: const Color(0xFFEEF2F0),
+                    valueColor: AlwaysStoppedAnimation<Color>(accent),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          // Percentage and Comparison
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '+12%',
+                untested ? '—' : '$score%',
                 style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.textDark,
                 ),
               ),
-              const SizedBox(width: 12),
               Text(
-                'vs minggu lalu',
+                status,
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade600,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: untested ? AppTheme.textLight : color,
                 ),
               ),
             ],
@@ -341,96 +470,5 @@ Flexible(
         ],
       ),
     );
-  }
-
-  Widget _buildCtaCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F1FF),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Icon Circle
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppTheme.purple.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.stars_rounded,
-              color: AppTheme.purple,
-              size: 40,
-            ),
-          ),
-          const SizedBox(height: 20),
-          // Text
-          const Text(
-            'Siap Tes Baru?',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Lakukan screening rutin untuk hasil akurat',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          // Button - matches login/register button style
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.purple,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 48),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              elevation: 0,
-            ),
-            onPressed: () {
-              // Handle scan button press
-            },
-            child: const Text(
-              'Mulai Scan',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Get status label based on percentage
-  String _getStatusLabel(int percentage) {
-    if (percentage >= 80) return 'SEMPURNA';
-    if (percentage >= 60) return 'OPTIMAL';
-    if (percentage >= 40) return 'SANGAT BAIK';
-    return 'PERLU PENINGKATAN';
-  }
-
-  /// Get status color based on percentage
-  Color _getStatusColor(int percentage) {
-    if (percentage >= 80) return AppTheme.verdeTosca;
-    if (percentage >= 60) return AppTheme.successGreen;
-    if (percentage >= 40) return Colors.orange;
-    return Colors.red;
   }
 }

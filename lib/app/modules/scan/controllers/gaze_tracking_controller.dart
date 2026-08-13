@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/modules/home/controllers/home_controller.dart';
@@ -32,6 +33,14 @@ class GazeTrackingController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
+    // Web does not support the native camera image stream or ML Kit face detector
+    if (kIsWeb) {
+      isCameraReady.value = false;
+      debugPrint('[🎥 GazeTrackingController] Web platform detected - gaze tracking disabled');
+      // Do not initialize camera or native ML services on web to avoid MissingPluginException
+      return;
+    }
+
     await initializeCamera();
     gazeDetectionService = GazeDetectionService();
     gazeResultsService = GazeResultsService();
@@ -70,6 +79,10 @@ class GazeTrackingController extends GetxController {
   }
 
   Future<void> _startGazeDetectionStream() async {
+    if (kIsWeb) {
+      debugPrint('[🎥 GazeTrackingController] Web platform: image stream not supported');
+      return;
+    }
     try {
       if (_isStreamRunning) {
         print('Image stream already running');
@@ -159,6 +172,14 @@ class GazeTrackingController extends GetxController {
 
   Future<void> startGazeTest({int duration = 30}) async {
     try {
+      // Web platform not supported
+      if (kIsWeb) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.snackbar('Not supported', 'Gaze tracking is not supported on Web. Please use Android or iOS.');
+        });
+        return;
+      }
+
       // Ensure camera is ready
       if (!isCameraReady.value) {
         Get.snackbar('Error', 'Camera not ready. Please wait.');

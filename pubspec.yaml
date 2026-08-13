@@ -48,6 +48,7 @@ dependencies:
   google_fonts: ^6.2.1
   image: ^4.1.0
   http: ^1.2.0
+  speech_to_text: ^5.6.0
 
 dev_dependencies:
   flutter_test:
@@ -75,6 +76,10 @@ flutter:
   assets:
     - assets/
     - assets/logo/
+
+dependency_overrides:
+  speech_to_text:
+    path: patched_packages/speech_to_text
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

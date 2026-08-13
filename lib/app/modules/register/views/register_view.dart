@@ -250,45 +250,36 @@ class RegisterView extends GetView<AuthController> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Social Icons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: controller.isLoading.value 
-                                  ? () {} 
-                                  : () async {
-                                      final success = await controller.signInWithGoogle();
-                                      if (success) {
-                                        // For Google sign in (could be new user), 
-                                        // navigate to account-type to set role
-                                        Get.offAllNamed('/account-type');
-                                      }
-                                    },
-                              borderRadius: BorderRadius.circular(50),
-                              child: Container(
-                                height: 50,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.grey.shade300),
-                                  color: Colors.white,
-                                ),
-                                child: Center(
-                                  child: Image.asset(
-                                    'assets/logo/GoogleIcon.png', // ← ini path Flutter (BUKAN path C:\...)
-                                    height: 24,
-                                  ),
+                      // Social Icon
+                        Center(
+                          child: InkWell(
+                            onTap: controller.isLoading.value 
+                                ? () {} 
+                                : () async {
+                                    final success = await controller.signInWithGoogle();
+                                    if (success) {
+                                      // For Google sign in (could be new user), 
+                                      // navigate to account-type to set role
+                                      Get.offAllNamed('/account-type');
+                                    }
+                                  },
+                            borderRadius: BorderRadius.circular(50),
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.grey.shade300),
+                                color: Colors.white,
+                              ),
+                              child: Center(
+                                child: Image.asset(
+                                  'assets/logo/GoogleIcon.png',
+                                  height: 24,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            _buildSocialBtn(
-                              icon: Icons.apple,
-                              color: Colors.black,
-                              onTap: () {},
-                            ),
-                          ],
+                          ),
                         ),
                       const SizedBox(height: 32),
 
@@ -369,21 +360,5 @@ class RegisterView extends GetView<AuthController> {
     );
   }
 
-  Widget _buildSocialBtn({required IconData icon, required Color color, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(50),
-      child: Container(
-        height: 50,
-        width: 50,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey.shade300),
-          color: Colors.white,
-        ),
-        child: Icon(icon, color: color, size: 32),
-      ),
-    );
-  }
 }
 

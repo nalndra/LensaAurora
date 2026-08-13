@@ -2,21 +2,24 @@ import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import 'package:lensaaurora/app/services/gaze_results_service.dart';
+import 'package:lensaaurora/app/services/game_results_service.dart';
 import 'package:lensaaurora/app/models/child_profile.dart';
 
 class HomeController extends GetxController {
   final selectedIndex = 0.obs;
   late GazeResultsService gazeResultsService;
+  late GameResultsService gameResultsService;
   final authController = Get.find<AuthController>();
 
-  // Observable metrics from Firestore
-  final gazeAttentionScore = 0.obs; // 0-100
-  final motorBehaviorScore = 0.obs; // 0-100 (currently 0)
-  final cognitiveSkillScore = 0.obs; // 0-100 (currently 0)
+  final gazeAttentionScore = 0.obs;
+  final motorBehaviorScore = 0.obs;
+  final cognitiveSkillScore = 0.obs;
+  final weeklyProgressDelta = RxnInt();
+  final overallRiskLabel = 'Belum Ditest'.obs;
+  final overallRiskDescription =
+      'Lakukan skrining gaze tracking untuk melihat status deteksi.'.obs;
 
   final isLoadingMetrics = false.obs;
-  
-  // Children management for parent users
   final childrenList = <ChildProfile>[].obs;
   final selectedChild = Rxn<ChildProfile>();
   final isLoadingChildren = false.obs;
@@ -25,14 +28,12 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     gazeResultsService = GazeResultsService();
+    gameResultsService = GameResultsService();
     _loadMetrics();
-    
-    // Load children in background (only for parents)
-    // Will be loaded when role becomes available or when user navigates to child section
+
     if (authController.userRole.value == 'parent') {
       _loadChildren();
     } else {
-      // Listen for role changes in case user role is updated later
       ever(authController.userRole, (role) {
         if (role == 'parent' && childrenList.isEmpty) {
           _loadChildren();
@@ -53,87 +54,119 @@ class HomeController extends GetxController {
     selectedIndex.value = index;
   }
 
-  /// Load metrics from Firestore
   Future<void> _loadMetrics() async {
     try {
       isLoadingMetrics.value = true;
 
-      // Get latest gaze score with 8-second timeout
       try {
         final gazeScore = await gazeResultsService
             .getLatestGazeScore()
             .timeout(
               const Duration(seconds: 8),
-              onTimeout: () {
-                print('WARNING: getLatestGazeScore timeout');
-                return null;
-              },
+              onTimeout: () => null,
             );
         gazeAttentionScore.value = gazeScore ?? 0;
       } catch (e) {
-        print('Error loading gaze score: $e');
         gazeAttentionScore.value = 0;
       }
 
-      // Motor Behavior - placeholder (no data yet)
+      try {
+        final cognitiveScore = await gameResultsService
+            .getLatestCognitiveScore()
+            .timeout(
+              const Duration(seconds: 8),
+              onTimeout: () => null,
+            );
+        cognitiveSkillScore.value = cognitiveScore ?? 0;
+      } catch (e) {
+        cognitiveSkillScore.value = 0;
+      }
+
       motorBehaviorScore.value = 0;
 
-      // Cognitive Skill - placeholder (no data yet)
-      cognitiveSkillScore.value = 0;
-    } catch (e) {
-      print('Error loading metrics: $e');
+      try {
+        weeklyProgressDelta.value = await gameResultsService
+            .getWeeklyProgressDelta()
+            .timeout(
+              const Duration(seconds: 8),
+              onTimeout: () => null,
+            );
+      } catch (e) {
+        weeklyProgressDelta.value = null;
+      }
+
+      _updateOverallRisk();
     } finally {
       isLoadingMetrics.value = false;
     }
   }
 
-  /// Refresh metrics (call this when returning to home from gaze test)
+  void _updateOverallRisk() {
+    final gaze = gazeAttentionScore.value;
+    final cognitive = cognitiveSkillScore.value;
+
+    if (gaze == 0 && cognitive == 0) {
+      overallRiskLabel.value = 'Belum Ditest';
+      overallRiskDescription.value =
+          'Lakukan skrining gaze tracking dan mainkan game kognitif untuk melihat status.';
+      return;
+    }
+
+    final combined = gaze > 0 && cognitive > 0
+        ? ((gaze + cognitive) / 2).round()
+        : (gaze > 0 ? gaze : cognitive);
+
+    if (combined >= 70) {
+      overallRiskLabel.value = 'Risiko\nRendah';
+      overallRiskDescription.value =
+          'Perkembangan menunjukkan tren positif berdasarkan data skrining dan game terbaru.';
+    } else if (combined >= 40) {
+      overallRiskLabel.value = 'Perlu\nPemantauan';
+      overallRiskDescription.value =
+          'Hasil skrining menunjukkan area yang perlu diperhatikan. Lakukan tes rutin.';
+    } else {
+      overallRiskLabel.value = 'Perlu\nEvaluasi';
+      overallRiskDescription.value =
+          'Disarankan konsultasi lebih lanjut dengan profesional terkait.';
+    }
+  }
+
   Future<void> refreshMetrics() async {
     await _loadMetrics();
   }
 
-  /// Load children for parent user
   Future<void> _loadChildren() async {
     try {
       isLoadingChildren.value = true;
       final userId = authController.currentUser.value?.uid;
-      
+
       if (userId != null) {
-        // Get children with 8-second timeout
         try {
           final children = await authController.authService
               .getChildren(userId)
               .timeout(
                 const Duration(seconds: 8),
-                onTimeout: () {
-                  print('WARNING: getChildren timeout');
-                  return [];
-                },
+                onTimeout: () => [],
               );
           childrenList.assignAll(children);
-          
-          // Auto-select first child if available
+
           if (children.isNotEmpty && selectedChild.value == null) {
             selectedChild.value = children.first;
           }
         } catch (e) {
-          print('Error loading children: $e');
+          // ignore
         }
       }
-    } catch (e) {
-      print('Error in _loadChildren: $e');
     } finally {
       isLoadingChildren.value = false;
     }
   }
 
-  /// Select a child for viewing their progress
   void selectChild(ChildProfile child) {
     selectedChild.value = child;
-    _loadMetrics(); // Reload metrics for this child
+    _loadMetrics();
   }
 
-  /// Add a new child (parent only)
   Future<bool> addChild(String name, int age) async {
     try {
       final userId = authController.currentUser.value?.uid;
@@ -149,13 +182,14 @@ class HomeController extends GetxController {
 
       await authController.authService.addChild(userId, newChild);
       childrenList.add(newChild);
-      
-      // Auto-select newly added child
       selectedChild.value = newChild;
       return true;
     } catch (e) {
-      print('Error adding child: $e');
       return false;
     }
+  }
+
+  void navigateToScan() {
+    Get.find<NavigationController>().navigateToScan();
   }
 }

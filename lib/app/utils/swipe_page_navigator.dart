@@ -27,7 +27,7 @@ class SwipePageNavigator extends StatefulWidget {
 class _SwipePageNavigatorState extends State<SwipePageNavigator>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _animation;
+  Animation<double> _animation = const AlwaysStoppedAnimation<double>(0);
   
   // Current drag offset (0 = no drag, -1 to 1 = full page left/right)
   double _dragOffset = 0;

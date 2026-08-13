@@ -366,7 +366,7 @@ class _TypingDot extends StatefulWidget {
 class _TypingDotState extends State<_TypingDot>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
+  Animation<double> _animation = const AlwaysStoppedAnimation<double>(0);
 
   @override
   void initState() {

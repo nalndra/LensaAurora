@@ -73,7 +73,7 @@ class _HighlightBar extends StatelessWidget {
           width: 30,
           height: 3,
           decoration: BoxDecoration(
-            color: AppTheme.purple,
+            color: AppTheme.accentGreen,
             borderRadius: BorderRadius.circular(1.5),
           ),
         ),
@@ -86,8 +86,8 @@ class _HighlightBar extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.purple.withOpacity(0.15),
-                  AppTheme.purple.withOpacity(0.0),
+                  AppTheme.accentGreen.withValues(alpha: 0.15),
+                  AppTheme.accentGreen.withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -134,7 +134,7 @@ class _NavItem extends GetView<NavigationController> {
                 child: Icon(
                   icons[index],
                   size: 26,
-                  color: selected ? AppTheme.purple : AppTheme.textLight,
+                  color: selected ? AppTheme.accentGreen : AppTheme.textLight,
                 ),
               );
             },
@@ -148,7 +148,7 @@ class _NavItem extends GetView<NavigationController> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: selected ? AppTheme.purple : AppTheme.textLight,
+                  color: selected ? AppTheme.accentGreen : AppTheme.textLight,
                 ),
                 child: Text(labels[index]),
               );

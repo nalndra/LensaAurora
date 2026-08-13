@@ -1,67 +1,79 @@
 import 'package:flutter/material.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 
 class ScreeningAreaCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
+  final VoidCallback? onTap;
 
   const ScreeningAreaCard({
     super.key,
     required this.title,
     required this.subtitle,
     required this.icon,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          // Icon Badge (Left)
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8E4FF),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF6338F1),
-              size: 28,
-            ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.4)),
           ),
-          const SizedBox(width: 16),
-          // Text Content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceTint,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.accentGreen, width: 1.5),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF999999),
-                  ),
+                child: Icon(icon, color: AppTheme.accentGreen, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textLight,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (onTap != null)
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: AppTheme.accentGreen,
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

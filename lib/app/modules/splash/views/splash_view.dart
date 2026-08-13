@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 import '../../../controllers/auth_controller.dart';
 
 class SplashView extends StatefulWidget {
@@ -77,9 +78,9 @@ class _SplashViewState extends State<SplashView> {
               const SizedBox(height: 60),
               
               // Loading Indicator
-              const CircularProgressIndicator(
+              CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6338F1)),
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentGreen),
               ),
             ],
           ),

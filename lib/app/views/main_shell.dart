@@ -6,6 +6,7 @@ import 'package:lensaaurora/app/modules/game/views/game_view.dart';
 import 'package:lensaaurora/app/modules/profile/views/profile_view.dart';
 import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/utils/swipe_page_navigator.dart';
 
 /// Main navigation shell that manages all 4 main pages with swipe animation
@@ -19,7 +20,7 @@ class MainShell extends GetView<NavigationController> {
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.bgLight,
         body: SwipePageNavigator(
           currentIndex: controller.selectedIndex.value,
           maxIndex: 3,

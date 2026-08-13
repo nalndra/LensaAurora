@@ -117,7 +117,7 @@ class ProgressDetailCard extends StatelessWidget {
               minHeight: 8,
               backgroundColor: Colors.grey.withOpacity(0.15),
               valueColor: AlwaysStoppedAnimation<Color>(
-                AppTheme.purple.withOpacity(0.8),
+                AppTheme.accentGreen,
               ),
             ),
           ),

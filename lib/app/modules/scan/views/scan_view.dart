@@ -72,7 +72,7 @@ class ScanView extends GetView<ScanController> {
                         text: '15 menit',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF6338F1),
+                          color: AppTheme.accentGreen,
                         ),
                       ),
                       const TextSpan(
@@ -94,30 +94,31 @@ class ScanView extends GetView<ScanController> {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F0FF),
+                color: AppTheme.surfaceTint,
                 borderRadius: BorderRadius.circular(32),
+                border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
               ),
               child: Column(
                 children: [
-                  // Card 1: Gaze Tracking
                   ScreeningAreaCard(
                     title: 'Gaze Tracking',
                     subtitle: 'Pola atensi visual',
                     icon: Icons.visibility,
+                    onTap: () => Get.toNamed(Routes.GAZE_TRACKING),
                   ),
                   const SizedBox(height: 12),
-                  // Card 2: Speech Analysis
                   ScreeningAreaCard(
                     title: 'Speech Analysis',
                     subtitle: 'Linguistik & intonasi',
                     icon: Icons.mic,
+                    onTap: () => Get.toNamed(Routes.SPEECH_ANALYSIS),
                   ),
                   const SizedBox(height: 12),
-                  // Card 3: Motor Behavior
                   ScreeningAreaCard(
                     title: 'Motor Behavior',
                     subtitle: 'Gerak motorik halus',
                     icon: Icons.accessibility_new_rounded,
+                    onTap: () => Get.toNamed(Routes.MOTOR_BEHAVIOR),
                   ),
                 ],
               ),
@@ -134,12 +135,13 @@ class ScanView extends GetView<ScanController> {
                 child: ElevatedButton(
                   onPressed: () => Get.toNamed(Routes.GAZE_TRACKING),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6338F1),
+                    backgroundColor: AppTheme.accentGreen,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 52),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
+                      side: const BorderSide(color: AppTheme.primaryDark, width: 1.5),
                     ),
                     elevation: 0,
                   ),

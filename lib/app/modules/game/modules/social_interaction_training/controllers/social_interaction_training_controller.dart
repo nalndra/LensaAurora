@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/navigation_controller.dart';
+import 'package:lensaaurora/app/modules/home/controllers/home_controller.dart';
+import 'package:lensaaurora/app/services/game_results_service.dart';
 import '../models/social_scenario_model.dart';
 
 class SocialInteractionTrainingController extends GetxController {
@@ -164,9 +166,26 @@ class SocialInteractionTrainingController extends GetxController {
       selectedResponseId.value = null;
       showFeedback.value = false;
     } else {
-      // Semua skenario selesai
       totalCompleted.value++;
+      _saveGameResult();
       _resetScenarios();
+    }
+  }
+
+  Future<void> _saveGameResult() async {
+    try {
+      final maxScore = scenarios.length * 10;
+      await Get.find<GameResultsService>().saveGameResult(
+        gameId: 'social_interaction_training',
+        gameName: 'Social Interaction Training',
+        score: score.value,
+        maxScore: maxScore,
+      );
+      if (Get.isRegistered<HomeController>()) {
+        await Get.find<HomeController>().refreshMetrics();
+      }
+    } catch (_) {
+      // Non-blocking save
     }
   }
 

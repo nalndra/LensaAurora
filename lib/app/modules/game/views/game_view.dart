@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import 'package:lensaaurora/app/modules/game/widgets/game_catalog_card.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 import '../controllers/game_controller.dart';
 
 class GameView extends GetView<GameController> {
@@ -163,7 +164,7 @@ class GameView extends GetView<GameController> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color:
-                isActive ? const Color(0xFF6338F1) : const Color(0xFFEBE9FF),
+                isActive ? AppTheme.accentGreen : AppTheme.surfaceTint,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
@@ -172,7 +173,7 @@ class GameView extends GetView<GameController> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: isActive ? Colors.white : const Color(0xFF6338F1),
+                color: isActive ? Colors.white : AppTheme.accentGreen,
               ),
             ),
           ),
