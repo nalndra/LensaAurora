@@ -49,7 +49,7 @@ class GazeDetectionService {
       }
 
       final faces = await _faceDetector.processImage(inputImage);
-      
+
       if (faces.isEmpty) {
         // Silently return null - don't spam logs
         return null;
@@ -70,7 +70,7 @@ class GazeDetectionService {
         _log('⚠️ Gaze estimation failed for all faces');
         return null;
       }
-      
+
       return gazeDataList;
     } catch (e) {
       _log('❌ Error in gaze detection: $e');
@@ -99,7 +99,7 @@ class GazeDetectionService {
         cameraImage.width.toDouble(),
         cameraImage.height.toDouble(),
       );
-      
+
       _log('📏 Size: ${imageSize.width}x${imageSize.height}');
 
       final inputImageRotation =
@@ -117,7 +117,7 @@ class GazeDetectionService {
           bytesPerRow: planes.first.bytesPerRow,
         ),
       );
-      
+
       _log('✅ InputImage created successfully');
       return inputImage;
     } catch (e) {
