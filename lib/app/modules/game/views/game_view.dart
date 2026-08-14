@@ -11,14 +11,14 @@ class GameView extends GetView<GameController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
         title: const Text(
           'Games',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: AppTheme.textDark,
           ),
         ),
         centerTitle: true,
@@ -42,16 +42,16 @@ class GameView extends GetView<GameController> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: AppTheme.textDark,
                         height: 1.3,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
+                    const SizedBox(height: AppTheme.space12),
+                    const Text(
                       'Latihan kognitif dan motorik yang dirancang untuk memperkuat jalur saraf melalui permainan interaktif.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[600],
+                        color: AppTheme.textLight,
                         height: 1.5,
                       ),
                     ),
@@ -68,19 +68,20 @@ class GameView extends GetView<GameController> {
                   onChanged: (value) => controller.updateSearchQuery(value),
                   decoration: InputDecoration(
                     hintText: 'Cari game...',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    prefixIcon:
+                        const Icon(Icons.search, color: AppTheme.textLight),
                     filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
+                    fillColor: AppTheme.fieldFill,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: AppTheme.brPill,
                       borderSide: BorderSide.none,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: AppTheme.brPill,
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: AppTheme.brPill,
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
@@ -90,7 +91,7 @@ class GameView extends GetView<GameController> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppTheme.space20),
 
               // Category Filter (Horizontal Scroll)
               SizedBox(
@@ -118,11 +119,11 @@ class GameView extends GetView<GameController> {
                     ? Column(
                         children: [
                           const SizedBox(height: 40),
-                          Text(
+                          const Text(
                             'Game tidak ditemukan',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[600],
+                              color: AppTheme.textLight,
                             ),
                           ),
                         ],
@@ -165,7 +166,7 @@ class GameView extends GetView<GameController> {
           decoration: BoxDecoration(
             color:
                 isActive ? AppTheme.accentGreen : AppTheme.surfaceTint,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppTheme.brPill,
           ),
           child: Center(
             child: Text(

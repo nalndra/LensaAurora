@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import '../controllers/profile_controller.dart';
 
@@ -92,23 +93,19 @@ class ProfileView extends GetView<ProfileController> {
                                 ? _buildChildrenSection()
                                 : const SizedBox.shrink(),
                           ),
-                          const SizedBox(height: 32),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () => controller.logout(),
-                              icon: const Icon(Icons.logout, color: Colors.white),
-                              label: const Text('Log Out', style: TextStyle(color: Colors.white, fontSize: 16)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
+                          const SizedBox(height: AppTheme.space32),
+                          AuroraPrimaryButton(
+                            label: 'Log Out',
+                            onPressed: () => controller.logout(),
+                            icon: const Icon(Icons.logout,
+                                color: Colors.white, size: 20),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFEF5350), Color(0xFFC62828)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: AppTheme.space24),
                         ],
                       ),
                     ),
@@ -195,12 +192,8 @@ class ProfileView extends GetView<ProfileController> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: AppTheme.br12,
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [AppTheme.cardShadow],
+        borderRadius: AppTheme.br16,
+        boxShadow: AppTheme.shadowCard,
       ),
       child: Row(
         children: [
@@ -289,12 +282,8 @@ class ProfileView extends GetView<ProfileController> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: AppTheme.br12,
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1.5,
-        ),
-        boxShadow: [AppTheme.cardShadow],
+        borderRadius: AppTheme.br16,
+        boxShadow: AppTheme.shadowCard,
       ),
       child: Column(
         children: [
@@ -348,12 +337,8 @@ class ProfileView extends GetView<ProfileController> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: AppTheme.br12,
-              border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
-                width: 1.5,
-              ),
-              boxShadow: [AppTheme.cardShadow],
+              borderRadius: AppTheme.br16,
+              boxShadow: AppTheme.shadowCard,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -386,12 +371,8 @@ class ProfileView extends GetView<ProfileController> {
       () => Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppTheme.primaryBlue.withOpacity(0.1),
-          borderRadius: AppTheme.br12,
-          border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
-            width: 1,
-          ),
+          color: AppTheme.primaryBlue.withOpacity(0.08),
+          borderRadius: AppTheme.br16,
         ),
         child: Row(
           children: [
@@ -463,8 +444,8 @@ class ProfileView extends GetView<ProfileController> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C4DFF),
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppTheme.accentGreen,
+                  borderRadius: AppTheme.br8,
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -491,8 +472,8 @@ class ProfileView extends GetView<ProfileController> {
               ? Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: AppTheme.br12,
+                    color: AppTheme.fieldFill,
+                    borderRadius: AppTheme.br16,
                   ),
                   child: const Center(
                     child: Text(
@@ -515,12 +496,8 @@ class ProfileView extends GetView<ProfileController> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: AppTheme.br12,
-                        border: Border.all(
-                          color: Colors.grey.withOpacity(0.2),
-                          width: 1,
-                        ),
-                        boxShadow: [AppTheme.cardShadow],
+                        borderRadius: AppTheme.br16,
+                        boxShadow: AppTheme.shadowCard,
                       ),
                       child: Row(
                         children: [
@@ -528,13 +505,13 @@ class ProfileView extends GetView<ProfileController> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8C1E0),
+                              color: AppTheme.surfaceTint,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Center(
                               child: Icon(
                                 Icons.child_care,
-                                color: Color(0xFF9C88D8),
+                                color: AppTheme.accentGreenDark,
                                 size: 20,
                               ),
                             ),
@@ -597,7 +574,7 @@ class ProfileView extends GetView<ProfileController> {
               decoration: InputDecoration(
                 hintText: 'Nama anak',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppTheme.br16,
                 ),
               ),
             ),
@@ -609,7 +586,7 @@ class ProfileView extends GetView<ProfileController> {
               decoration: InputDecoration(
                 hintText: 'Usia (tahun)',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppTheme.br16,
                 ),
               ),
             ),

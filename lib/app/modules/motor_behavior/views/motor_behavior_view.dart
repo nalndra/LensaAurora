@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/modules/motor_behavior/controllers/motor_behavior_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 
 class MotorBehaviorView extends GetView<MotorBehaviorController> {
   const MotorBehaviorView({super.key});
@@ -16,7 +17,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
         foregroundColor: AppTheme.textDark,
         automaticallyImplyLeading: false,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.bgLight,
       body: Obx(
         () {
           switch (controller.testState.value) {
@@ -38,7 +39,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildMenuScreen() {
     return Container(
-      color: Colors.white,
+      color: AppTheme.bgLight,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -48,11 +49,8 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primaryBlue.withOpacity(0.2),
-                border: Border.all(
-                  color: AppTheme.primaryBlue,
-                  width: 3,
-                ),
+                color: Colors.white,
+                boxShadow: AppTheme.shadowLg,
               ),
               child: const Icon(
                 Icons.pan_tool_alt,
@@ -105,26 +103,9 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
             ),
             const SizedBox(height: 40),
             // Mulai Motor Test Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => controller.selectTest(MotorTestType.traceTest),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  'Mulai Motor Behavior Test',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+            AuroraPrimaryButton(
+              label: 'Mulai Motor Behavior Test',
+              onPressed: () => controller.selectTest(MotorTestType.traceTest),
             ),
           ],
         ),
@@ -140,12 +121,9 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F1FF),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.15),
-          width: 1.5,
-        ),
+        color: Colors.white,
+        borderRadius: AppTheme.br20,
+        boxShadow: AppTheme.shadowCard,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,12 +178,12 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildTraceTestScreen() {
     return Container(
-      color: Colors.white,
+      color: AppTheme.bgLight,
       child: Column(
         children: [
           // Header
           Container(
-            color: const Color(0xFFF5F1FF),
+            color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,9 +214,9 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F1FF),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                color: Colors.white,
+                borderRadius: AppTheme.br20,
+                boxShadow: AppTheme.shadowCard,
               ),
               child: Center(
                 child: Column(
@@ -265,21 +243,14 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
           ),
           // Controls
           Container(
-            color: const Color(0xFFF5F1FF),
+            color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => controller.completeTest(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Selesai Trace Test'),
-                  ),
+                AuroraPrimaryButton(
+                  label: 'Selesai Trace Test',
+                  gradient: AppTheme.greenGradient,
+                  onPressed: () => controller.completeTest(),
                 ),
               ],
             ),
@@ -291,12 +262,12 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildTapTargetScreen() {
     return Container(
-      color: Colors.white,
+      color: AppTheme.bgLight,
       child: Column(
         children: [
           // Header
           Container(
-            color: const Color(0xFFF5F1FF),
+            color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: const Text(
               'Tap Target Test',
@@ -312,9 +283,9 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F1FF),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                color: Colors.white,
+                borderRadius: AppTheme.br20,
+                boxShadow: AppTheme.shadowCard,
               ),
               child: Center(
                 child: Column(
@@ -325,11 +296,8 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.green.withOpacity(0.3),
-                        border: Border.all(
-                          color: Colors.green,
-                          width: 3,
-                        ),
+                        color: Colors.green.withValues(alpha: 0.15),
+                        boxShadow: AppTheme.shadowButton(Colors.green),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -348,21 +316,14 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
           ),
           // Controls
           Container(
-            color: const Color(0xFFF5F1FF),
+            color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => controller.completeTest(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Selesai Tap Target'),
-                  ),
+                AuroraPrimaryButton(
+                  label: 'Selesai Tap Target',
+                  gradient: AppTheme.greenGradient,
+                  onPressed: () => controller.completeTest(),
                 ),
               ],
             ),
@@ -374,7 +335,7 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
 
   Widget _buildCompletionScreen() {
     return Container(
-      color: Colors.white,
+      color: AppTheme.bgLight,
       child: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -385,11 +346,8 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
-                  border: Border.all(
-                    color: AppTheme.primaryBlue,
-                    width: 3,
-                  ),
+                  color: Colors.white,
+                  boxShadow: AppTheme.shadowLg,
                 ),
                 child: const Icon(
                   Icons.check_circle_outline,
@@ -417,26 +375,9 @@ class MotorBehaviorView extends GetView<MotorBehaviorController> {
                 ),
               ),
               const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Get.back(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Kembali ke Menu',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              AuroraPrimaryButton(
+                label: 'Kembali ke Menu',
+                onPressed: () => Get.back(),
               ),
             ],
           ),

@@ -8,6 +8,9 @@ class AccessibilityOverlay extends StatelessWidget {
   const AccessibilityOverlay({super.key});
 
   static const double _fabSize = 52;
+  static const double _panelWidth = 248;
+  static const double _panelGap = 10;
+  static const double _edgeMargin = 8;
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +23,9 @@ class AccessibilityOverlay extends StatelessWidget {
       final offsetY = controller.offsetY.value;
       final onRightHalf = offsetX < screenSize.width / 2;
       final accent = controller.accentColor;
+      final animDuration = controller.isDragging.value
+          ? Duration.zero
+          : const Duration(milliseconds: 220);
 
       final button = _DraggableAccessibilityButton(
         controller: controller,
@@ -28,25 +34,54 @@ class AccessibilityOverlay extends StatelessWidget {
         accent: accent,
       );
 
-      final panel = isOpen
-          ? Padding(
-              padding: EdgeInsets.only(
-                right: onRightHalf ? 10 : 0,
-                left: onRightHalf ? 0 : 10,
-              ),
-              child: _SettingsPanel(controller: controller),
-            )
-          : null;
+      // Button edges in screen coordinates (it's anchored via `right`).
+      final buttonLeft = screenSize.width - offsetX - _fabSize;
+      final buttonRight = screenSize.width - offsetX;
 
-      return Positioned(
-        right: offsetX,
-        bottom: offsetY,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: onRightHalf
-              ? [if (panel != null) panel, button]
-              : [button, if (panel != null) panel],
+      // Anchor the panel beside the button, but clamp it within the
+      // screen so it can never be pushed off-screen — e.g. when the
+      // button is snapped to the left edge, opening the panel to its
+      // "left" would otherwise push most of the panel off-screen.
+      double? panelLeft;
+      double? panelRightInset;
+      if (onRightHalf) {
+        var panelRight = buttonLeft - _panelGap;
+        var left = panelRight - _panelWidth;
+        if (left < _edgeMargin) {
+          left = _edgeMargin;
+          panelRight = left + _panelWidth;
+        }
+        panelRightInset = screenSize.width - panelRight;
+      } else {
+        var left = buttonRight + _panelGap;
+        var right = left + _panelWidth;
+        if (right > screenSize.width - _edgeMargin) {
+          right = screenSize.width - _edgeMargin;
+          left = right - _panelWidth;
+        }
+        panelLeft = left;
+      }
+
+      return Positioned.fill(
+        child: Stack(
+          children: [
+            if (isOpen)
+              AnimatedPositioned(
+                duration: animDuration,
+                curve: Curves.easeOut,
+                left: panelLeft,
+                right: panelRightInset,
+                bottom: offsetY,
+                child: _SettingsPanel(controller: controller),
+              ),
+            AnimatedPositioned(
+              duration: animDuration,
+              curve: Curves.easeOut,
+              right: offsetX,
+              bottom: offsetY,
+              child: button,
+            ),
+          ],
         ),
       );
     });
@@ -78,7 +113,10 @@ class _DraggableAccessibilityButtonState
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onPanStart: (_) => _dragTotal = Offset.zero,
+      onPanStart: (_) {
+        _dragTotal = Offset.zero;
+        widget.controller.isDragging.value = true;
+      },
       onPanUpdate: (details) {
         _dragTotal += details.delta;
         widget.controller.updatePosition(
@@ -88,8 +126,11 @@ class _DraggableAccessibilityButtonState
         );
       },
       onPanEnd: (_) {
+        widget.controller.isDragging.value = false;
         if (_dragTotal.distance < 10) {
           widget.controller.togglePanel();
+        } else {
+          widget.controller.snapToNearestEdge(widget.screenSize);
         }
         _dragTotal = Offset.zero;
       },
@@ -133,7 +174,13 @@ class _SettingsPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = controller.accentColor;
 
-    return Material(
+    return ConstrainedBox(
+      // Cap the panel's height and let it scroll instead of overflowing
+      // off the top of the screen when the button is dragged up high.
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.75,
+      ),
+      child: Material(
       elevation: 10,
       borderRadius: BorderRadius.circular(16),
       color: Colors.white,
@@ -144,6 +191,7 @@ class _SettingsPanel extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: accent, width: 1.5),
         ),
+        child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,6 +310,8 @@ class _SettingsPanel extends StatelessWidget {
                 )),
           ],
         ),
+        ),
+      ),
       ),
     );
   }

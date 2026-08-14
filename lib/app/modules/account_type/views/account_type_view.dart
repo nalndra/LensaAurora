@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 import '../controllers/account_type_controller.dart';
 
 class AccountTypeView extends GetView<AccountTypeController> {
@@ -9,7 +10,7 @@ class AccountTypeView extends GetView<AccountTypeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.bgLight,
       body: Stack(
         children: [
           // Background decoration - curved shape in bottom left
@@ -47,11 +48,11 @@ class AccountTypeView extends GetView<AccountTypeController> {
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 28,
-                        color: Colors.black87,
+                        color: AppTheme.textDark,
                       ) ?? const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppTheme.textDark,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -62,11 +63,11 @@ class AccountTypeView extends GetView<AccountTypeController> {
                       'Mode Orang Tua membantu Anda mendampingi perkembangan anak, '
                       'sedangkan Mode Personal dirancang untuk individu berusia 16 tahun ke atas.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[700],
+                        color: AppTheme.textLight,
                         height: 1.6,
                         fontSize: 14,
                       ) ?? const TextStyle(
-                        color: Colors.grey,
+                        color: AppTheme.textLight,
                         height: 1.6,
                         fontSize: 14,
                       ),
@@ -103,40 +104,10 @@ class AccountTypeView extends GetView<AccountTypeController> {
                     const SizedBox(height: 48),
                     // Continue button
                     Obx(
-                      () => SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : () => controller.continueToNextStep(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.accentGreen,
-                            disabledBackgroundColor: Colors.grey[400],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            elevation: 2,
-                          ),
-                          child: controller.isLoading.value
-                              ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(Colors.white),
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : const Text(
-                                'Lanjutkan',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                        ),
+                      () => AuroraPrimaryButton(
+                        label: 'Lanjutkan',
+                        isLoading: controller.isLoading.value,
+                        onPressed: () => controller.continueToNextStep(),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -166,18 +137,18 @@ class AccountTypeView extends GetView<AccountTypeController> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: AppTheme.br24,
           border: Border.all(
             color: isSelected
                 ? AppTheme.accentGreen
-                : Colors.grey[300] ?? Colors.grey,
+                : AppTheme.textLight.withOpacity(0.2),
             width: isSelected ? 2 : 1.5,
           ),
           gradient: isSelected && isPrimaryCard
               ? LinearGradient(
                 colors: [
-                  const Color(0xFF9C88D8).withOpacity(0.15),
-                  const Color(0xFFE8C1E0).withOpacity(0.1),
+                  AppTheme.primaryBlue.withOpacity(0.15),
+                  AppTheme.lightCyan.withOpacity(0.12),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -185,24 +156,12 @@ class AccountTypeView extends GetView<AccountTypeController> {
               : LinearGradient(
                 colors: [
                   Colors.white,
-                  Colors.grey[50] ?? Colors.white,
+                  AppTheme.bgLight,
                 ],
               ),
           boxShadow: isSelected
-              ? [
-                BoxShadow(
-                  color: AppTheme.accentGreen.withOpacity(0.15),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-              : [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              ? AppTheme.shadowButton(AppTheme.accentGreen)
+              : AppTheme.shadowCard,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,11 +176,11 @@ class AccountTypeView extends GetView<AccountTypeController> {
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
-                      color: Colors.black87,
+                      color: AppTheme.textDark,
                     ) ?? const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: AppTheme.textDark,
                     ),
                   ),
                 ),
@@ -234,7 +193,7 @@ class AccountTypeView extends GetView<AccountTypeController> {
                     border: Border.all(
                       color: isSelected
                           ? AppTheme.accentGreen
-                          : Colors.grey[400] ?? Colors.grey,
+                          : AppTheme.textLight.withOpacity(0.5),
                       width: 2,
                     ),
                     color: isSelected ? AppTheme.accentGreen : Colors.transparent,
@@ -254,11 +213,11 @@ class AccountTypeView extends GetView<AccountTypeController> {
             Text(
               description,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[700],
+                color: AppTheme.textLight,
                 fontSize: 13,
                 height: 1.5,
               ) ?? const TextStyle(
-                color: Colors.grey,
+                color: AppTheme.textLight,
                 fontSize: 13,
                 height: 1.5,
               ),

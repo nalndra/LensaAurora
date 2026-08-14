@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get_storage/get_storage.dart';
 import 'app/routes/app_pages.dart';
 import 'app/theme/app_theme.dart';
 import 'app/controllers/auth_controller.dart';
@@ -12,6 +13,10 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Local key-value store backing AccessibilityController's persisted
+  // settings (font, contrast, opacity, button position, etc.).
+  await GetStorage.init();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -61,10 +66,21 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          return Stack(
-            children: [
-              content,
-              const AccessibilityOverlay(),
+          // GetMaterialApp's builder runs above the Navigator, so this Stack
+          // sits outside the Overlay the Navigator provides. Widgets in
+          // AccessibilityOverlay (e.g. the settings panel's Tooltip) need
+          // their own Overlay ancestor or they throw "No Overlay widget
+          // found" the moment they try to render.
+          return Overlay(
+            initialEntries: [
+              OverlayEntry(
+                builder: (context) => Stack(
+                  children: [
+                    content,
+                    const AccessibilityOverlay(),
+                  ],
+                ),
+              ),
             ],
           );
         });

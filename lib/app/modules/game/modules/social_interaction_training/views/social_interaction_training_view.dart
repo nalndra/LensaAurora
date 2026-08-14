@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
 import '../controllers/social_interaction_training_controller.dart';
 import '../widgets/response_option_widget.dart';
@@ -17,7 +18,7 @@ class SocialInteractionTrainingView
         centerTitle: true,
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
-        elevation: 2,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
@@ -91,22 +92,19 @@ class SocialInteractionTrainingView
                       controller
                           .scenarios[controller.currentScenarioIndex.value]
                           .description,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: AppTheme.textLight,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.space16),
                     // Situation card
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppTheme.primaryBlue,
-                          width: 2,
-                        ),
+                        color: AppTheme.surfaceTintBlue,
+                        borderRadius: AppTheme.br20,
+                        boxShadow: AppTheme.shadowCard,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,29 +168,13 @@ class SocialInteractionTrainingView
             if (controller.showFeedback.value)
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => controller.nextScenario(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      controller.currentScenarioIndex.value ==
-                              controller.scenarios.length - 1
-                          ? 'Selesai'
-                          : 'Lanjut ke Scenario Berikutnya',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+                child: AuroraPrimaryButton(
+                  label: controller.currentScenarioIndex.value ==
+                          controller.scenarios.length - 1
+                      ? 'Selesai'
+                      : 'Lanjut ke Scenario Berikutnya',
+                  onPressed: () => controller.nextScenario(),
+                  height: 52,
                 ),
               ),
           ],

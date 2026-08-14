@@ -5,6 +5,7 @@ import 'package:lensaaurora/app/controllers/navigation_controller.dart';
 import 'package:lensaaurora/app/modules/scan/controllers/gaze_tracking_controller.dart';
 import 'package:lensaaurora/app/models/gaze_data.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 import 'package:lensaaurora/app/routes/app_pages.dart';
 
 class GazeTrackingView extends GetView<GazeTrackingController> {
@@ -90,8 +91,9 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F1FF),
-              borderRadius: BorderRadius.circular(24),
+              color: AppTheme.surfaceTint,
+              borderRadius: AppTheme.br24,
+              boxShadow: AppTheme.shadowCard,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -121,31 +123,15 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: Obx(
-                    () => ElevatedButton(
-                      onPressed: controller.isCameraReady.value
-                          ? _showTestConfirmationDialog
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        controller.isInitializing.value
-                            ? 'Inisialisasi Kamera...'
-                            : 'Mulai Test',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                Obx(
+                  () => AuroraPrimaryButton(
+                    label: controller.isInitializing.value
+                        ? 'Inisialisasi Kamera...'
+                        : 'Mulai Test',
+                    height: 48,
+                    onPressed: controller.isCameraReady.value
+                        ? _showTestConfirmationDialog
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -179,6 +165,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.br20),
         title: const Text(
           'Konfirmasi Mulai Test',
           style: TextStyle(
@@ -207,8 +194,10 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
               controller.startGazeTest(duration: 30);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
+              backgroundColor: AppTheme.accentGreen,
               foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
             ),
             child: const Text('Mulai'),
           ),
@@ -309,8 +298,9 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F1FF),
-          borderRadius: BorderRadius.circular(24),
+          color: AppTheme.surfaceTint,
+          borderRadius: AppTheme.br24,
+          boxShadow: AppTheme.shadowCard,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -346,8 +336,8 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.15)),
+                borderRadius: AppTheme.br12,
+                boxShadow: AppTheme.shadowCard,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -398,21 +388,16 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             const SizedBox(height: 16),
 
             // Stop button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => controller.stopGazeTest(),
-                icon: const Icon(Icons.stop_circle_outlined),
-                label: const Text('Hentikan Test'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
+            AuroraPrimaryButton(
+              label: 'Hentikan Test',
+              height: 48,
+              icon: const Icon(Icons.stop_circle_outlined, color: Colors.white, size: 20),
+              gradient: LinearGradient(
+                colors: [Colors.red.shade500, Colors.red.shade700],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              onPressed: () => controller.stopGazeTest(),
             ),
           ],
         ),
@@ -566,24 +551,20 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             ),
             const SizedBox(height: 32),
             SizedBox(
-              width: 200,
-              child: ElevatedButton.icon(
+              width: 220,
+              child: AuroraPrimaryButton(
+                label: 'Ulangi',
+                height: 48,
+                icon: const Icon(Icons.replay, color: Colors.white, size: 20),
                 onPressed: () {
                   controller.testState.value = TestState.idle;
                   controller.gazeHistory.clear();
                 },
-                icon: const Icon(Icons.replay),
-                label: const Text('Ulangi'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
               ),
             ),
             const SizedBox(height: 12),
             SizedBox(
-              width: 200,
+              width: 220,
               child: OutlinedButton.icon(
                 onPressed: () {
                   controller.refreshHomeMetricsIfAvailable();
@@ -595,6 +576,8 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white,
                   side: const BorderSide(color: Colors.white30),
+                  shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
@@ -847,28 +830,11 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                 ),
               ),
               const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.toNamed(Routes.SPEECH_ANALYSIS);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Mulai Speech Analysis',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              AuroraPrimaryButton(
+                label: 'Mulai Speech Analysis',
+                onPressed: () {
+                  Get.toNamed(Routes.SPEECH_ANALYSIS);
+                },
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -884,6 +850,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: Colors.white30),
+                    shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),

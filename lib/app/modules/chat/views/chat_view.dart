@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 import '../controllers/chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
@@ -9,13 +10,13 @@ class ChatView extends GetView<ChatController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.bgLight,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, 
-            color: Colors.black, 
+          icon: const Icon(Icons.arrow_back_ios_new,
+            color: AppTheme.textDark,
             size: 20,
           ),
           onPressed: () => Get.back(),
@@ -25,14 +26,14 @@ class ChatView extends GetView<ChatController> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: AppTheme.textDark,
             letterSpacing: 1.2,
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black),
+            icon: const Icon(Icons.menu, color: AppTheme.textDark),
             onPressed: () {},
           ),
         ],
@@ -76,7 +77,7 @@ class ChatView extends GetView<ChatController> {
                         'RORAI sedang berpikir',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[500],
+                          color: AppTheme.textLight,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -95,11 +96,11 @@ class ChatView extends GetView<ChatController> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.bgLight,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 12,
+                    color: AppTheme.primaryDark.withValues(alpha: 0.08),
+                    blurRadius: 16,
                     offset: const Offset(0, -4),
                   ),
                 ],
@@ -115,22 +116,22 @@ class ChatView extends GetView<ChatController> {
                       decoration: InputDecoration(
                         hintText: 'Ketik sesuatu...',
                         hintStyle: TextStyle(
-                          color: Colors.grey[400],
+                          color: AppTheme.textLight.withValues(alpha: 0.8),
                           fontSize: 14,
                         ),
                         filled: true,
-                        fillColor: const Color(0xFFF2F2F7),
-                        prefixIcon: const Icon(Icons.add, color: Colors.grey),
+                        fillColor: AppTheme.fieldFill,
+                        prefixIcon: const Icon(Icons.add, color: AppTheme.textLight),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(28),
+                          borderRadius: AppTheme.brPill,
                           borderSide: BorderSide.none,
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(28),
+                          borderRadius: AppTheme.brPill,
                           borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(28),
+                          borderRadius: AppTheme.brPill,
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
@@ -151,21 +152,8 @@ class ChatView extends GetView<ChatController> {
                     () => Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFB5A7FF),
-                            Color(0xFF6338F1),
-                          ],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6338F1).withValues(alpha: 0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                        gradient: AppTheme.accentGradient,
+                        boxShadow: AppTheme.shadowButton(AppTheme.accentGreen),
                       ),
                       child: IconButton(
                         onPressed: controller.isLoading.value
@@ -211,7 +199,7 @@ class ChatView extends GetView<ChatController> {
             height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFEBE9FF).withValues(alpha: 0.5),
+              color: AppTheme.lightCyan.withValues(alpha: 0.35),
             ),
           ),
         ),
@@ -220,25 +208,25 @@ class ChatView extends GetView<ChatController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo - purple tinted image
+              // Logo - brand tinted image
               Image.asset(
                 'assets/logo/RoraiChatbot.png',
                 width: 80,
                 height: 80,
                 fit: BoxFit.contain,
-                color: const Color(0xFF6338F1),
+                color: AppTheme.accentGreenDark,
                 colorBlendMode: BlendMode.srcIn,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.space24),
               // Greeting
               Text(
                 'Hallo, Teman Aurora...',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[400],
+                  color: AppTheme.textLight,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppTheme.space16),
               // Main prompt
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -248,7 +236,7 @@ class ChatView extends GetView<ChatController> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: AppTheme.textDark,
                     height: 1.4,
                   ),
                 ),
@@ -272,8 +260,9 @@ class ChatView extends GetView<ChatController> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFF6338F1),
-            borderRadius: BorderRadius.circular(16),
+            color: AppTheme.accentGreenDark,
+            borderRadius: AppTheme.br20,
+            boxShadow: AppTheme.shadowButton(AppTheme.accentGreenDark),
           ),
           child: Text(
             message.text,
@@ -289,17 +278,17 @@ class ChatView extends GetView<ChatController> {
       // AI message (left-aligned) - with streaming support
       final styleSheet = MarkdownStyleSheet(
         p: const TextStyle(
-          color: Colors.black87,
+          color: AppTheme.textDark,
           fontSize: 14,
           height: 1.4,
         ),
         strong: const TextStyle(
-          color: Colors.black87,
+          color: AppTheme.textDark,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
         em: const TextStyle(
-          color: Colors.black87,
+          color: AppTheme.textDark,
           fontSize: 14,
           fontStyle: FontStyle.italic,
         ),
@@ -314,8 +303,9 @@ class ChatView extends GetView<ChatController> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F0F7),
-            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+            borderRadius: AppTheme.br20,
+            boxShadow: AppTheme.shadowCard,
           ),
           child: message.isStreaming
               // Streaming message - update reactively
@@ -404,8 +394,8 @@ class _TypingDotState extends State<_TypingDot>
           child: Container(
             width: 3,
             height: 3,
-            decoration: BoxDecoration(
-              color: Colors.grey[500],
+            decoration: const BoxDecoration(
+              color: AppTheme.textLight,
               shape: BoxShape.circle,
             ),
           ),

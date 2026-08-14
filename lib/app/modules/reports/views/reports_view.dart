@@ -16,7 +16,7 @@ class ReportsView extends GetView<ReportsController> {
         centerTitle: true,
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
-        elevation: 2,
+        elevation: 0,
         automaticallyImplyLeading: false,
       ),
       body: Obx(
@@ -73,7 +73,7 @@ class ReportsView extends GetView<ReportsController> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: AppTheme.primaryGradient,
-        borderRadius: AppTheme.br16,
+        borderRadius: AppTheme.br24,
         boxShadow: AppTheme.shadowLg,
       ),
       child: Column(
@@ -179,12 +179,8 @@ class ReportsView extends GetView<ReportsController> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: AppTheme.br12,
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1.5,
-        ),
-        boxShadow: [AppTheme.cardShadow],
+        borderRadius: AppTheme.br16,
+        boxShadow: AppTheme.shadowCard,
       ),
       child: Column(
         children: [
@@ -255,7 +251,7 @@ class ReportsView extends GetView<ReportsController> {
         performanceIcon = Icons.thumb_up;
         break;
       case 'Fair':
-        performanceColor = Colors.orange;
+        performanceColor = AppTheme.warningOrange;
         performanceIcon = Icons.info;
         break;
       default:
@@ -267,12 +263,8 @@ class ReportsView extends GetView<ReportsController> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: AppTheme.br12,
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [AppTheme.cardShadow],
+        borderRadius: AppTheme.br16,
+        boxShadow: AppTheme.shadowCard,
       ),
       child: Row(
         children: [

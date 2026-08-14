@@ -312,6 +312,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.7.3"
+  get_storage:
+    dependency: "direct main"
+    description:
+      name: get_storage
+      sha256: "39db1fffe779d0c22b3a744376e86febe4ade43bf65e06eab5af707dc84185a2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   glob:
     dependency: transitive
     description:
@@ -348,18 +356,18 @@ packages:
     dependency: transitive
     description:
       name: google_mlkit_commons
-      sha256: "27d626c66a181351a953eba5b6ff1ff123aadb891b4dab085b292118f039d6ac"
+      sha256: c7fc384bdb66c3b83e24e3a41818e61d7a378d900f65f5e775344fbca95a0917
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.12.0"
   google_mlkit_face_detection:
     dependency: "direct main"
     description:
       name: google_mlkit_face_detection
-      sha256: cc2e2d2f4ddbedcb5cc089e6dab2ba8265b4fed72a85eb3bcebc2e20a53281e7
+      sha256: "719735518c0a961072d1757a097af8fec458426accad0a58eae0763942a3f14c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.1"
+    version: "0.14.0"
   google_sign_in:
     dependency: "direct main"
     description:

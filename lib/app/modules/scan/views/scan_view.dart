@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import 'package:lensaaurora/app/widgets/screening_area_card.dart';
 import 'package:lensaaurora/app/routes/app_pages.dart';
@@ -95,8 +96,8 @@ class ScanView extends GetView<ScanController> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: AppTheme.surfaceTint,
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
+                borderRadius: AppTheme.br32,
+                boxShadow: AppTheme.shadowCard,
               ),
               child: Column(
                 children: [
@@ -130,30 +131,9 @@ class ScanView extends GetView<ScanController> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Get.toNamed(Routes.GAZE_TRACKING),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentGreen,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 52),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      side: const BorderSide(color: AppTheme.primaryDark, width: 1.5),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Mulai Scan',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
+              child: AuroraPrimaryButton(
+                label: 'Mulai Scan',
+                onPressed: () => Get.toNamed(Routes.GAZE_TRACKING),
               ),
             ),
           ),
@@ -561,9 +541,11 @@ class ScanView extends GetView<ScanController> {
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Back'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
+                    backgroundColor: AppTheme.textLight,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                   ),
                 ),
               ),
@@ -577,9 +559,11 @@ class ScanView extends GetView<ScanController> {
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Retake'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
+                    backgroundColor: AppTheme.accentGreen,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                   ),
                 ),
               ),

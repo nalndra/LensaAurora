@@ -26,6 +26,9 @@ class AppTheme {
   static const Color successGreen = Color(0xFF28A745);
   static const Color warningOrange = Color(0xFFFFA500);
 
+  // Soft neutral fill used behind inputs/chips instead of a hard border.
+  static const Color fieldFill = Color(0xFFF1F5F8);
+
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
@@ -38,14 +41,16 @@ class AppTheme {
       surface: Colors.white,
     ),
     scaffoldBackgroundColor: bgLight,
+    splashFactory: InkSparkle.splashFactory,
     appBarTheme: AppBarTheme(
-      backgroundColor: Colors.white,
+      backgroundColor: bgLight,
       foregroundColor: textDark,
-      elevation: 1,
+      elevation: 0,
+      surfaceTintColor: Colors.transparent,
       centerTitle: true,
       titleTextStyle: GoogleFonts.plusJakartaSans(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
         color: textDark,
       ),
     ),
@@ -53,58 +58,81 @@ class AppTheme {
       backgroundColor: Colors.white,
       selectedItemColor: accentGreen,
       unselectedItemColor: textLight,
-      elevation: 8,
+      elevation: 0,
+      type: BottomNavigationBarType.fixed,
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: accentGreen,
       foregroundColor: Colors.white,
-      elevation: 4,
+      elevation: 2,
+      shape: StadiumBorder(),
     ),
     cardTheme: CardThemeData(
       color: Colors.white,
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: primaryBlue, width: 1),
-      ),
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: br20),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: fieldFill,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primaryBlue),
+        borderRadius: br16,
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primaryBlue, width: 1.5),
+        borderRadius: br16,
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: accentGreen, width: 2),
+        borderRadius: br16,
+        borderSide: const BorderSide(color: accentGreen, width: 1.8),
       ),
-      labelStyle: const TextStyle(color: textDark),
-      prefixIconColor: primaryBlue,
+      errorBorder: OutlineInputBorder(
+        borderRadius: br16,
+        borderSide: const BorderSide(color: Color(0xFFE4574C), width: 1.4),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: br16,
+        borderSide: const BorderSide(color: Color(0xFFE4574C), width: 1.8),
+      ),
+      hintStyle: TextStyle(color: textLight.withValues(alpha: 0.8)),
+      labelStyle: const TextStyle(color: textLight),
+      floatingLabelStyle: const TextStyle(color: accentGreen),
+      prefixIconColor: textLight,
+      suffixIconColor: textLight,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: accentGreen,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        disabledBackgroundColor: accentGreen.withValues(alpha: 0.4),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        elevation: 0,
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        shape: RoundedRectangleBorder(borderRadius: br16),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primaryDark,
-        side: const BorderSide(color: accentGreen, width: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        side: const BorderSide(color: fieldFill, width: 1.5),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: br16),
       ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: accentGreenDark,
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    ),
+    dividerTheme: DividerThemeData(
+      color: textLight.withValues(alpha: 0.18),
+      thickness: 1,
+      space: 32,
     ),
   );
 
@@ -133,21 +161,54 @@ class AppTheme {
   );
 
   static BoxShadow cardShadow = BoxShadow(
-    color: Colors.black.withValues(alpha: 0.08),
-    blurRadius: 8,
-    offset: const Offset(0, 2),
+    color: primaryDark.withValues(alpha: 0.06),
+    blurRadius: 20,
+    offset: const Offset(0, 8),
   );
 
   static List<BoxShadow> shadowLg = [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.12),
-      blurRadius: 16,
-      offset: const Offset(0, 4),
+      color: primaryDark.withValues(alpha: 0.10),
+      blurRadius: 28,
+      offset: const Offset(0, 10),
     ),
   ];
+
+  /// Soft, brand-tinted shadow for elevated cards/sheets (replaces hard
+  /// borders — floats content instead of outlining it).
+  static List<BoxShadow> shadowCard = [
+    BoxShadow(
+      color: primaryDark.withValues(alpha: 0.08),
+      blurRadius: 24,
+      offset: const Offset(0, 10),
+    ),
+  ];
+
+  /// Colored glow shadow for primary gradient CTAs.
+  static List<BoxShadow> shadowButton(Color color) => [
+        BoxShadow(
+          color: color.withValues(alpha: 0.35),
+          blurRadius: 18,
+          offset: const Offset(0, 8),
+        ),
+      ];
 
   static const BorderRadius br8 = BorderRadius.all(Radius.circular(8));
   static const BorderRadius br12 = BorderRadius.all(Radius.circular(12));
   static const BorderRadius br16 = BorderRadius.all(Radius.circular(16));
   static const BorderRadius br20 = BorderRadius.all(Radius.circular(20));
+  static const BorderRadius br24 = BorderRadius.all(Radius.circular(24));
+  static const BorderRadius br32 = BorderRadius.all(Radius.circular(32));
+  static const BorderRadius brPill = BorderRadius.all(Radius.circular(999));
+
+  // 8pt spacing scale.
+  static const double space4 = 4;
+  static const double space8 = 8;
+  static const double space12 = 12;
+  static const double space16 = 16;
+  static const double space20 = 20;
+  static const double space24 = 24;
+  static const double space32 = 32;
+  static const double space40 = 40;
+  static const double space48 = 48;
 }

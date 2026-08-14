@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 import '../controllers/speech_controller.dart';
 
 class SpeechView extends GetView<SpeechController> {
@@ -15,17 +16,17 @@ class SpeechView extends GetView<SpeechController> {
         backgroundColor: Colors.white,
         foregroundColor: AppTheme.textDark,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.bgLight,
       body: Obx(
         () => SingleChildScrollView(
           child: Container(
-            color: Colors.white,
+            color: AppTheme.bgLight,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 12),
-                
+
                 // Title
                 const Text(
                   'Baca Paragraf dengan Jelas',
@@ -47,11 +48,11 @@ class SpeechView extends GetView<SpeechController> {
 
                 // Paragraph text box
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F1FF),
-                    border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.12)),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    borderRadius: AppTheme.br20,
+                    boxShadow: AppTheme.shadowCard,
                   ),
                   child: Text(
                     controller.paragraphs[controller.currentParagraphIndex.value],
@@ -71,13 +72,10 @@ class SpeechView extends GetView<SpeechController> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: controller.isRecording.value 
-                          ? Colors.red 
-                          : AppTheme.primaryBlue.withOpacity(0.12),
-                      width: controller.isRecording.value ? 2 : 1,
-                    ),
+                    borderRadius: AppTheme.br20,
+                    boxShadow: controller.isRecording.value
+                        ? AppTheme.shadowButton(Colors.red)
+                        : AppTheme.shadowCard,
                   ),
                   child: Column(
                     children: [
@@ -94,7 +92,7 @@ class SpeechView extends GetView<SpeechController> {
                                 color: Colors.red,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.red.withOpacity(0.5),
+                                    color: Colors.red.withValues(alpha: 0.5),
                                     blurRadius: 8,
                                     spreadRadius: 2,
                                   ),
@@ -120,9 +118,10 @@ class SpeechView extends GetView<SpeechController> {
                         ),
                       const SizedBox(height: 16),
 
-                      // Record button
+                      // Record button (toggle) — logic untouched, chrome only.
                       SizedBox(
                         width: double.infinity,
+                        height: 52,
                         child: ElevatedButton.icon(
                           onPressed: controller.isRecording.value
                               ? controller.stopRecording
@@ -142,31 +141,26 @@ class SpeechView extends GetView<SpeechController> {
                                 ? Colors.red.shade600
                                 : AppTheme.primaryBlue,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: AppTheme.br16),
                           ),
                         ),
                       ),
                       const SizedBox(height: 12),
 
                       // Analyze button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: controller.isAnalyzing.value
-                              ? null
-                              : controller.analyzeSpeech,
-                          icon: const Icon(Icons.analytics),
-                          label: Text(
-                            controller.isAnalyzing.value
-                                ? 'Menganalisis...'
-                                : 'Analisis Pidato',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryBlue.withOpacity(0.7),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
+                      AuroraPrimaryButton(
+                        label: controller.isAnalyzing.value
+                            ? 'Menganalisis...'
+                            : 'Analisis Pidato',
+                        isLoading: controller.isAnalyzing.value,
+                        icon: const Icon(Icons.analytics,
+                            color: Colors.white, size: 20),
+                        onPressed: controller.isAnalyzing.value
+                            ? null
+                            : controller.analyzeSpeech,
+                        height: 52,
                       ),
                     ],
                   ),
@@ -191,7 +185,11 @@ class SpeechView extends GetView<SpeechController> {
                         label: const Text('Sebelumnya'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.primaryBlue,
-                          side: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.3)),
+                          side: BorderSide(
+                              color: AppTheme.primaryBlue.withValues(alpha: 0.25)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape:
+                              RoundedRectangleBorder(borderRadius: AppTheme.br16),
                         ),
                       ),
                     ),
@@ -207,6 +205,10 @@ class SpeechView extends GetView<SpeechController> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryBlue,
                           foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape:
+                              RoundedRectangleBorder(borderRadius: AppTheme.br16),
                         ),
                       ),
                     ),
@@ -215,21 +217,15 @@ class SpeechView extends GetView<SpeechController> {
                 const SizedBox(height: 16),
 
                 // Continue button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Save speech analysis results and go to next module
-                      Get.back();
-                    },
-                    icon: const Icon(Icons.check_circle),
-                    label: const Text('Selesai dan Lanjut'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
+                AuroraPrimaryButton(
+                  label: 'Selesai dan Lanjut',
+                  gradient: AppTheme.greenGradient,
+                  icon: const Icon(Icons.check_circle,
+                      color: Colors.white, size: 20),
+                  onPressed: () {
+                    // TODO: Save speech analysis results and go to next module
+                    Get.back();
+                  },
                 ),
               ],
             ),
@@ -243,9 +239,9 @@ class SpeechView extends GetView<SpeechController> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
-        border: Border.all(color: Colors.green.withOpacity(0.3)),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.green.withValues(alpha: 0.08),
+        borderRadius: AppTheme.br20,
+        boxShadow: AppTheme.shadowCard,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,9 +322,8 @@ class SpeechView extends GetView<SpeechController> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
-            border: Border.all(color: color.withOpacity(0.5)),
-            borderRadius: BorderRadius.circular(6),
+            color: color.withValues(alpha: 0.15),
+            borderRadius: AppTheme.brPill,
           ),
           child: Text(
             value,

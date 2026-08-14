@@ -159,7 +159,7 @@ class _Header extends StatelessWidget {
           decoration: BoxDecoration(
             color: accent.withValues(alpha: 0.15),
             shape: BoxShape.circle,
-            border: Border.all(color: accent, width: 1.5),
+            boxShadow: AppTheme.shadowCard,
           ),
           child: Icon(Icons.waving_hand_rounded, color: accent, size: 22),
         ),
@@ -218,7 +218,7 @@ class _StatusBanner extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppTheme.br24,
         border: outline
             ? Border.all(color: AppTheme.primaryDark, width: 2)
             : null,
@@ -231,7 +231,7 @@ class _StatusBanner extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppTheme.brPill,
             ),
             child: const Text(
               'STATUS TERKINI',
@@ -279,7 +279,7 @@ class _StatusBanner extends StatelessWidget {
                 backgroundColor: Colors.white,
                 foregroundColor: accent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppTheme.br16,
                   side: outline
                       ? BorderSide(color: AppTheme.primaryDark, width: 1.5)
                       : BorderSide.none,
@@ -314,11 +314,9 @@ class _WeeklyRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: outline ? accent : accent.withValues(alpha: 0.25),
-          width: outline ? 2 : 1,
-        ),
+        borderRadius: AppTheme.br20,
+        border: outline ? Border.all(color: accent, width: 2) : null,
+        boxShadow: outline ? null : AppTheme.shadowCard,
       ),
       child: Row(
         children: [
@@ -402,11 +400,9 @@ class _MetricTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: outline ? accent : const Color(0xFFE4EBE8),
-          width: outline ? 2 : 1,
-        ),
+        borderRadius: AppTheme.br20,
+        border: outline ? Border.all(color: accent, width: 2) : null,
+        boxShadow: outline ? null : AppTheme.shadowCard,
       ),
       child: Row(
         children: [
@@ -415,7 +411,7 @@ class _MetricTile extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppTheme.br16,
             ),
             child: Icon(icon, color: color, size: 22),
           ),

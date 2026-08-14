@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:lensaaurora/app/modules/speech_analysis/controllers/speech_analysis_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/routes/app_pages.dart';
+import 'package:lensaaurora/app/widgets/aurora_button.dart';
 
 class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
   const SpeechAnalysisView({super.key});
@@ -13,8 +14,9 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
       appBar: AppBar(
         title: const Text('Speech Analysis - Step 2'),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.textDark,
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       backgroundColor: Colors.black,
       body: Obx(
@@ -46,11 +48,8 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primaryBlue.withOpacity(0.2),
-                border: Border.all(
-                  color: AppTheme.primaryBlue,
-                  width: 3,
-                ),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.15),
+                boxShadow: AppTheme.shadowButton(AppTheme.primaryBlue),
               ),
               child: const Icon(
                 Icons.mic_none,
@@ -72,18 +71,17 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
               'Pada test ini, Anda akan diminta untuk membaca beberapa paragraf dengan jelas dan natural. Sistem akan menganalisis tingkat gugup, gangguan berbicara (stutter), dan kecepatan membaca Anda.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 14,
                 height: 1.6,
               ),
             ),
             const SizedBox(height: 32),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: AppTheme.br20,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,7 +101,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                     '• Hindari menghentikan atau mengulang\n'
                     '• Mikrofon harus berfungsi baik',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 13,
                       height: 1.6,
                     ),
@@ -112,26 +110,9 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
               ),
             ),
             const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => controller.startSpeechTest(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  'Mulai Tes Berbicara',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+            AuroraPrimaryButton(
+              label: 'Mulai Tes Berbicara',
+              onPressed: () => controller.startSpeechTest(),
             ),
           ],
         ),
@@ -147,7 +128,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
           // Progress indicator
           Obx(
             () => Container(
-              color: Colors.black.withOpacity(0.9),
+              color: Colors.black,
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
@@ -167,11 +148,11 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                   ),
                   const SizedBox(height: 12),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: AppTheme.brPill,
                     child: LinearProgressIndicator(
                       value: (controller.currentParagraphIndex.value + 1) /
                           controller.paragraphs.length,
-                      backgroundColor: Colors.white.withOpacity(0.1),
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         AppTheme.primaryBlue,
                       ),
@@ -190,9 +171,9 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                 () => Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    color: Colors.white.withValues(alpha: 0.06),
+                    borderRadius: AppTheme.br20,
+                    boxShadow: AppTheme.shadowButton(AppTheme.primaryBlue),
                   ),
                   child: Text(
                     controller.paragraphs[controller.currentParagraphIndex.value],
@@ -208,7 +189,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
           ),
           // Control buttons
           Container(
-            color: Colors.black.withOpacity(0.9),
+            color: Colors.black,
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
@@ -229,6 +210,13 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                               : controller.isRecording.value
                                   ? Colors.red.shade600
                                   : AppTheme.primaryBlue,
+                          boxShadow: controller.recordingExists.value
+                              ? null
+                              : AppTheme.shadowButton(
+                                  controller.isRecording.value
+                                      ? Colors.red
+                                      : AppTheme.primaryBlue,
+                                ),
                         ),
                         child: Center(
                           child: Column(
@@ -275,13 +263,13 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                                 label: const Text('Mulai Ulang'),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.orange,
-                                  side: const BorderSide(
-                                      color: Colors.orange),
+                                  side: BorderSide(
+                                      color: Colors.orange
+                                          .withValues(alpha: 0.6)),
                                   padding: const EdgeInsets.symmetric(
-                                      vertical: 12),
+                                      vertical: 14),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(10),
+                                    borderRadius: AppTheme.br16,
                                   ),
                                 ),
                               ),
@@ -298,14 +286,14 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                                   label: const Text('Lanjut'),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: Colors.white,
-                                    side: const BorderSide(
-                                      color: Colors.white30,
+                                    side: BorderSide(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.25),
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
+                                        vertical: 14),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(10),
+                                      borderRadius: AppTheme.br16,
                                     ),
                                   ),
                                 ),
@@ -313,21 +301,15 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                             // Selesai Membaca button for paragraph 3
                             else
                               Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () => controller.completeTest(),
+                                child: AuroraPrimaryButton(
+                                  label: 'Selesai Membaca',
+                                  gradient: AppTheme.greenGradient,
                                   icon: const Icon(
-                                      Icons.check_circle_outline),
-                                  label: const Text('Selesai Membaca'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green.shade600,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(10),
-                                    ),
+                                    Icons.check_circle_outline,
+                                    color: Colors.white,
+                                    size: 20,
                                   ),
+                                  onPressed: () => controller.completeTest(),
                                 ),
                               ),
                           ],
@@ -355,11 +337,8 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
-                  border: Border.all(
-                    color: AppTheme.primaryBlue,
-                    width: 3,
-                  ),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.15),
+                  boxShadow: AppTheme.shadowButton(AppTheme.primaryBlue),
                 ),
                 child: const Icon(
                   Icons.check_circle_outline,
@@ -381,34 +360,17 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                 'Anda telah berhasil menyelesaikan tes analisis berbicara. Data suara dan pola berbicara Anda telah terekam dan dianalisis.\n\nSelanjutnya, kami akan melakukan tes Motor Behavior untuk mengevaluasi koordinasi motorik dan ketepatan Anda.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 14,
                   height: 1.6,
                 ),
               ),
               const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.toNamed(Routes.MOTOR_BEHAVIOR);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Mulai Motor Behavior Test',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              AuroraPrimaryButton(
+                label: 'Mulai Motor Behavior Test',
+                onPressed: () {
+                  Get.toNamed(Routes.MOTOR_BEHAVIOR);
+                },
               ),
             ],
           ),

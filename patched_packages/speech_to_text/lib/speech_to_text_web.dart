@@ -10,7 +10,8 @@ import 'package:speech_to_text_platform_interface/speech_to_text_platform_interf
 
 /// Web implementation of the SpeechToText platform interface. This supports
 /// the speech to text functionality running in web browsers that have
-/// SpeechRecognition support.
+/// SpeechRecognition support, including Safari's vendor-prefixed
+/// `webkitSpeechRecognition`.
 class SpeechToTextPlugin extends SpeechToTextPlatform {
   html.SpeechRecognition? _webSpeech;
   static const _doneNoResult = 'doneNoResult';
@@ -22,6 +23,15 @@ class SpeechToTextPlugin extends SpeechToTextPlatform {
     SpeechToTextPlatform.instance = SpeechToTextPlugin();
   }
 
+  /// True if the standard (unprefixed) `SpeechRecognition` API is available.
+  static bool get _hasStandardSpeechRecognition =>
+      html.SpeechRecognition.supported;
+
+  /// True if only the vendor-prefixed `webkitSpeechRecognition` (Safari) is
+  /// available.
+  static bool get _hasWebkitSpeechRecognition =>
+      js_util.getProperty(html.window, 'webkitSpeechRecognition') != null;
+
   /// Returns true if the user has already granted permission to access the
   /// microphone, does not prompt the user.
   ///
@@ -32,7 +42,7 @@ class SpeechToTextPlugin extends SpeechToTextPlatform {
   /// denied them permission in the past.
   @override
   Future<bool> hasPermission() async {
-    return html.SpeechRecognition.supported;
+    return _hasStandardSpeechRecognition || _hasWebkitSpeechRecognition;
   }
 
   /// Initialize speech recognition services, returns true if
@@ -43,27 +53,31 @@ class SpeechToTextPlugin extends SpeechToTextPlatform {
   /// should be used. False usually means that the user has denied
   /// permission to use speech.
   ///
+  /// Supports both the standard `SpeechRecognition` API and Safari's
+  /// vendor-prefixed `webkitSpeechRecognition`.
+  ///
   /// [debugLogging] controls whether there is detailed logging from the underlying
   /// plugins. It is off by default, usually only useful for troubleshooting issues
   /// with a paritcular OS version or device, fairly verbose
   @override
   Future<bool> initialize(
       {debugLogging = false, List<SpeechConfigOption>? options}) async {
-    if (!html.SpeechRecognition.supported) {
+    final hasStandard = _hasStandardSpeechRecognition;
+    final hasWebkit = _hasWebkitSpeechRecognition;
+    if (!hasStandard && !hasWebkit) {
       var error = SpeechRecognitionError('not supported', true);
       onError?.call(jsonEncode(error.toJson()));
       return false;
     }
+
     var initialized = false;
     try {
-      _webSpeech = html.SpeechRecognition();
+      _webSpeech =
+          hasStandard ? html.SpeechRecognition() : _createWebkitSpeechRecognition();
       if (null != _webSpeech) {
         _webSpeech!.onError.listen((error) => _onError(error));
         _webSpeech!.onStart.listen((startEvent) => _onSpeechStart(startEvent));
-        _webSpeech!.onSpeechStart
-+            .listen((startEvent) => _onSpeechStart(startEvent));
         _webSpeech!.onEnd.listen((endEvent) => _onSpeechEnd(endEvent));
-        // _webSpeech!.onSpeechEnd.listen((endEvent) => _onSpeechEnd(endEvent));
         _webSpeech!.onNoMatch
             .listen((noMatchEvent) => _onNoMatch(noMatchEvent));
         initialized = true;
@@ -77,6 +91,15 @@ class SpeechToTextPlugin extends SpeechToTextPlatform {
       }
     }
     return initialized;
+  }
+
+  /// Constructs a `webkitSpeechRecognition` instance for browsers (Safari)
+  /// that only expose the vendor-prefixed API.
+  html.SpeechRecognition? _createWebkitSpeechRecognition() {
+    final ctor = js_util.getProperty(html.window, 'webkitSpeechRecognition');
+    if (ctor == null) return null;
+    final obj = js_util.callConstructor(ctor, []);
+    return obj as html.SpeechRecognition?;
   }
 
   /// Stops the current listen for speech if active, does nothing if not.
@@ -134,8 +157,9 @@ class SpeechToTextPlugin extends SpeechToTextPlatform {
   /// crash with `sampleRate != device's supported sampleRate`, try 44100 if seeing
   /// crashes
   ///
-    @override
-    Future<bool> listen(
+  /// [options] newer replacement for the individual deprecated parameters above.
+  @override
+  Future<bool> listen(
       {String? localeId,
       partialResults = true,
       onDevice = false,
@@ -144,10 +168,11 @@ class SpeechToTextPlugin extends SpeechToTextPlatform {
       SpeechListenOptions? options}) async {
     if (null == _webSpeech) return false;
     _webSpeech!.onResult.listen((speechEvent) => _onResult(speechEvent));
-    _webSpeech!.interimResults = partialResults;
-    _webSpeech!.continuous = partialResults;
-    if (null != localeId) {
-      _webSpeech!.lang = localeId;
+    _webSpeech!.interimResults = options?.partialResults ?? partialResults;
+    _webSpeech!.continuous = options?.partialResults ?? partialResults;
+    final locale = options?.localeId ?? localeId;
+    if (null != locale) {
+      _webSpeech!.lang = locale;
     }
     _doneSent = false;
     _resultSent = false;
@@ -155,48 +180,33 @@ class SpeechToTextPlugin extends SpeechToTextPlatform {
     return true;
   }
 
-      // Support both standard SpeechRecognition and vendor-prefixed webkitSpeechRecognition
-      final hasStandard = (html.SpeechRecognition.supported == true);
-      final hasWebkit = js_util.getProperty(html.window, 'webkitSpeechRecognition') != null;
-      if (!hasStandard && !hasWebkit) {
-        var error = SpeechRecognitionError('not supported', true);
-        onError?.call(jsonEncode(error.toJson()));
-        return false;
-      }
+  /// Returns the list of speech locales available on the device.
+  @override
+  Future<List<dynamic>> locales() async {
+    var availableLocales = [];
+    var lang = _webSpeech?.lang;
+    if (null != lang && lang.isNotEmpty) {
+      lang = lang.replaceAll(':', '_');
+      availableLocales.add('$lang:$lang');
+    }
+    return availableLocales;
+  }
 
-      var initialized = false;
-      try {
-        if (hasStandard) {
-          _webSpeech = html.SpeechRecognition();
-        } else {
-          // Construct webkitSpeechRecognition when only webkit prefixed API exists
-          final ctor = js_util.getProperty(html.window, 'webkitSpeechRecognition');
-          if (ctor != null) {
-            final obj = js_util.callConstructor(ctor, []);
-            _webSpeech = obj as html.SpeechRecognition?;
-          }
-        }
+  void _onError(html.SpeechRecognitionError event) {
+    if (null != event.error) {
+      var error = SpeechRecognitionError(event.error!, false);
+      onError?.call(jsonEncode(error.toJson()));
+      _sendDone(_doneNoResult);
+    }
+  }
 
-        if (null != _webSpeech) {
-          _webSpeech!.onError.listen((error) => _onError(error));
-          _webSpeech!.onStart.listen((startEvent) => _onSpeechStart(startEvent));
-          _webSpeech!.onSpeechStart
-              .listen((startEvent) => _onSpeechStart(startEvent));
-          _webSpeech!.onEnd.listen((endEvent) => _onSpeechEnd(endEvent));
-          // _webSpeech!.onSpeechEnd.listen((endEvent) => _onSpeechEnd(endEvent));
-          _webSpeech!.onNoMatch
-              .listen((noMatchEvent) => _onNoMatch(noMatchEvent));
-          initialized = true;
-        }
-      } finally {
-        if (null == _webSpeech) {
-          if (null != onError) {
-            var error = SpeechRecognitionError('speech_not_supported', true);
-            onError!(jsonEncode(error.toJson()));
-          }
-        }
-      }
-      return initialized;
+  void _onSpeechStart(html.Event event) {
+    onStatus?.call('listening');
+  }
+
+  void _onSpeechEnd(html.Event event) {
+    onStatus?.call('notListening');
+    _sendDone(_resultSent ? 'done' : _doneNoResult);
   }
 
   void _onNoMatch(html.Event event) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:camera/camera.dart';
 import 'dart:math';
+import 'package:lensaaurora/app/theme/app_theme.dart';
 import '../../controllers/eye_tracking_controller.dart';
 
 class EyeTrackingScanView extends StatefulWidget {
@@ -31,7 +32,8 @@ class _EyeTrackingScanViewState extends State<EyeTrackingScanView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Eye Tracking ASD Diagnostic'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppTheme.primaryDark,
+        foregroundColor: Colors.white,
       ),
       body: GetBuilder<EyeTrackingController>(
         builder: (_) => Stack(
@@ -117,8 +119,8 @@ class _EyeTrackingScanViewState extends State<EyeTrackingScanView> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.cyan, width: 2),
+          borderRadius: AppTheme.br16,
+          boxShadow: AppTheme.shadowLg,
         ),
         child: Obx(
           () {
@@ -258,6 +260,9 @@ class _EyeTrackingScanViewState extends State<EyeTrackingScanView> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   disabledBackgroundColor: Colors.grey,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                 ),
               ),
               ElevatedButton.icon(
@@ -269,6 +274,9 @@ class _EyeTrackingScanViewState extends State<EyeTrackingScanView> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   disabledBackgroundColor: Colors.grey,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                 ),
               ),
               ElevatedButton.icon(
@@ -277,6 +285,9 @@ class _EyeTrackingScanViewState extends State<EyeTrackingScanView> {
                 label: const Text('EXIT'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                 ),
               ),
             ],
