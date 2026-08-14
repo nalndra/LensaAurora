@@ -4,6 +4,7 @@ import 'package:lensaaurora/app/modules/speech_analysis/controllers/speech_analy
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/routes/app_pages.dart';
 import 'package:lensaaurora/app/widgets/aurora_button.dart';
+import 'package:lensaaurora/app/widgets/test_step_header.dart';
 
 class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
   const SpeechAnalysisView({super.key});
@@ -12,107 +13,126 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Speech Analysis - Step 2'),
+        title: const Text('Speech Analysis'),
         centerTitle: true,
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: AppTheme.textDark,
         elevation: 0,
+        automaticallyImplyLeading: false,
       ),
-      backgroundColor: Colors.black,
-      body: Obx(
-        () {
-          switch (controller.testState.value) {
-            case SpeechTestState.idle:
-              return _buildPrepareScreen();
-            case SpeechTestState.reading:
-              return _buildReadingScreen();
-            case SpeechTestState.completed:
-              return _buildCompletionScreen();
-            default:
-              return _buildPrepareScreen();
-          }
-        },
-      ),
+      backgroundColor: AppTheme.bgLight,
+      body: Obx(() {
+        switch (controller.testState.value) {
+          case SpeechTestState.idle:
+            return _buildPrepareScreen();
+          case SpeechTestState.reading:
+            return _buildReadingScreen();
+          case SpeechTestState.completed:
+            return _buildCompletionScreen();
+          default:
+            return _buildPrepareScreen();
+        }
+      }),
     );
   }
 
   Widget _buildPrepareScreen() {
     return Container(
-      color: Colors.black,
+      color: AppTheme.bgLight,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.only(bottom: 24),
         child: Column(
           children: [
-            const SizedBox(height: 40),
-            Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.primaryBlue.withValues(alpha: 0.15),
-                boxShadow: AppTheme.shadowButton(AppTheme.primaryBlue),
-              ),
-              child: const Icon(
-                Icons.mic_none,
-                color: AppTheme.primaryBlue,
-                size: 56,
-              ),
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Speech Analysis Test',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Pada test ini, Anda akan diminta untuk membaca beberapa paragraf dengan jelas dan natural. Sistem akan menganalisis tingkat gugup, gangguan berbicara (stutter), dan kecepatan membaca Anda.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
-                fontSize: 14,
-                height: 1.6,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                borderRadius: AppTheme.br20,
-              ),
+            const TestStepHeader(currentStep: 2),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '📋 Petunjuk:',
-                    style: TextStyle(
+                  Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: AppTheme.shadowLg,
+                    ),
+                    child: const Icon(
+                      Icons.mic_none,
                       color: AppTheme.primaryBlue,
-                      fontSize: 14,
+                      size: 56,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Speech Analysis Test',
+                    style: TextStyle(
+                      color: AppTheme.textDark,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Text(
-                    '• Baca paragraf dengan suara yang jelas\n'
-                    '• Berbicara dengan tempo normal\n'
-                    '• Hindari menghentikan atau mengulang\n'
-                    '• Mikrofon harus berfungsi baik',
+                    'Pada test ini, Anda akan diminta untuk membaca beberapa paragraf dengan jelas dan natural. Sistem akan menganalisis tingkat gugup, gangguan berbicara (stutter), dan kecepatan membaca Anda.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 13,
+                      color: AppTheme.textLight,
+                      fontSize: 14,
                       height: 1.6,
                     ),
                   ),
+                  const SizedBox(height: 32),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: AppTheme.br20,
+                      boxShadow: AppTheme.shadowCard,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 3,
+                              height: 14,
+                              color: AppTheme.primaryBlue,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'PETUNJUK',
+                              style: TextStyle(
+                                color: AppTheme.primaryBlue,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '• Baca paragraf dengan suara yang jelas\n'
+                          '• Berbicara dengan tempo normal\n'
+                          '• Hindari menghentikan atau mengulang\n'
+                          '• Mikrofon harus berfungsi baik',
+                          style: TextStyle(
+                            color: AppTheme.textLight,
+                            fontSize: 13,
+                            height: 1.6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  AuroraPrimaryButton(
+                    label: 'Mulai Tes Berbicara',
+                    onPressed: () => controller.startSpeechTest(),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(height: 40),
-            AuroraPrimaryButton(
-              label: 'Mulai Tes Berbicara',
-              onPressed: () => controller.startSpeechTest(),
             ),
           ],
         ),
@@ -122,13 +142,13 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
 
   Widget _buildReadingScreen() {
     return Container(
-      color: Colors.black,
+      color: AppTheme.bgLight,
       child: Column(
         children: [
           // Progress indicator
           Obx(
             () => Container(
-              color: Colors.black,
+              color: Colors.white,
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
@@ -138,7 +158,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                       Text(
                         'Paragraf ${controller.currentParagraphIndex.value + 1}/${controller.paragraphs.length}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppTheme.textDark,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -150,11 +170,12 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                   ClipRRect(
                     borderRadius: AppTheme.brPill,
                     child: LinearProgressIndicator(
-                      value: (controller.currentParagraphIndex.value + 1) /
+                      value:
+                          (controller.currentParagraphIndex.value + 1) /
                           controller.paragraphs.length,
-                      backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppTheme.primaryBlue,
+                      backgroundColor: AppTheme.fieldFill,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.accentGreen,
                       ),
                       minHeight: 6,
                     ),
@@ -171,14 +192,16 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                 () => Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.06),
+                    color: Colors.white,
                     borderRadius: AppTheme.br20,
-                    boxShadow: AppTheme.shadowButton(AppTheme.primaryBlue),
+                    boxShadow: AppTheme.shadowCard,
                   ),
                   child: Text(
-                    controller.paragraphs[controller.currentParagraphIndex.value],
+                    controller.paragraphs[controller
+                        .currentParagraphIndex
+                        .value],
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppTheme.textDark,
                       fontSize: 16,
                       height: 1.8,
                     ),
@@ -189,7 +212,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
           ),
           // Control buttons
           Container(
-            color: Colors.black,
+            color: Colors.white,
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
@@ -206,16 +229,16 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: controller.recordingExists.value
-                              ? Colors.grey
+                              ? AppTheme.textLight
                               : controller.isRecording.value
-                                  ? Colors.red.shade600
-                                  : AppTheme.primaryBlue,
+                              ? Colors.red.shade600
+                              : AppTheme.accentGreen,
                           boxShadow: controller.recordingExists.value
                               ? null
                               : AppTheme.shadowButton(
                                   controller.isRecording.value
                                       ? Colors.red
-                                      : AppTheme.primaryBlue,
+                                      : AppTheme.accentGreen,
                                 ),
                         ),
                         child: Center(
@@ -234,8 +257,8 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                                 controller.recordingExists.value
                                     ? 'Recorded'
                                     : controller.isRecording.value
-                                        ? 'Stop'
-                                        : 'Record',
+                                    ? 'Stop'
+                                    : 'Record',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -256,20 +279,24 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                       ? Row(
                           children: [
                             Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () =>
-                                    controller.restartRecording(),
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Mulai Ulang'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.orange,
-                                  side: BorderSide(
-                                      color: Colors.orange
-                                          .withValues(alpha: 0.6)),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: AppTheme.br16,
+                              child: SizedBox(
+                                height: 52,
+                                child: OutlinedButton.icon(
+                                  onPressed: () =>
+                                      controller.restartRecording(),
+                                  icon: const Icon(Icons.refresh, size: 18),
+                                  label: const Text('Mulai Ulang'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.orange,
+                                    side: BorderSide(
+                                      color: Colors.orange.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                      width: 1.5,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: AppTheme.br16,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -279,21 +306,24 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                             if (controller.currentParagraphIndex.value <
                                 controller.paragraphs.length - 1)
                               Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () =>
-                                      controller.skipToNextParagraph(),
-                                  icon: const Icon(Icons.skip_next),
-                                  label: const Text('Lanjut'),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    side: BorderSide(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.25),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: AppTheme.br16,
+                                child: SizedBox(
+                                  height: 52,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        controller.skipToNextParagraph(),
+                                    icon: const Icon(Icons.skip_next, size: 18),
+                                    label: const Text('Lanjut'),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppTheme.textDark,
+                                      side: BorderSide(
+                                        color: AppTheme.textLight.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        width: 1.5,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: AppTheme.br16,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -303,11 +333,12 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                               Expanded(
                                 child: AuroraPrimaryButton(
                                   label: 'Selesai Membaca',
+                                  height: 52,
                                   gradient: AppTheme.greenGradient,
                                   icon: const Icon(
                                     Icons.check_circle_outline,
                                     color: Colors.white,
-                                    size: 20,
+                                    size: 18,
                                   ),
                                   onPressed: () => controller.completeTest(),
                                 ),
@@ -326,7 +357,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
 
   Widget _buildCompletionScreen() {
     return Container(
-      color: Colors.black,
+      color: AppTheme.bgLight,
       child: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -337,8 +368,8 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.15),
-                  boxShadow: AppTheme.shadowButton(AppTheme.primaryBlue),
+                  color: Colors.white,
+                  boxShadow: AppTheme.shadowLg,
                 ),
                 child: const Icon(
                   Icons.check_circle_outline,
@@ -350,7 +381,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
               const Text(
                 'Speech Analysis Selesai',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.textDark,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -360,7 +391,7 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                 'Anda telah berhasil menyelesaikan tes analisis berbicara. Data suara dan pola berbicara Anda telah terekam dan dianalisis.\n\nSelanjutnya, kami akan melakukan tes Motor Behavior untuk mengevaluasi koordinasi motorik dan ketepatan Anda.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: AppTheme.textLight,
                   fontSize: 14,
                   height: 1.6,
                 ),

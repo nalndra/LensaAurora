@@ -125,8 +125,10 @@ class GazeResultsService {
     return score.toInt().clamp(0, 100);
   }
 
-  /// Save motor behavior results (placeholder - returns 0)
+  /// Save motor behavior (rhythm test) results
   Future<void> saveMotorResult({
+    required int score,
+    required Map<String, dynamic> metrics,
     required DateTime testStartTime,
     required DateTime testEndTime,
   }) async {
@@ -134,7 +136,6 @@ class GazeResultsService {
       final currentUser = _auth.currentUser;
       if (currentUser == null) return;
 
-      // For now, save placeholder data
       await _firestore
           .collection('users')
           .doc(currentUser.uid)
@@ -142,18 +143,125 @@ class GazeResultsService {
           .add({
         'userId': currentUser.uid,
         'testDate': Timestamp.fromDate(testStartTime),
-        'score': 0,
-        'status': 'not_available',
+        'testStartTime': Timestamp.fromDate(testStartTime),
+        'testEndTime': Timestamp.fromDate(testEndTime),
+        'durationSeconds': testEndTime.difference(testStartTime).inSeconds,
+        'score': score,
+        'metrics': metrics,
         'createdAt': Timestamp.now(),
       });
 
-      // Update user's latest motor score
-      await _firestore.collection('users').doc(currentUser.uid).update({
-        'latestMotorScore': 0,
+      await _firestore.collection('users').doc(currentUser.uid).set({
+        'latestMotorScore': score,
         'latestMotorTestDate': Timestamp.fromDate(testStartTime),
-      });
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('[GazeResultsService] Error saving motor result: $e');
+    }
+  }
+
+  /// Get latest motor behavior score for user
+  Future<int?> getLatestMotorScore() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return null;
+
+      final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+      return userDoc.data()?['latestMotorScore']?.toInt() ?? 0;
+    } catch (e) {
+      debugPrint('[GazeResultsService] Error getting latest motor score: $e');
+      return null;
+    }
+  }
+
+  /// Get recent motor results for user (for history/graph)
+  Future<List<Map<String, dynamic>>> getAllMotorResults() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return [];
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('motor_results')
+          .orderBy('testDate', descending: true)
+          .limit(10)
+          .get();
+
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      debugPrint('[GazeResultsService] Error getting motor results: $e');
+      return [];
+    }
+  }
+
+  /// Save speech analysis (reading) results
+  Future<void> saveSpeechResult({
+    required int score,
+    required Map<String, dynamic> metrics,
+    required DateTime testStartTime,
+    required DateTime testEndTime,
+  }) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return;
+
+      await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('speech_results')
+          .add({
+        'userId': currentUser.uid,
+        'testDate': Timestamp.fromDate(testStartTime),
+        'testStartTime': Timestamp.fromDate(testStartTime),
+        'testEndTime': Timestamp.fromDate(testEndTime),
+        'durationSeconds': testEndTime.difference(testStartTime).inSeconds,
+        'score': score,
+        'metrics': metrics,
+        'createdAt': Timestamp.now(),
+      });
+
+      await _firestore.collection('users').doc(currentUser.uid).set({
+        'latestSpeechScore': score,
+        'latestSpeechTestDate': Timestamp.fromDate(testStartTime),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('[GazeResultsService] Error saving speech result: $e');
+    }
+  }
+
+  /// Get latest speech analysis score for user
+  Future<int?> getLatestSpeechScore() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return null;
+
+      final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+      return userDoc.data()?['latestSpeechScore']?.toInt() ?? 0;
+    } catch (e) {
+      debugPrint('[GazeResultsService] Error getting latest speech score: $e');
+      return null;
+    }
+  }
+
+  /// Get recent speech results for user (for history/graph)
+  Future<List<Map<String, dynamic>>> getAllSpeechResults() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) return [];
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('speech_results')
+          .orderBy('testDate', descending: true)
+          .limit(10)
+          .get();
+
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      debugPrint('[GazeResultsService] Error getting speech results: $e');
+      return [];
     }
   }
 

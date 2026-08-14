@@ -6,6 +6,7 @@ import 'package:lensaaurora/app/modules/scan/controllers/gaze_tracking_controlle
 import 'package:lensaaurora/app/models/gaze_data.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/aurora_button.dart';
+import 'package:lensaaurora/app/widgets/test_step_header.dart';
 import 'package:lensaaurora/app/routes/app_pages.dart';
 
 class GazeTrackingView extends GetView<GazeTrackingController> {
@@ -27,7 +28,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Gaze Tracking - Step 1'),
+          title: const Text('Gaze Tracking'),
           centerTitle: true,
           backgroundColor: Colors.white,
           foregroundColor: AppTheme.textDark,
@@ -45,20 +46,18 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
           ),
         ),
         backgroundColor: Colors.black,
-        body: Obx(
-          () {
-            switch (controller.testState.value) {
-              case TestState.idle:
-                return _buildIdleState();
-              case TestState.running:
-                return _buildGazeTrackingContent();
-              case TestState.completed:
-                return _buildCompletionScreen();
-              case TestState.aborted:
-                return _buildAbortedScreen();
-            }
-          },
-        ),
+        body: Obx(() {
+          switch (controller.testState.value) {
+            case TestState.idle:
+              return _buildIdleState();
+            case TestState.running:
+              return _buildGazeTrackingContent();
+            case TestState.completed:
+              return _buildCompletionScreen();
+            case TestState.aborted:
+              return _buildAbortedScreen();
+          }
+        }),
       ),
     );
   }
@@ -68,19 +67,19 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
       color: Colors.white,
       child: Column(
         children: [
+          const TestStepHeader(currentStep: 1),
           // Camera preview with natural ratio (no squish).
           if (controller.isCameraReady.value)
-            Expanded(
-              child: _buildCameraPreviewCard(),
-            )
+            Expanded(child: _buildCameraPreviewCard())
           else
             Expanded(
               child: Container(
                 color: Colors.black,
                 child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppTheme.primaryBlue,
+                    ),
                   ),
                 ),
               ),
@@ -175,18 +174,12 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
         ),
         content: const Text(
           'Pastikan pencahayaan cukup dan wajah Anda terlihat jelas di kamera. Fokuskan mata ke titik di tengah layar selama 30 detik.',
-          style: TextStyle(
-            color: AppTheme.textDark,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: AppTheme.textDark, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text(
-              'Batal',
-              style: TextStyle(color: Colors.grey),
-            ),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -211,9 +204,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
       children: [
         // Camera preview with natural ratio (no squish).
         if (controller.isCameraReady.value)
-          Expanded(
-            child: _buildCameraPreviewCard(showTrackingOverlay: true),
-          )
+          Expanded(child: _buildCameraPreviewCard(showTrackingOverlay: true))
         else
           Expanded(
             child: Container(
@@ -221,8 +212,9 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
               color: Colors.black,
               child: const Center(
                 child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppTheme.primaryBlue,
+                  ),
                 ),
               ),
             ),
@@ -235,7 +227,8 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
   }
 
   Widget _buildCameraPreviewCard({bool showTrackingOverlay = false}) {
-    final previewAspectRatio = 1 / controller.cameraController.value.aspectRatio;
+    final previewAspectRatio =
+        1 / controller.cameraController.value.aspectRatio;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
@@ -306,11 +299,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Title and description
-            const Icon(
-              Icons.visibility,
-              color: AppTheme.primaryBlue,
-              size: 40,
-            ),
+            const Icon(Icons.visibility, color: AppTheme.primaryBlue, size: 40),
             const SizedBox(height: 12),
             const Text(
               'Tes Gaze Tracking',
@@ -391,7 +380,11 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             AuroraPrimaryButton(
               label: 'Hentikan Test',
               height: 48,
-              icon: const Icon(Icons.stop_circle_outlined, color: Colors.white, size: 20),
+              icon: const Icon(
+                Icons.stop_circle_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
               gradient: LinearGradient(
                 colors: [Colors.red.shade500, Colors.red.shade700],
                 begin: Alignment.topLeft,
@@ -405,113 +398,9 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
     );
   }
 
-  Widget _buildControlPanel() {
-    return Obx(
-      () => Container(
-        color: Colors.black.withOpacity(0.95),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Status info - Time, Data Points, FPS
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      const Text(
-                        'Waktu',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${controller.timeRemaining.value}s',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const Text(
-                        'Data',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${controller.gazeHistory.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const Text(
-                        'FPS',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${controller.gazeFPS.value}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Stop button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => controller.stopGazeTest(),
-                icon: const Icon(Icons.stop_circle_outlined),
-                label: const Text('Hentikan Test'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildAbortedScreen() {
     return Container(
-      color: Colors.black,
+      color: AppTheme.bgLight,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -520,11 +409,8 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.orange.withOpacity(0.2),
-                border: Border.all(
-                  color: Colors.orange,
-                  width: 3,
-                ),
+                color: Colors.white,
+                boxShadow: AppTheme.shadowLg,
               ),
               child: const Icon(
                 Icons.warning_rounded,
@@ -536,18 +422,15 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
             const Text(
               'Test Aborted',
               style: TextStyle(
-                color: Colors.white,
+                color: AppTheme.textDark,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Tes gaze tracking telah dibatalkan',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: AppTheme.textLight, fontSize: 14),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -574,8 +457,10 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Kembali'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white30),
+                  foregroundColor: AppTheme.textDark,
+                  side: BorderSide(
+                    color: AppTheme.textLight.withValues(alpha: 0.3),
+                  ),
                   shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -584,186 +469,6 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTestResultsScreen() {
-    final stats = controller.getGazeStatistics();
-
-    return SingleChildScrollView(
-      child: Container(
-        color: Colors.black,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-
-            // Completed badge
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green.withOpacity(0.2),
-                border: Border.all(
-                  color: Colors.green,
-                  width: 2,
-                ),
-              ),
-              child: const Icon(
-                Icons.check,
-                color: Colors.green,
-                size: 40,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            const Text(
-              'Tes Gaze Tracking Selesai',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Statistics
-            if (stats != null) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildStatRow('Total Data Points', '${stats.gazePoints.length}'),
-                    const SizedBox(height: 12),
-                    _buildStatRow(
-                      'Fixation Center',
-                      '${stats.centerFixationDuration.toStringAsFixed(1)} frames',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatRow(
-                      'Fixation Left',
-                      '${stats.leftFixationDuration.toStringAsFixed(1)} frames',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatRow(
-                      'Fixation Right',
-                      '${stats.rightFixationDuration.toStringAsFixed(1)} frames',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatRow(
-                      'Gaze Switches',
-                      '${stats.gazeSwitchCount}',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatRow(
-                      'Avg Confidence',
-                      '${(stats.averageConfidence * 100).toStringAsFixed(0)}',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildStatRow(
-                      'Joint Attention Success',
-                      '${stats.jointAttentionSuccessCount}',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-
-            // Action buttons
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // Reset to idle state and show confirmation dialog
-                  controller.testState.value = TestState.idle;
-                  controller.gazeHistory.clear();
-                  Future.delayed(const Duration(milliseconds: 200), () {
-                    _showTestConfirmationDialog();
-                  });
-                },
-                icon: const Icon(Icons.replay),
-                label: const Text('Ulangi Tes'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Get.toNamed(Routes.SPEECH);
-                  // TODO: Pass gaze statistics to speech analysis
-                },
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text('Lanjut ke Speech Analysis'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue.withOpacity(0.7),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => Get.back(),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Kembali ke Menu'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white30),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 13,
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
     );
   }
 
@@ -787,7 +492,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
 
   Widget _buildCompletionScreen() {
     return Container(
-      color: Colors.black,
+      color: AppTheme.bgLight,
       child: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -798,11 +503,8 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
-                  border: Border.all(
-                    color: AppTheme.primaryBlue,
-                    width: 3,
-                  ),
+                  color: Colors.white,
+                  boxShadow: AppTheme.shadowLg,
                 ),
                 child: const Icon(
                   Icons.check_circle_outline,
@@ -814,7 +516,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
               const Text(
                 'Tes Fokus Selesai',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.textDark,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -824,7 +526,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                 'Anda telah berhasil menyelesaikan tes gaze tracking. Data fokus Anda telah tercatat.\n\nSelanjutnya, kami akan melakukan tes Speech Analysis untuk mengevaluasi kemampuan berbicara dan artikulasi Anda.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: AppTheme.textLight,
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -848,8 +550,10 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Kembali ke Menu'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white30),
+                    foregroundColor: AppTheme.textDark,
+                    side: BorderSide(
+                      color: AppTheme.textLight.withValues(alpha: 0.3),
+                    ),
                     shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),

@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/accessibility_controller.dart';
@@ -119,6 +120,15 @@ class HomeView extends GetView<HomeController> {
                     ),
                     const SizedBox(height: 10),
                     _MetricTile(
+                      title: 'Speech Analysis',
+                      score: controller.speechScore.value,
+                      icon: Icons.mic_outlined,
+                      color: AppTheme.primaryDark,
+                      accent: accent,
+                      outline: outline,
+                    ),
+                    const SizedBox(height: 10),
+                    _MetricTile(
                       title: 'Cognitive Skill',
                       score: controller.cognitiveSkillScore.value,
                       icon: Icons.psychology_outlined,
@@ -126,6 +136,26 @@ class HomeView extends GetView<HomeController> {
                       accent: accent,
                       outline: outline,
                     ),
+                    if (controller.gazeHistory.isNotEmpty ||
+                        controller.speechHistory.isNotEmpty ||
+                        controller.motorHistory.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Tren Skor',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _ProgressChart(
+                        gazeHistory: controller.gazeHistory,
+                        speechHistory: controller.speechHistory,
+                        motorHistory: controller.motorHistory,
+                        outline: outline,
+                      ),
+                    ],
                   ]),
                 ),
               ),
@@ -465,6 +495,141 @@ class _MetricTile extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ProgressChart extends StatelessWidget {
+  const _ProgressChart({
+    required this.gazeHistory,
+    required this.speechHistory,
+    required this.motorHistory,
+    required this.outline,
+  });
+
+  final List<MapEntry<DateTime, int>> gazeHistory;
+  final List<MapEntry<DateTime, int>> speechHistory;
+  final List<MapEntry<DateTime, int>> motorHistory;
+  final bool outline;
+
+  static const _gazeColor = AppTheme.primaryBlue;
+  static const _speechColor = AppTheme.primaryDark;
+  static Color get _motorColor => AppTheme.accentGreen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 20, 20, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: AppTheme.br20,
+        border: outline ? Border.all(color: AppTheme.primaryBlue, width: 2) : null,
+        boxShadow: outline ? null : AppTheme.shadowCard,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Row(
+              children: [
+                _legendDot('Gaze', _gazeColor),
+                const SizedBox(width: 14),
+                _legendDot('Speech', _speechColor),
+                const SizedBox(width: 14),
+                _legendDot('Motor', _motorColor),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 160,
+            child: LineChart(
+              LineChartData(
+                minY: 0,
+                maxY: 100,
+                gridData: FlGridData(
+                  drawVerticalLine: false,
+                  horizontalInterval: 25,
+                  getDrawingHorizontalLine: (_) => FlLine(
+                    color: AppTheme.fieldFill,
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 25,
+                      reservedSize: 32,
+                      getTitlesWidget: (value, meta) => Text(
+                        value.toInt().toString(),
+                        style: TextStyle(fontSize: 10, color: AppTheme.textLight),
+                      ),
+                    ),
+                  ),
+                ),
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => AppTheme.primaryDark,
+                    getTooltipItems: (spots) => spots
+                        .map((s) => LineTooltipItem(
+                              '${s.y.toInt()}',
+                              const TextStyle(color: Colors.white, fontSize: 11),
+                            ))
+                        .toList(),
+                  ),
+                ),
+                lineBarsData: [
+                  _series(gazeHistory, _gazeColor),
+                  _series(speechHistory, _speechColor),
+                  _series(motorHistory, _motorColor),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  LineChartBarData _series(List<MapEntry<DateTime, int>> history, Color color) {
+    return LineChartBarData(
+      spots: [
+        for (var i = 0; i < history.length; i++)
+          FlSpot(i.toDouble(), history[i].value.toDouble()),
+      ],
+      isCurved: true,
+      curveSmoothness: 0.25,
+      color: color,
+      barWidth: 2.5,
+      dotData: FlDotData(
+        getDotPainter: (spot, percent, bar, index) =>
+            FlDotCirclePainter(radius: 3, color: color, strokeWidth: 0),
+      ),
+      belowBarData: BarAreaData(show: false),
+    );
+  }
+
+  Widget _legendDot(String label, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(fontSize: 11, color: AppTheme.textLight, fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 }

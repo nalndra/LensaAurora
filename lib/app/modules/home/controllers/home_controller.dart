@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/controllers/navigation_controller.dart';
@@ -13,11 +14,18 @@ class HomeController extends GetxController {
 
   final gazeAttentionScore = 0.obs;
   final motorBehaviorScore = 0.obs;
+  final speechScore = 0.obs;
   final cognitiveSkillScore = 0.obs;
   final weeklyProgressDelta = RxnInt();
   final overallRiskLabel = 'Belum Ditest'.obs;
   final overallRiskDescription =
       'Lakukan skrining gaze tracking untuk melihat status deteksi.'.obs;
+
+  /// Score history per test type, oldest-first, for the home page trend
+  /// chart. Each point is (testDate, score 0-100).
+  final gazeHistory = <MapEntry<DateTime, int>>[].obs;
+  final speechHistory = <MapEntry<DateTime, int>>[].obs;
+  final motorHistory = <MapEntry<DateTime, int>>[].obs;
 
   final isLoadingMetrics = false.obs;
   final childrenList = <ChildProfile>[].obs;
@@ -82,7 +90,29 @@ class HomeController extends GetxController {
         cognitiveSkillScore.value = 0;
       }
 
-      motorBehaviorScore.value = 0;
+      try {
+        final motorScore = await gazeResultsService
+            .getLatestMotorScore()
+            .timeout(
+              const Duration(seconds: 8),
+              onTimeout: () => null,
+            );
+        motorBehaviorScore.value = motorScore ?? 0;
+      } catch (e) {
+        motorBehaviorScore.value = 0;
+      }
+
+      try {
+        final speech = await gazeResultsService
+            .getLatestSpeechScore()
+            .timeout(
+              const Duration(seconds: 8),
+              onTimeout: () => null,
+            );
+        speechScore.value = speech ?? 0;
+      } catch (e) {
+        speechScore.value = 0;
+      }
 
       try {
         weeklyProgressDelta.value = await gameResultsService
@@ -95,10 +125,44 @@ class HomeController extends GetxController {
         weeklyProgressDelta.value = null;
       }
 
+      await _loadHistory();
       _updateOverallRisk();
     } finally {
       isLoadingMetrics.value = false;
     }
+  }
+
+  Future<void> _loadHistory() async {
+    try {
+      final results = await Future.wait([
+        gazeResultsService.getAllGazeResults(),
+        gazeResultsService.getAllSpeechResults(),
+        gazeResultsService.getAllMotorResults(),
+      ]).timeout(const Duration(seconds: 8));
+
+      gazeHistory.assignAll(_toHistory(results[0]));
+      speechHistory.assignAll(_toHistory(results[1]));
+      motorHistory.assignAll(_toHistory(results[2]));
+    } catch (e) {
+      // Leave whatever history was already loaded; the chart simply
+      // shows fewer points if this fails.
+    }
+  }
+
+  /// Firestore docs come back newest-first for the "latest score" lookups
+  /// elsewhere; the trend chart wants them oldest-first left to right.
+  List<MapEntry<DateTime, int>> _toHistory(List<Map<String, dynamic>> docs) {
+    final entries = docs
+        .map((doc) {
+          final timestamp = doc['testDate'];
+          final date = timestamp is Timestamp ? timestamp.toDate() : null;
+          final score = (doc['score'] as num?)?.toInt();
+          if (date == null || score == null) return null;
+          return MapEntry(date, score);
+        })
+        .whereType<MapEntry<DateTime, int>>()
+        .toList();
+    return entries.reversed.toList();
   }
 
   void _updateOverallRisk() {
