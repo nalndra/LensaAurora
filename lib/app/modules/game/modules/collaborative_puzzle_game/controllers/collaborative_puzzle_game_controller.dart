@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/navigation_controller.dart';
@@ -119,12 +121,25 @@ class CollaborativePuzzleGameController extends GetxController {
     _scatterLaidOut = true;
 
     final perRow = (areaWidth / pieceWidth).floor().clamp(1, pieces.length);
+
+    // Shuffle which scatter slot each piece lands in — pieces are built
+    // in row-major grid order (piece 0 = top-left of the solution, piece
+    // 1 = next to it, ...), so without shuffling they'd land in the
+    // scatter tray in that exact same reading order and the puzzle would
+    // already look solved, just waiting to be dragged straight down.
+    final slots = List<int>.generate(pieces.length, (i) => i)..shuffle();
+    final rng = Random();
+
     for (var i = 0; i < pieces.length; i++) {
-      final col = i % perRow;
-      final row = i ~/ perRow;
+      final slot = slots[i];
+      final col = slot % perRow;
+      final row = slot ~/ perRow;
+      // Small random jitter so the tray doesn't look like a rigid grid.
+      final jitterX = (rng.nextDouble() - 0.5) * pieceWidth * 0.3;
+      final jitterY = (rng.nextDouble() - 0.5) * pieceHeight * 0.3;
       pieces[i].currentPosition = Offset(
-        col * pieceWidth + pieceWidth / 2,
-        areaTop + row * pieceHeight + pieceHeight / 2,
+        col * pieceWidth + pieceWidth / 2 + jitterX,
+        areaTop + row * pieceHeight + pieceHeight / 2 + jitterY,
       );
     }
   }
