@@ -220,7 +220,9 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                 Obx(
                   () => Center(
                     child: GestureDetector(
-                      onTap: controller.recordingExists.value
+                      onTap:
+                          (controller.recordingExists.value ||
+                              controller.isInitializingMic.value)
                           ? null
                           : () => controller.toggleRecording(),
                       child: Container(
@@ -242,37 +244,94 @@ class SpeechAnalysisView extends GetView<SpeechAnalysisController> {
                                 ),
                         ),
                         child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                controller.isRecording.value
-                                    ? Icons.stop
-                                    : Icons.mic,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                controller.recordingExists.value
-                                    ? 'Recorded'
-                                    : controller.isRecording.value
-                                    ? 'Stop'
-                                    : 'Record',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
+                          child: controller.isInitializingMic.value
+                              ? const SizedBox(
+                                  width: 32,
+                                  height: 32,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      controller.isRecording.value
+                                          ? Icons.stop
+                                          : Icons.mic,
+                                      color: Colors.white,
+                                      size: 40,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      controller.recordingExists.value
+                                          ? 'Recorded'
+                                          : controller.isRecording.value
+                                          ? 'Stop'
+                                          : 'Record',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+                // Mic failure fallback — always available once a recording
+                // attempt has failed, so the user is never stuck unable to
+                // progress past this paragraph.
+                Obx(
+                  () => (controller.hasMicError.value &&
+                          !controller.recordingExists.value)
+                      ? Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withValues(alpha: 0.08),
+                                borderRadius: AppTheme.br12,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.mic_off_rounded,
+                                      color: Colors.orange, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      controller.micErrorMessage.value,
+                                      style: const TextStyle(
+                                        color: Colors.orange,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            TextButton.icon(
+                              onPressed: () =>
+                                  controller.skipParagraphWithoutRecording(),
+                              icon: const Icon(Icons.skip_next_rounded, size: 18),
+                              label: const Text('Lewati paragraf ini'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppTheme.textDark,
+                              ),
+                            ),
+                          ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 8),
                 // Restart + Action buttons (side by side when recording exists)
                 Obx(
                   () => controller.recordingExists.value

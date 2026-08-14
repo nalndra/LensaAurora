@@ -17,7 +17,7 @@ class RhythmTile {
     required this.id,
     required this.lane,
     required this.type,
-    required this.spawnTime,
+    required this.spawnElapsedMs,
     required this.fallSpeedPxPerMs,
     required this.hitLineY,
     this.holdDurationMs = 0,
@@ -28,7 +28,14 @@ class RhythmTile {
   final int id;
   final int lane;
   final TileType type;
-  final DateTime spawnTime;
+
+  /// Game-elapsed ms (since the game started, not wall-clock) at which
+  /// this tile was spawned. Every timing/position getter below is offset
+  /// by this — without it, all tiles share the exact same fall position
+  /// and hit window regardless of when they actually spawned, which is
+  /// what made tiles visually stack on top of each other instead of
+  /// falling one after another.
+  final int spawnElapsedMs;
   final double fallSpeedPxPerMs;
   final double hitLineY;
 
@@ -55,15 +62,19 @@ class RhythmTile {
       ? baseHeight + holdDurationMs * fallSpeedPxPerMs
       : baseHeight;
 
-  /// Top edge Y position (px, board-local) at [elapsedMs] since spawn.
-  double topY(int elapsedMs) => elapsedMs * fallSpeedPxPerMs - heightPx;
+  /// Top edge Y position (px, board-local) at [globalElapsedMs] — the
+  /// game's overall elapsed time, not time-since-spawn.
+  double topY(int globalElapsedMs) =>
+      (globalElapsedMs - spawnElapsedMs) * fallSpeedPxPerMs - heightPx;
 
-  /// Elapsed ms (since spawn) at which the tile's actionable window
-  /// begins — i.e. when it reaches the hit line.
-  int get windowStartMs => ((hitLineY + heightPx) / fallSpeedPxPerMs).round();
+  /// Game-elapsed ms at which the tile's actionable window begins — i.e.
+  /// when it reaches the hit line.
+  int get windowStartMs =>
+      spawnElapsedMs + ((hitLineY + heightPx) / fallSpeedPxPerMs).round();
 
   /// For tap tiles: the single ideal instant (tile center on hit line).
-  int get idealTapMs => ((hitLineY + heightPx / 2) / fallSpeedPxPerMs).round();
+  int get idealTapMs =>
+      spawnElapsedMs + ((hitLineY + heightPx / 2) / fallSpeedPxPerMs).round();
 
   /// For hold/trace tiles: when the required hold is over.
   int get windowEndMs => windowStartMs + holdDurationMs;

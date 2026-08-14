@@ -31,6 +31,9 @@ class SpeechAnalysisController extends GetxController {
 
   final isRecording = false.obs;
   final recordingExists = false.obs;
+  final hasMicError = false.obs;
+  final micErrorMessage = ''.obs;
+  final isInitializingMic = false.obs;
 
   final paragraphs = [
     'Hari ini adalah hari yang cerah dan menyenangkan. Saya pergi ke taman untuk bermain dengan teman-teman saya. Kami bermain ayun, seluncuran, dan permainan lainnya.',
@@ -63,14 +66,30 @@ class SpeechAnalysisController extends GetxController {
   }
 
   Future<void> _startListening() async {
-    final available = await _speech.initialize(
-      onStatus: (s) => debugPrint('[SpeechAnalysis] STT status: $s'),
-      onError: (e) => debugPrint('[SpeechAnalysis] STT error: ${e.errorMsg}'),
-    );
+    hasMicError.value = false;
+    isInitializingMic.value = true;
+
+    bool available;
+    try {
+      available = await _speech.initialize(
+        onStatus: (s) => debugPrint('[SpeechAnalysis] STT status: $s'),
+        onError: (e) =>
+            debugPrint('[SpeechAnalysis] STT error: ${e.errorMsg}'),
+      );
+    } catch (e) {
+      debugPrint('[SpeechAnalysis] STT initialize threw: $e');
+      available = false;
+    }
+
+    isInitializingMic.value = false;
+
     if (!available) {
+      hasMicError.value = true;
+      micErrorMessage.value =
+          'Mikrofon tidak tersedia atau izin ditolak. Anda tetap bisa lanjut tanpa rekaman.';
       Get.snackbar(
         'Mikrofon tidak tersedia',
-        'Periksa izin mikrofon di pengaturan perangkat Anda',
+        'Periksa izin mikrofon di pengaturan perangkat/browser Anda',
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -81,13 +100,42 @@ class SpeechAnalysisController extends GetxController {
     _recordStart = DateTime.now();
     isRecording.value = true;
 
-    await _speech.listen(
-      onResult: (result) {
-        _lastTranscript = result.recognizedWords;
-        _lastConfidence = result.confidence;
-      },
-      listenFor: const Duration(seconds: 60),
-    );
+    try {
+      await _speech.listen(
+        onResult: (result) {
+          _lastTranscript = result.recognizedWords;
+          _lastConfidence = result.confidence;
+        },
+        listenFor: const Duration(seconds: 60),
+      );
+    } catch (e) {
+      debugPrint('[SpeechAnalysis] STT listen threw: $e');
+      isRecording.value = false;
+      hasMicError.value = true;
+      micErrorMessage.value =
+          'Gagal memulai perekaman. Anda tetap bisa lanjut tanpa rekaman.';
+    }
+  }
+
+  /// Escape hatch so the flow never gets permanently stuck if speech
+  /// recognition isn't available on this device/browser (denied mic
+  /// permission, unsupported platform, etc.) — records a zero-signal
+  /// result for this paragraph and unlocks the Lanjut/Selesai buttons,
+  /// same as a normal completed recording would.
+  void skipParagraphWithoutRecording() {
+    if (isRecording.value) {
+      _speech.stop();
+      isRecording.value = false;
+    }
+    _paragraphResults.add(_ParagraphResult(
+      transcript: '',
+      accuracy: 0,
+      wpm: 0,
+      repeatedWords: 0,
+      confidence: 0,
+    ));
+    recordingExists.value = true;
+    hasMicError.value = false;
   }
 
   /// Detects how well the user actually read the target paragraph: how
@@ -158,6 +206,7 @@ class SpeechAnalysisController extends GetxController {
   void restartRecording() {
     isRecording.value = false;
     recordingExists.value = false;
+    hasMicError.value = false;
     if (_paragraphResults.length > currentParagraphIndex.value) {
       _paragraphResults.removeLast();
     }
@@ -168,6 +217,7 @@ class SpeechAnalysisController extends GetxController {
       currentParagraphIndex.value++;
       isRecording.value = false;
       recordingExists.value = false;
+      hasMicError.value = false;
     } else {
       completeTest();
     }

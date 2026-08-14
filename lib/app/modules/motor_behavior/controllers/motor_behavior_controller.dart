@@ -145,7 +145,7 @@ class MotorBehaviorController extends GetxController {
         id: _nextId++,
         lane: lane,
         type: type,
-        spawnTime: DateTime.now(),
+        spawnElapsedMs: elapsedMs,
         fallSpeedPxPerMs: _fallSpeedPxPerMs,
         hitLineY: _hitLineY,
         holdDurationMs: holdMs,
