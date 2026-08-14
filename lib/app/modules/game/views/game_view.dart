@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
 import 'package:lensaaurora/app/modules/game/widgets/game_catalog_card.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/fade_slide_in.dart';
 import '../controllers/game_controller.dart';
 
 class GameView extends GetView<GameController> {
@@ -31,34 +32,55 @@ class GameView extends GetView<GameController> {
           physics: const ClampingScrollPhysics(),
           child: Column(
             children: [
-              // Header Section
+              // Hero header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Aurora-Games\nCatalog',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textDark,
-                        height: 1.3,
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    borderRadius: AppTheme.br24,
+                    gradient: AppTheme.accentGradient,
+                    boxShadow: AppTheme.shadowButton(AppTheme.accentGreen),
+                  ),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        right: -18,
+                        top: -18,
+                        child: Icon(
+                          Icons.sports_esports_rounded,
+                          size: 96,
+                          color: Colors.white.withValues(alpha: 0.14),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppTheme.space12),
-                    Text(
-                      'Latihan kognitif dan motorik yang dirancang untuk memperkuat jalur saraf melalui permainan interaktif.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textLight,
-                        height: 1.5,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Aurora Games\nCatalog',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              height: 1.25,
+                            ),
+                          ),
+                          const SizedBox(height: AppTheme.space12),
+                          Text(
+                            'Latihan kognitif dan motorik yang dirancang untuk memperkuat jalur saraf melalui permainan interaktif.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.92),
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
 
               // Search Bar
               Padding(
@@ -68,8 +90,7 @@ class GameView extends GetView<GameController> {
                   onChanged: (value) => controller.updateSearchQuery(value),
                   decoration: InputDecoration(
                     hintText: 'Cari game...',
-                    prefixIcon:
-                        Icon(Icons.search, color: AppTheme.textLight),
+                    prefixIcon: Icon(Icons.search, color: AppTheme.textLight),
                     filled: true,
                     fillColor: AppTheme.fieldFill,
                     border: OutlineInputBorder(
@@ -119,6 +140,9 @@ class GameView extends GetView<GameController> {
                     ? Column(
                         children: [
                           const SizedBox(height: 40),
+                          Icon(Icons.search_off_rounded,
+                              size: 40, color: AppTheme.textLight),
+                          const SizedBox(height: 8),
                           Text(
                             'Game tidak ditemukan',
                             style: TextStyle(
@@ -135,12 +159,15 @@ class GameView extends GetView<GameController> {
                             final game = controller.filteredGames[index];
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 20),
-                              child: GameCatalogCard(
-                                title: game.title,
-                                description: game.description,
-                                imageUrl: game.imageUrl,
-                                onPlayPressed: () =>
-                                    controller.playGame(game.id),
+                              child: FadeSlideIn(
+                                index: index,
+                                child: GameCatalogCard(
+                                  title: game.title,
+                                  description: game.description,
+                                  imageUrl: game.imageUrl,
+                                  onPlayPressed: () =>
+                                      controller.playGame(game.id),
+                                ),
                               ),
                             );
                           },
@@ -161,21 +188,26 @@ class GameView extends GetView<GameController> {
       final isActive = controller.selectedCategory.value == categoryValue;
       return GestureDetector(
         onTap: () => controller.updateSelectedCategory(categoryValue),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color:
-                isActive ? AppTheme.accentGreen : AppTheme.surfaceTint,
+            color: isActive ? AppTheme.accentGreen : AppTheme.surfaceTint,
             borderRadius: AppTheme.brPill,
+            boxShadow: isActive
+                ? AppTheme.shadowButton(AppTheme.accentGreen)
+                : const [],
           ),
           child: Center(
-            child: Text(
-              label,
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 220),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: isActive ? Colors.white : AppTheme.accentGreen,
               ),
+              child: Text(label),
             ),
           ),
         ),
@@ -183,4 +215,3 @@ class GameView extends GetView<GameController> {
     });
   }
 }
-

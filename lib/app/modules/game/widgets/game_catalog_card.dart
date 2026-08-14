@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
+import 'package:lensaaurora/app/widgets/pressable_scale.dart';
 
 class GameCatalogCard extends StatelessWidget {
   final String title;
@@ -17,105 +18,134 @@ class GameCatalogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 320,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background Image
-            _buildImageBackground(),
-            // Dark Gradient Overlay
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.8),
+    return PressableScale(
+      onTap: onPlayPressed,
+      scaleDown: 0.98,
+      child: Container(
+        height: 320,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: AppTheme.shadowLg,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background Image
+              _buildImageBackground(),
+              // Dark Gradient Overlay
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.82),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // "Play" badge, top-right
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.92),
+                    borderRadius: AppTheme.brPill,
+                    boxShadow: AppTheme.shadowCard,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.bolt_rounded, size: 14, color: AppTheme.accentGreenDark),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Interaktif',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.accentGreenDark,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-            ),
-            // Content Overlay
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    // Description
-                    Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white70,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    // Play Button
-                    SizedBox(
-                      width: 120,
-                      child: ElevatedButton.icon(
-                        onPressed: onPlayPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.accentGreen,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 0,
+              // Content Overlay
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        icon: const Icon(Icons.play_arrow, size: 18),
-                        label: const Text(
-                          'Play Now',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      // Description
+                      Text(
+                        description,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.white70,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 14),
+                      // Play Button (visual only — the whole card is
+                      // already tappable via the outer PressableScale, so
+                      // this doesn't carry its own tap handler to avoid a
+                      // nested-gesture-detector double-fire).
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.accentGradient,
+                          borderRadius: AppTheme.brPill,
+                          boxShadow: AppTheme.shadowButton(AppTheme.accentGreen),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.play_arrow_rounded, size: 20, color: Colors.white),
+                            SizedBox(width: 4),
+                            Text(
+                              'Play Now',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -125,7 +155,7 @@ class GameCatalogCard extends StatelessWidget {
     if (imageUrl.isEmpty) {
       return _buildImagePlaceholder();
     }
-    
+
     // Check if it's an asset image
     if (imageUrl.startsWith('assets/')) {
       return Image.asset(
@@ -137,7 +167,7 @@ class GameCatalogCard extends StatelessWidget {
         },
       );
     }
-    
+
     // Network image
     return Image.network(
       imageUrl,
@@ -185,4 +215,3 @@ class GameCatalogCard extends StatelessWidget {
     );
   }
 }
-

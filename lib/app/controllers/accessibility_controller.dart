@@ -204,12 +204,24 @@ class AccessibilityController extends GetxController {
             prefixIconColor: accent,
           );
 
+    final textTheme = _buildTextTheme(base.textTheme);
+
     var theme = base.copyWith(
-      textTheme: _buildTextTheme(base.textTheme),
+      textTheme: textTheme,
       colorScheme: base.colorScheme.copyWith(
         primary: accent,
         secondary: useAltAccent.value ? AppTheme.accentGreen : AppTheme.primaryBlue,
         tertiary: accentDark,
+      ),
+      // AppTheme.lightTheme hardcodes the AppBar title style with a fixed
+      // GoogleFonts call, so without this override the selected font never
+      // reaches AppBar titles even though it applies everywhere else.
+      appBarTheme: base.appBarTheme.copyWith(
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: highContrast.value ? Colors.black : AppTheme.textDark,
+        ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: accent,

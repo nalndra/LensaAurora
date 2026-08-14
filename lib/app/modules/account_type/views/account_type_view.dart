@@ -88,7 +88,10 @@ class AccountTypeView extends GetView<AccountTypeController> {
                                 'Kelola profil anak Anda dan pantau perkembangan mereka',
                             onTap: () => controller.selectRole(AccountRole.parent),
                           ),
-                          const SizedBox(height: 16),
+                          // Extra gap so the selected card's stronger
+                          // shadowButton glow (blur 18 + offset 8 ≈ 26px
+                          // reach) doesn't bleed onto the card below it.
+                          const SizedBox(height: 28),
                           // Personal role card
                           _buildRoleCard(
                             context,

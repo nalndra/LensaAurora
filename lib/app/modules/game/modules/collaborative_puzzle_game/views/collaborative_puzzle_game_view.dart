@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/aurora_button.dart';
 import 'package:lensaaurora/app/widgets/bottom_nav_bar.dart';
+import 'package:lensaaurora/app/widgets/confetti_burst.dart';
+import 'package:lensaaurora/app/widgets/fade_slide_in.dart';
+import 'package:lensaaurora/app/widgets/pressable_scale.dart';
 import '../controllers/collaborative_puzzle_game_controller.dart';
 import '../widgets/puzzle_piece_widget.dart';
 
@@ -13,12 +16,15 @@ class CollaborativePuzzleGameView
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
         title: const Text('Collaborative Puzzle Game'),
         centerTitle: true,
-        backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(gradient: AppTheme.accentGradient),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Get.back(),
@@ -53,17 +59,22 @@ class CollaborativePuzzleGameView
             children: [
               Text(
                 controller.currentPuzzle.value?.title ?? 'Select Puzzle',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: AppTheme.textDark,
                 ),
               ),
-              Text(
-                'Progress: ${(controller.progress.value * 100).toStringAsFixed(0)}%',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.primaryBlue,
-                  fontWeight: FontWeight.bold,
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  'Progress: ${(controller.progress.value * 100).toStringAsFixed(0)}%',
+                  key: ValueKey(controller.progress.value),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.accentGreenDark,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -71,12 +82,15 @@ class CollaborativePuzzleGameView
           const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: controller.progress.value,
-              minHeight: 8,
-              backgroundColor: Colors.grey[300],
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                AppTheme.primaryBlue,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: controller.progress.value),
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOut,
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                minHeight: 8,
+                backgroundColor: AppTheme.fieldFill,
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentGreen),
               ),
             ),
           ),
@@ -93,14 +107,17 @@ class CollaborativePuzzleGameView
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
+                  Icons.touch_app_rounded,
                   'Total Moves',
                   '${controller.stats.value.totalMoves}',
                 ),
                 _buildStatItem(
+                  Icons.check_circle_rounded,
                   'Correct',
                   '${controller.stats.value.correctPlacements}',
                 ),
                 _buildStatItem(
+                  Icons.groups_rounded,
                   'Negotiations',
                   '${controller.stats.value.coordinationMoves}',
                 ),
@@ -112,18 +129,20 @@ class CollaborativePuzzleGameView
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildStatItem(IconData icon, String label, String value) {
     return Column(
       children: [
+        Icon(icon, size: 18, color: AppTheme.accentGreen),
+        const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppTheme.primaryBlue,
+            color: AppTheme.textDark,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           label,
           style: TextStyle(fontSize: 10, color: AppTheme.textLight),
@@ -138,7 +157,7 @@ class CollaborativePuzzleGameView
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Select a Puzzle:',
             style: TextStyle(
               fontSize: 16,
@@ -147,63 +166,69 @@ class CollaborativePuzzleGameView
             ),
           ),
           const SizedBox(height: AppTheme.space16),
-          ...controller.puzzles.map((puzzle) {
-            return GestureDetector(
-              onTap: () => controller.startGame(puzzle.id),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: AppTheme.space12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: AppTheme.br20,
-                  color: Colors.white,
-                  boxShadow: AppTheme.shadowCard,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        borderRadius: AppTheme.br16,
-                      ),
-                      child: const Icon(
-                        Icons.extension_outlined,
-                        color: AppTheme.primaryBlue,
-                        size: 32,
-                      ),
+          ...List.generate(controller.puzzles.length, (index) {
+            final puzzle = controller.puzzles[index];
+            return FadeSlideIn(
+              index: index,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: AppTheme.space12),
+                child: PressableScale(
+                  onTap: () => controller.startGame(puzzle.id),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: AppTheme.br20,
+                      color: Colors.white,
+                      boxShadow: AppTheme.shadowCard,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            puzzle.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textDark,
-                            ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.accentGradient,
+                            borderRadius: AppTheme.br16,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${puzzle.numberOfPieces} pieces',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textLight,
-                            ),
+                          child: const Icon(
+                            Icons.extension_rounded,
+                            color: Colors.white,
+                            size: 32,
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                puzzle.title,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.textDark,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${puzzle.numberOfPieces} pieces',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.textLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded,
+                            color: AppTheme.accentGreen, size: 18),
+                      ],
                     ),
-                    const Icon(Icons.arrow_forward_ios,
-                        color: AppTheme.primaryBlue),
-                  ],
+                  ),
                 ),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -330,19 +355,19 @@ class CollaborativePuzzleGameView
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.green,
+                          color: AppTheme.accentGreen,
                           width: 2,
                           style: BorderStyle.solid,
                         ),
                         borderRadius: AppTheme.br16,
-                        color: Colors.green.withOpacity(0.05),
+                        color: AppTheme.accentGreen.withValues(alpha: 0.06),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
                           '✂️ Solution Area\n(Drag pieces here)',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.green,
+                            color: AppTheme.accentGreenDark,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -355,8 +380,7 @@ class CollaborativePuzzleGameView
           ),
         ),
         // Completion overlay
-        if (controller.gameCompleted.value)
-          _buildCompletionOverlay(),
+        if (controller.gameCompleted.value) _buildCompletionOverlay(),
       ],
     );
   }
@@ -366,61 +390,77 @@ class CollaborativePuzzleGameView
       onTap: () => controller.resetGame(),
       child: Container(
         color: Colors.black54,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: AppTheme.br24,
-              boxShadow: AppTheme.shadowLg,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.celebration,
-                  size: 64,
-                  color: AppTheme.accentGreenDark,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const ConfettiBurst(),
+            Center(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.6, end: 1.0),
+                duration: const Duration(milliseconds: 450),
+                curve: Curves.elasticOut,
+                builder: (context, scale, child) => Transform.scale(
+                  scale: scale,
+                  child: child,
                 ),
-                const SizedBox(height: AppTheme.space16),
-                const Text(
-                  '🎉 Good Job! Puzzle Completed!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textDark,
-                  ),
-                ),
-                const SizedBox(height: AppTheme.space16),
-                Container(
-                  padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppTheme.bgLight,
-                    borderRadius: AppTheme.br16,
+                    color: Colors.white,
+                    borderRadius: AppTheme.br24,
+                    boxShadow: AppTheme.shadowLg,
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildStatItem('Total Moves',
-                          '${controller.stats.value.totalMoves}'),
-                      const SizedBox(height: AppTheme.space12),
-                      _buildStatItem('Negotiations',
-                          '${controller.stats.value.coordinationMoves}'),
+                      Icon(
+                        Icons.celebration_rounded,
+                        size: 64,
+                        color: AppTheme.accentGreenDark,
+                      ),
+                      const SizedBox(height: AppTheme.space16),
+                      Text(
+                        '🎉 Good Job! Puzzle Completed!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.space16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.bgLight,
+                          borderRadius: AppTheme.br16,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildStatItem(Icons.touch_app_rounded,
+                                'Total Moves', '${controller.stats.value.totalMoves}'),
+                            const SizedBox(width: AppTheme.space24),
+                            _buildStatItem(Icons.groups_rounded, 'Negotiations',
+                                '${controller.stats.value.coordinationMoves}'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.space20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: AuroraPrimaryButton(
+                          label: 'Play Again',
+                          onPressed: () => controller.resetGame(),
+                          height: 52,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppTheme.space20),
-                SizedBox(
-                  width: double.infinity,
-                  child: AuroraPrimaryButton(
-                    label: 'Play Again',
-                    onPressed: () => controller.resetGame(),
-                    height: 52,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

@@ -26,8 +26,9 @@ class PuzzlePieceWidget extends StatefulWidget {
 }
 
 class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _oscillationController;
+    with TickerProviderStateMixin {
+  late final AnimationController _oscillationController;
+  late final AnimationController _placedPopController;
 
   @override
   void initState() {
@@ -35,6 +36,11 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
     _oscillationController = AnimationController(
       duration: const Duration(milliseconds: 100),
       vsync: this,
+    );
+    _placedPopController = AnimationController(
+      duration: const Duration(milliseconds: 380),
+      vsync: this,
+      value: widget.isPlaced ? 1 : 0,
     );
   }
 
@@ -47,6 +53,12 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
       _oscillationController.repeat(reverse: true);
     } else if (widget.piece.fingersOnThis != 1) {
       _oscillationController.stop();
+    }
+    // Little celebratory pop the moment a piece snaps into place.
+    if (widget.isPlaced && !oldWidget.isPlaced) {
+      _placedPopController.forward(from: 0);
+    } else if (!widget.isPlaced) {
+      _placedPopController.value = 0;
     }
   }
 
@@ -63,7 +75,7 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
           widget.onFingerUp();
         },
         child: AnimatedBuilder(
-          animation: _oscillationController,
+          animation: Listenable.merge([_oscillationController, _placedPopController]),
           builder: (context, child) {
             double offsetX = 0;
             if (_oscillationController.isAnimating) {
@@ -75,12 +87,23 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
               ));
             }
 
+            // Overshoot-then-settle pop when the piece is placed; otherwise
+            // stay at rest scale.
+            final popScale = widget.isPlaced
+                ? Curves.elasticOut.transform(_placedPopController.value)
+                : 1.0;
+
             return Transform.translate(
               offset: Offset(offsetX, 0),
-              child: child,
+              child: Transform.scale(
+                scale: popScale,
+                child: child,
+              ),
             );
           },
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
             width: 80,
             height: 80,
             decoration: BoxDecoration(
@@ -93,18 +116,18 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
               boxShadow: [
                 if (widget.isSelected)
                   BoxShadow(
-                    color: Colors.deepPurple.withOpacity(0.5),
+                    color: Colors.deepPurple.withValues(alpha: 0.5),
                     blurRadius: 8,
                     spreadRadius: 2,
                   ),
                 if (widget.piece.fingersOnThis == 1)
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.5),
+                    color: Colors.orange.withValues(alpha: 0.5),
                     blurRadius: 6,
                   ),
                 if (widget.isPlaced)
                   BoxShadow(
-                    color: Colors.green.withOpacity(0.5),
+                    color: Colors.green.withValues(alpha: 0.5),
                     blurRadius: 8,
                   ),
               ],
@@ -142,6 +165,7 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
   @override
   void dispose() {
     _oscillationController.dispose();
+    _placedPopController.dispose();
     super.dispose();
   }
 }
