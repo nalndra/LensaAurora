@@ -216,7 +216,7 @@ class ProfileView extends GetView<ProfileController> {
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: AppTheme.textLight,
                   fontWeight: FontWeight.w500,
@@ -313,7 +313,7 @@ class ProfileView extends GetView<ProfileController> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               color: AppTheme.textLight,
               fontWeight: FontWeight.w500,
@@ -396,7 +396,7 @@ class ProfileView extends GetView<ProfileController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Tipe Akun',
                     style: TextStyle(
                       fontSize: 12,
@@ -475,7 +475,7 @@ class ProfileView extends GetView<ProfileController> {
                     color: AppTheme.fieldFill,
                     borderRadius: AppTheme.br16,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'Belum ada data anak',
                       style: TextStyle(
@@ -508,7 +508,7 @@ class ProfileView extends GetView<ProfileController> {
                               color: AppTheme.surfaceTint,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Icon(
                                 Icons.child_care,
                                 color: AppTheme.accentGreenDark,
@@ -531,7 +531,7 @@ class ProfileView extends GetView<ProfileController> {
                                 ),
                                 Text(
                                   '${child.age} tahun',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: AppTheme.textLight,
                                   ),

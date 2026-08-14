@@ -180,7 +180,7 @@ class _Header extends StatelessWidget {
               ),
               Text(
                 role,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppTheme.textLight,
                 ),
@@ -344,7 +344,7 @@ class _WeeklyRow extends StatelessWidget {
                 ),
                 Text(
                   hint,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppTheme.textLight,
                   ),

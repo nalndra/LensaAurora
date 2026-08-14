@@ -92,7 +92,7 @@ class SocialInteractionTrainingView
                       controller
                           .scenarios[controller.currentScenarioIndex.value]
                           .description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textLight,
                       ),

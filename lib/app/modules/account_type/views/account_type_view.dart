@@ -66,7 +66,7 @@ class AccountTypeView extends GetView<AccountTypeController> {
                         color: AppTheme.textLight,
                         height: 1.6,
                         fontSize: 14,
-                      ) ?? const TextStyle(
+                      ) ?? TextStyle(
                         color: AppTheme.textLight,
                         height: 1.6,
                         fontSize: 14,
@@ -216,7 +216,7 @@ class AccountTypeView extends GetView<AccountTypeController> {
                 color: AppTheme.textLight,
                 fontSize: 13,
                 height: 1.5,
-              ) ?? const TextStyle(
+              ) ?? TextStyle(
                 color: AppTheme.textLight,
                 fontSize: 13,
                 height: 1.5,

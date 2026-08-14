@@ -24,7 +24,7 @@ class LoginView extends GetView<AuthController> {
               Container(
                 width: double.infinity,
                 height: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppTheme.primaryDark, AppTheme.accentGreenDark],
                     begin: Alignment.topLeft,
@@ -234,13 +234,13 @@ class LoginView extends GetView<AuthController> {
                                       child: RichText(
                                         text: TextSpan(
                                           text: 'Belum punya akun? ',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               color: AppTheme.textLight,
                                               fontSize: 14),
                                           children: [
                                             TextSpan(
                                               text: 'Daftar',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 color: AppTheme.accentGreenDark,
                                                 fontWeight: FontWeight.w700,
                                               ),

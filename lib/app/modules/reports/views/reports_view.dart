@@ -210,7 +210,7 @@ class ReportsView extends GetView<ReportsController> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               color: AppTheme.textLight,
               fontWeight: FontWeight.w500,
@@ -304,7 +304,7 @@ class ReportsView extends GetView<ReportsController> {
                     Flexible(
                       child: Text(
                         'Score: ${result.score}/${result.maxScore}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.textLight,
                         ),
@@ -315,7 +315,7 @@ class ReportsView extends GetView<ReportsController> {
                     Flexible(
                       child: Text(
                         'Time: ${result.getTimeString()}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.textLight,
                         ),

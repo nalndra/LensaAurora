@@ -113,7 +113,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Fokuskan mata ke titik di tengah layar selama 30 detik',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -344,7 +344,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                 children: [
                   Column(
                     children: [
-                      const Text(
+                      Text(
                         'Data Points',
                         style: TextStyle(
                           color: AppTheme.textLight,
@@ -364,7 +364,7 @@ class GazeTrackingView extends GetView<GazeTrackingController> {
                   ),
                   Column(
                     children: [
-                      const Text(
+                      Text(
                         'FPS',
                         style: TextStyle(
                           color: AppTheme.textLight,

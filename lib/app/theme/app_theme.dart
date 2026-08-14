@@ -1,26 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/accessibility_controller.dart';
 
 class AppTheme {
+  /// Null before AccessibilityController is registered (e.g. while
+  /// AppTheme.lightTheme is first evaluated during app bootstrap).
+  static AccessibilityController? get _a11y =>
+      Get.isRegistered<AccessibilityController>()
+          ? Get.find<AccessibilityController>()
+          : null;
+
   // Blue-green palette
   static const Color primaryBlue = Color(0xFF7AAACE);
   static const Color primaryDark = Color(0xFF355872);
-  static const Color accentGreen = Color(0xFF20B2AA);
-  static const Color accentGreenDark = Color(0xFF005D4B);
+  static const Color _accentGreenBase = Color(0xFF20B2AA);
+  static const Color _accentGreenDarkBase = Color(0xFF005D4B);
+
+  /// Reactive: swaps to the blue hue when the "Accent" accessibility
+  /// setting is on, so every screen that references this actually
+  /// responds to the toggle instead of staying a fixed compile-time color.
+  static Color get accentGreen =>
+      (_a11y?.useAltAccent.value ?? false) ? primaryBlue : _accentGreenBase;
+  static Color get accentGreenDark =>
+      (_a11y?.useAltAccent.value ?? false) ? primaryDark : _accentGreenDarkBase;
+
   static const Color lightCyan = Color(0xFF9CD5FF);
   static const Color lightGreen = lightCyan;
   static const Color bgLight = Color(0xFFF7F8F0);
   static const Color textDark = Color(0xFF355872);
-  static const Color textLight = Color(0xFF7B8799);
+  static const Color _textLightBase = Color(0xFF7B8799);
+
+  /// Reactive: darkens toward textDark when High Contrast is on.
+  static Color get textLight =>
+      (_a11y?.highContrast.value ?? false) ? textDark : _textLightBase;
+
   static const Color surfaceTint = Color(0xFFE8F5F3);
   static const Color surfaceTintBlue = Color(0xFFE8F4FA);
 
   // Legacy aliases — map to blue-green
-  static const Color sageGreen = accentGreen;
+  static Color get sageGreen => accentGreen;
   static const Color cyan = primaryBlue;
-  static const Color accentTeal = accentGreen;
-  static const Color verdeTosca = accentGreen;
-  static const Color purple = accentGreen;
+  static Color get accentTeal => accentGreen;
+  static Color get verdeTosca => accentGreen;
+  static Color get purple => accentGreen;
   static const Color purpleLight = lightCyan;
   static const Color lightGreenPale = surfaceTint;
   static const Color successGreen = Color(0xFF28A745);
@@ -34,7 +57,7 @@ class AppTheme {
     brightness: Brightness.light,
     textTheme: GoogleFonts.plusJakartaSansTextTheme(),
     primaryTextTheme: GoogleFonts.plusJakartaSansTextTheme(),
-    colorScheme: const ColorScheme.light(
+    colorScheme: ColorScheme.light(
       primary: primaryBlue,
       secondary: accentGreen,
       tertiary: accentGreenDark,
@@ -54,18 +77,18 @@ class AppTheme {
         color: textDark,
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       selectedItemColor: accentGreen,
       unselectedItemColor: textLight,
       elevation: 0,
       type: BottomNavigationBarType.fixed,
     ),
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: accentGreen,
       foregroundColor: Colors.white,
       elevation: 2,
-      shape: StadiumBorder(),
+      shape: const StadiumBorder(),
     ),
     cardTheme: CardThemeData(
       color: Colors.white,
@@ -88,7 +111,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: br16,
-        borderSide: const BorderSide(color: accentGreen, width: 1.8),
+        borderSide: BorderSide(color: accentGreen, width: 1.8),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: br16,
@@ -99,8 +122,8 @@ class AppTheme {
         borderSide: const BorderSide(color: Color(0xFFE4574C), width: 1.8),
       ),
       hintStyle: TextStyle(color: textLight.withValues(alpha: 0.8)),
-      labelStyle: const TextStyle(color: textLight),
-      floatingLabelStyle: const TextStyle(color: accentGreen),
+      labelStyle: TextStyle(color: textLight),
+      floatingLabelStyle: TextStyle(color: accentGreen),
       prefixIconColor: textLight,
       suffixIconColor: textLight,
     ),
@@ -142,23 +165,23 @@ class AppTheme {
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient accentGradient = LinearGradient(
-    colors: [primaryBlue, accentGreen],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  static LinearGradient get accentGradient => LinearGradient(
+        colors: [primaryBlue, accentGreen],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
-  static const LinearGradient greenGradient = LinearGradient(
-    colors: [accentGreen, lightCyan],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  static LinearGradient get greenGradient => LinearGradient(
+        colors: [accentGreen, lightCyan],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
-  static const LinearGradient statusCardGradient = LinearGradient(
-    colors: [primaryBlue, accentGreen],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  static LinearGradient get statusCardGradient => LinearGradient(
+        colors: [primaryBlue, accentGreen],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
   static BoxShadow cardShadow = BoxShadow(
     color: primaryDark.withValues(alpha: 0.06),

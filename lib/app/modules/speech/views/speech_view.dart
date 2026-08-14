@@ -39,7 +39,7 @@ class SpeechView extends GetView<SpeechController> {
                 const SizedBox(height: 8),
                 Text(
                   'Paragraf ${controller.currentParagraphIndex.value + 1} dari ${controller.paragraphs.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppTheme.textLight,
                     fontSize: 12,
                   ),
@@ -286,7 +286,7 @@ class SpeechView extends GetView<SpeechController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Akurasi Analisis',
                 style: TextStyle(
                   color: AppTheme.textLight,
@@ -314,7 +314,7 @@ class SpeechView extends GetView<SpeechController> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppTheme.textLight,
             fontSize: 12,
           ),

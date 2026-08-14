@@ -23,7 +23,7 @@ class RegisterView extends GetView<AuthController> {
               Container(
                 width: double.infinity,
                 height: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppTheme.primaryDark, AppTheme.accentGreenDark],
                     begin: Alignment.topLeft,
@@ -201,14 +201,14 @@ class RegisterView extends GetView<AuthController> {
                                                   text: TextSpan(
                                                     text:
                                                         'Saya menyetujui semua ',
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                         color:
                                                             AppTheme.textLight,
                                                         fontSize: 14),
                                                     children: [
                                                       TextSpan(
                                                         text: 'syarat',
-                                                        style: const TextStyle(
+                                                        style: TextStyle(
                                                           color: AppTheme
                                                               .accentGreenDark,
                                                           decoration:
@@ -224,7 +224,7 @@ class RegisterView extends GetView<AuthController> {
                                                       const TextSpan(text: ' & '),
                                                       TextSpan(
                                                         text: 'ketentuan',
-                                                        style: const TextStyle(
+                                                        style: TextStyle(
                                                           color: AppTheme
                                                               .accentGreenDark,
                                                           decoration:
@@ -317,13 +317,13 @@ class RegisterView extends GetView<AuthController> {
                                     child: RichText(
                                       text: TextSpan(
                                         text: 'Sudah punya akun? ',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             color: AppTheme.textLight,
                                             fontSize: 14),
                                         children: [
                                           TextSpan(
                                             text: 'Sign In',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: AppTheme.accentGreenDark,
                                               fontWeight: FontWeight.w700,
                                             ),

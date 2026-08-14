@@ -87,7 +87,7 @@ class AccessibilityController extends GetxController {
   LinearGradient get accentGradient => LinearGradient(
         colors: useAltAccent.value
             ? const [AppTheme.lightCyan, AppTheme.primaryBlue]
-            : const [AppTheme.primaryBlue, AppTheme.accentGreen],
+            : [AppTheme.primaryBlue, AppTheme.accentGreen],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );

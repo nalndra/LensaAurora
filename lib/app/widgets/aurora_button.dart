@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lensaaurora/app/controllers/accessibility_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 
 /// Full-width gradient CTA with a soft colored glow shadow. Used in place of
@@ -9,7 +11,7 @@ class AuroraPrimaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.isLoading = false,
-    this.gradient = AppTheme.accentGradient,
+    this.gradient,
     this.height = 56,
     this.icon,
   });
@@ -17,7 +19,7 @@ class AuroraPrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool isLoading;
-  final LinearGradient gradient;
+  final LinearGradient? gradient;
   final double height;
   final Widget? icon;
 
@@ -25,6 +27,13 @@ class AuroraPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final a11y = Get.isRegistered<AccessibilityController>()
+        ? Get.find<AccessibilityController>()
+        : null;
+    final activeGradient = gradient ?? AppTheme.accentGradient;
+    final useOutline = a11y?.useOutline.value ?? false;
+    final foreground = useOutline ? activeGradient.colors.last : Colors.white;
+
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 150),
       opacity: _enabled ? 1 : 0.6,
@@ -32,9 +41,13 @@ class AuroraPrimaryButton extends StatelessWidget {
         height: height,
         decoration: BoxDecoration(
           borderRadius: AppTheme.br16,
-          gradient: gradient,
-          boxShadow: _enabled
-              ? AppTheme.shadowButton(gradient.colors.last)
+          color: useOutline ? Colors.white : null,
+          gradient: useOutline ? null : activeGradient,
+          border: useOutline
+              ? Border.all(color: activeGradient.colors.last, width: 2)
+              : null,
+          boxShadow: _enabled && !useOutline
+              ? AppTheme.shadowButton(activeGradient.colors.last)
               : const [],
         ),
         child: Material(
@@ -45,12 +58,12 @@ class AuroraPrimaryButton extends StatelessWidget {
             onTap: _enabled ? onPressed : null,
             child: Center(
               child: isLoading
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 22,
                       width: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.4,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(foreground),
                       ),
                     )
                   : Row(
@@ -59,8 +72,8 @@ class AuroraPrimaryButton extends StatelessWidget {
                         if (icon != null) ...[icon!, const SizedBox(width: 10)],
                         Text(
                           label,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: foreground,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),

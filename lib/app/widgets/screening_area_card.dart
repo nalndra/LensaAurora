@@ -57,7 +57,7 @@ class ScreeningAreaCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppTheme.textLight,
                       ),
@@ -66,7 +66,7 @@ class ScreeningAreaCard extends StatelessWidget {
                 ),
               ),
               if (onTap != null)
-                const Icon(
+                Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 16,
                   color: AppTheme.accentGreen,

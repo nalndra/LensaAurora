@@ -48,13 +48,30 @@ class MyApp extends StatelessWidget {
 
         return Obx(() {
           final baseTheme = accessibility.applyToTheme(AppTheme.lightTheme);
+
+          // Most screens read colors from AppTheme's static getters
+          // directly instead of Theme.of(context), so a Theme change alone
+          // doesn't repaint them (Flutter skips rebuilding `child` since
+          // it's the same widget instance every time). Re-keying it forces
+          // Flutter to tear down and rebuild the whole route tree whenever
+          // a setting that changes those getters' output is toggled, so
+          // Outline/Accent/Kontras actually take effect everywhere.
+          final rebuildKey = ValueKey(
+            '${accessibility.useOutline.value}_'
+            '${accessibility.useAltAccent.value}_'
+            '${accessibility.highContrast.value}',
+          );
+
           final scaledChild = MediaQuery(
             data: MediaQuery.of(context).copyWith(
               textScaler: TextScaler.linear(accessibility.fontScale.value),
             ),
             child: Theme(
               data: baseTheme,
-              child: child ?? const SizedBox.shrink(),
+              child: KeyedSubtree(
+                key: rebuildKey,
+                child: child ?? const SizedBox.shrink(),
+              ),
             ),
           );
 

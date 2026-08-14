@@ -70,5 +70,16 @@
 	<string>This app needs camera access to capture photos for scanning.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs photo library access to select images for scanning.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1067543596698-kjonkvi57q8g6cgf8i3sn1svc86l1kb6</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

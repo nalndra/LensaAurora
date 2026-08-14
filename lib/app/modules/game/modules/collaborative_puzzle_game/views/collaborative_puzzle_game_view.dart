@@ -126,7 +126,7 @@ class CollaborativePuzzleGameView
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 10, color: AppTheme.textLight),
+          style: TextStyle(fontSize: 10, color: AppTheme.textLight),
         ),
       ],
     );
@@ -189,7 +189,7 @@ class CollaborativePuzzleGameView
                           const SizedBox(height: 4),
                           Text(
                             '${puzzle.numberOfPieces} pieces',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: AppTheme.textLight,
                             ),
@@ -377,7 +377,7 @@ class CollaborativePuzzleGameView
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.celebration,
                   size: 64,
                   color: AppTheme.accentGreenDark,

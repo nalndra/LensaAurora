@@ -47,7 +47,7 @@ class GameView extends GetView<GameController> {
                       ),
                     ),
                     const SizedBox(height: AppTheme.space12),
-                    const Text(
+                    Text(
                       'Latihan kognitif dan motorik yang dirancang untuk memperkuat jalur saraf melalui permainan interaktif.',
                       style: TextStyle(
                         fontSize: 13,
@@ -69,7 +69,7 @@ class GameView extends GetView<GameController> {
                   decoration: InputDecoration(
                     hintText: 'Cari game...',
                     prefixIcon:
-                        const Icon(Icons.search, color: AppTheme.textLight),
+                        Icon(Icons.search, color: AppTheme.textLight),
                     filled: true,
                     fillColor: AppTheme.fieldFill,
                     border: OutlineInputBorder(
@@ -119,7 +119,7 @@ class GameView extends GetView<GameController> {
                     ? Column(
                         children: [
                           const SizedBox(height: 40),
-                          const Text(
+                          Text(
                             'Game tidak ditemukan',
                             style: TextStyle(
                               fontSize: 16,

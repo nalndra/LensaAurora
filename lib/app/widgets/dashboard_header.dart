@@ -39,7 +39,7 @@ class DashboardHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   userRole,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppTheme.textLight,

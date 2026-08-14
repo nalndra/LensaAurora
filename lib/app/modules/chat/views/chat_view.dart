@@ -121,7 +121,7 @@ class ChatView extends GetView<ChatController> {
                         ),
                         filled: true,
                         fillColor: AppTheme.fieldFill,
-                        prefixIcon: const Icon(Icons.add, color: AppTheme.textLight),
+                        prefixIcon: Icon(Icons.add, color: AppTheme.textLight),
                         border: OutlineInputBorder(
                           borderRadius: AppTheme.brPill,
                           borderSide: BorderSide.none,
@@ -394,7 +394,7 @@ class _TypingDotState extends State<_TypingDot>
           child: Container(
             width: 3,
             height: 3,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppTheme.textLight,
               shape: BoxShape.circle,
             ),

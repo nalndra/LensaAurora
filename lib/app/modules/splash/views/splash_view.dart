@@ -43,7 +43,7 @@ class _SplashViewState extends State<SplashView> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppTheme.primaryDark, AppTheme.accentGreenDark],
             begin: Alignment.topLeft,

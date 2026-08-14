@@ -71,7 +71,7 @@ class ScanView extends GetView<ScanController> {
                       ),
                       TextSpan(
                         text: '15 menit',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppTheme.accentGreen,
                         ),
@@ -191,7 +191,7 @@ class ScanView extends GetView<ScanController> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppTheme.textLight,
                   ),
@@ -320,7 +320,7 @@ class ScanView extends GetView<ScanController> {
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppTheme.textLight,
                     height: 1.4,
@@ -435,7 +435,7 @@ class ScanView extends GetView<ScanController> {
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textLight,
                       ),
@@ -495,7 +495,7 @@ class ScanView extends GetView<ScanController> {
                         ),
                         Text(
                           formattedDate,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: AppTheme.textLight,
                           ),
@@ -503,7 +503,7 @@ class ScanView extends GetView<ScanController> {
                       ],
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_ios,
                     size: 16,
                     color: AppTheme.textLight,
