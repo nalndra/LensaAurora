@@ -8,6 +8,14 @@ class PuzzleModel {
   final int numberOfPieces;
   final List<PuzzlePiece> pieces;
   final Size boardSize;
+  final int gridCols;
+  final int gridRows;
+
+  /// width / height of the source image. Drives every adaptive dimension
+  /// in the game board (preview, solution area, piece size) so the
+  /// solution area always matches the picture 1:1 and pieces tile
+  /// together into it without stretching or gaps.
+  final double imageAspectRatio;
 
   PuzzleModel({
     required this.id,
@@ -17,6 +25,9 @@ class PuzzleModel {
     required this.numberOfPieces,
     required this.pieces,
     required this.boardSize,
+    required this.gridCols,
+    required this.gridRows,
+    required this.imageAspectRatio,
   });
 }
 
@@ -37,30 +48,6 @@ class PuzzlePiece {
     required this.currentPosition,
     this.isPlaced = false,
   });
-
-  // Get correct position in solution area
-  Offset getCorrectPosition(Size solutionAreaSize, int totalCols) {
-    double cellWidth = solutionAreaSize.width / totalCols;
-    double cellHeight = solutionAreaSize.height / 3;
-    
-    return Offset(
-      gridX * cellWidth + cellWidth / 2,
-      gridY * cellHeight + cellHeight / 2,
-    );
-  }
-
-  bool isWithinCorrectPosition(
-    Offset position,
-    Offset solutionAreaCenter,
-    Size cellSize,
-  ) {
-    final correctPos = Offset(
-      solutionAreaCenter.dx + (gridX - 1.5) * cellSize.width,
-      solutionAreaCenter.dy + (gridY - 1) * cellSize.height,
-    );
-
-    return (position - correctPos).distance <= cellSize.width * 0.3;
-  }
 
   void addFinger() => fingersOnThis++;
   void removeFinger() => fingersOnThis = (fingersOnThis - 1).clamp(0, 10);

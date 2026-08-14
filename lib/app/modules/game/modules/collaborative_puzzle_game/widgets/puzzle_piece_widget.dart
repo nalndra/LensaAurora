@@ -10,6 +10,14 @@ class PuzzlePieceWidget extends StatefulWidget {
   final bool isSelected;
   final bool isPlaced;
 
+  /// Source puzzle image and grid layout, so this piece can render its own
+  /// slice of the picture instead of a blank placeholder box.
+  final String imagePath;
+  final int gridCols;
+  final int gridRows;
+  final double pieceWidth;
+  final double pieceHeight;
+
   const PuzzlePieceWidget({
     super.key,
     required this.piece,
@@ -17,6 +25,11 @@ class PuzzlePieceWidget extends StatefulWidget {
     required this.onFingerUp,
     required this.onDrag,
     required this.onRelease,
+    required this.imagePath,
+    required this.gridCols,
+    required this.gridRows,
+    required this.pieceWidth,
+    required this.pieceHeight,
     this.isSelected = false,
     this.isPlaced = false,
   });
@@ -29,6 +42,13 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
     with TickerProviderStateMixin {
   late final AnimationController _oscillationController;
   late final AnimationController _placedPopController;
+
+  // Enforced Collaboration requires two DISTINCT, simultaneous fingers on
+  // the same piece. A single GestureDetector's pan recognizer only ever
+  // tracks one active pointer per gesture, so a second finger landing
+  // while the first is still down would never register. Listener reports
+  // every individual pointer independently, so we track them ourselves.
+  final Set<int> _activePointers = {};
 
   @override
   void initState() {
@@ -65,14 +85,33 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: widget.piece.currentPosition.dx - 40,
-      top: widget.piece.currentPosition.dy - 40,
-      child: GestureDetector(
-        onPanStart: (_) => widget.onFingerDown(),
-        onPanUpdate: (details) => widget.onDrag(details.globalPosition),
-        onPanEnd: (_) {
-          widget.onRelease(widget.piece.currentPosition);
+      left: widget.piece.currentPosition.dx - widget.pieceWidth / 2,
+      top: widget.piece.currentPosition.dy - widget.pieceHeight / 2,
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (event) {
+          _activePointers.add(event.pointer);
+          widget.onFingerDown();
+        },
+        onPointerMove: (event) {
+          // Only a drag while two (or more) distinct fingers are down —
+          // this is the actual collaboration gate.
+          if (_activePointers.length >= 2) {
+            widget.onDrag(event.position);
+          }
+        },
+        onPointerUp: (event) {
+          // event.position is global, same as onPointerMove — the
+          // controller converts it to board-local coordinates itself.
+          // (piece.currentPosition is already board-local by this point,
+          // so passing that here would get converted a second time.)
+          widget.onRelease(event.position);
           widget.onFingerUp();
+          _activePointers.remove(event.pointer);
+        },
+        onPointerCancel: (event) {
+          widget.onFingerUp();
+          _activePointers.remove(event.pointer);
         },
         child: AnimatedBuilder(
           animation: Listenable.merge([_oscillationController, _placedPopController]),
@@ -104,8 +143,8 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOut,
-            width: 80,
-            height: 80,
+            width: widget.pieceWidth,
+            height: widget.pieceHeight,
             decoration: BoxDecoration(
               border: Border.all(
                 color: _getPieceColor(),
@@ -132,24 +171,78 @@ class _PuzzlePieceWidgetState extends State<PuzzlePieceWidget>
                   ),
               ],
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Stack(
                 children: [
-                  Icon(
-                    widget.isPlaced ? Icons.check_circle : Icons.touch_app,
-                    color: _getPieceColor(),
-                    size: 24,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Fingers: ${widget.piece.fingersOnThis}',
-                    style: const TextStyle(fontSize: 10),
-                  ),
+                  // The actual slice of the puzzle picture this piece
+                  // represents, cropped out of the full image via an
+                  // oversized image shifted into place with OverflowBox.
+                  Positioned.fill(child: _buildImageSlice()),
+                  if (widget.isPlaced)
+                    const Positioned(
+                      right: 2,
+                      bottom: 2,
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 18,
+                      ),
+                    )
+                  else if (widget.piece.fingersOnThis > 0)
+                    Positioned(
+                      right: 2,
+                      bottom: 2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: _getPieceColor(),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${widget.piece.fingersOnThis}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageSlice() {
+    final sliceWidth = widget.pieceWidth * widget.gridCols;
+    final sliceHeight = widget.pieceHeight * widget.gridRows;
+    final alignX = widget.gridCols <= 1
+        ? 0.0
+        : (widget.piece.gridX / (widget.gridCols - 1)) * 2 - 1;
+    final alignY = widget.gridRows <= 1
+        ? 0.0
+        : (widget.piece.gridY / (widget.gridRows - 1)) * 2 - 1;
+
+    return OverflowBox(
+      minWidth: sliceWidth,
+      maxWidth: sliceWidth,
+      minHeight: sliceHeight,
+      maxHeight: sliceHeight,
+      alignment: Alignment(alignX, alignY),
+      child: Image.asset(
+        widget.imagePath,
+        width: sliceWidth,
+        height: sliceHeight,
+        fit: BoxFit.fill,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: Colors.grey[300],
+          alignment: Alignment.center,
+          child: const Icon(Icons.image_not_supported, color: Colors.grey),
         ),
       ),
     );

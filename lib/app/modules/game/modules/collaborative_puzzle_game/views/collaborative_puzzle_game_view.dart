@@ -235,37 +235,82 @@ class CollaborativePuzzleGameView
   }
 
   Widget _buildGameBoard() {
+    final puzzle = controller.currentPuzzle.value!;
+    const gap = 16.0;
+
     return Stack(
       children: [
         // Background
-        Container(
-          color: AppTheme.bgLight,
-        ),
+        Container(color: AppTheme.bgLight),
         // Game area with pieces
         Positioned.fill(
           child: SingleChildScrollView(
-            child: SizedBox(
-              height: 600,
-              child: Stack(
-                children: [
-                  // Target image area
-                  Positioned(
-                    top: 16,
-                    left: 16,
-                    right: 16,
-                    height: 150,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: AppTheme.br16,
-                        color: Colors.white,
-                        boxShadow: AppTheme.shadowCard,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: AppTheme.br16,
-                        child: controller.currentPuzzle.value != null
-                            ? Image.asset(
-                                controller.currentPuzzle.value!.imagePath,
-                                fit: BoxFit.cover,
+            padding: const EdgeInsets.all(16),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Cap the board width on large/desktop screens so pieces
+                // stay a sane size, and center it within the available
+                // space rather than stretching edge to edge.
+                final contentWidth = constraints.maxWidth > 480
+                    ? 480.0
+                    : constraints.maxWidth;
+
+                // Everything below is derived straight from the puzzle
+                // image's real aspect ratio, so the target preview and
+                // the solution area always end up exactly the same size
+                // (1:1 with the picture) and pieces tile together without
+                // stretching or leaving gaps.
+                final previewHeight = contentWidth / puzzle.imageAspectRatio;
+                final cellAspect =
+                    puzzle.imageAspectRatio * puzzle.gridRows / puzzle.gridCols;
+                final pieceWidth = contentWidth / puzzle.gridCols;
+                final pieceHeight = pieceWidth / cellAspect;
+                final solutionHeight = pieceHeight * puzzle.gridRows;
+                final scatterRows =
+                    (puzzle.numberOfPieces / puzzle.gridCols).ceil() + 1;
+                final scatterHeight =
+                    pieceHeight * scatterRows.clamp(2, 4);
+
+                final scatterTop = previewHeight + gap;
+                final solutionTop = scatterTop + scatterHeight + gap;
+                final boardHeight = solutionTop + solutionHeight;
+
+                controller.ensureScatterLayout(
+                  areaWidth: contentWidth,
+                  areaTop: scatterTop,
+                  areaHeight: scatterHeight,
+                  pieceWidth: pieceWidth,
+                  pieceHeight: pieceHeight,
+                );
+
+                return Center(
+                  child: SizedBox(
+                    width: contentWidth,
+                    height: boardHeight,
+                    child: Stack(
+                      key: controller.gameBoardKey,
+                      clipBehavior: Clip.none,
+                      children: [
+                        // Target image area
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          width: contentWidth,
+                          height: previewHeight,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: AppTheme.br16,
+                              color: Colors.white,
+                              boxShadow: AppTheme.shadowCard,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: AppTheme.br16,
+                              // BoxFit.fill is safe here (won't stretch)
+                              // because previewHeight was derived from
+                              // the image's own aspect ratio above.
+                              child: Image.asset(
+                                puzzle.imagePath,
+                                fit: BoxFit.fill,
                                 errorBuilder: (context, error, stackTrace) {
                                   return const Center(
                                     child: Column(
@@ -286,96 +331,86 @@ class CollaborativePuzzleGameView
                                     ),
                                   );
                                 },
-                              )
-                            : const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.image_outlined,
-                                      size: 48,
-                                      color: Colors.grey,
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Target Picture',
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  ],
-                                ),
                               ),
-                      ),
-                    ),
-                  ),
-                  // Puzzle pieces scatter area
-                  Positioned(
-                    top: 180,
-                    left: 16,
-                    right: 16,
-                    height: 180,
-                    child: Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppTheme.fieldFill,
-                            borderRadius: AppTheme.br16,
+                            ),
                           ),
                         ),
-                        ...List.generate(
-                          controller.pieces.length,
-                          (index) {
-                            final piece = controller.pieces[index];
-                            return PuzzlePieceWidget(
-                              key: ValueKey(piece.id),
-                              piece: piece,
-                              isSelected:
-                                  controller.selectedPiece.value?.id ==
-                                      piece.id,
-                              isPlaced: piece.isPlaced,
-                              onFingerDown: () =>
-                                  controller.onFingerDown(index, piece),
-                              onFingerUp: () =>
-                                  controller.onFingerUp(index, piece),
-                              onDrag: (position) =>
-                                  controller.onPieceDragged(piece, position),
-                              onRelease: (position) =>
-                                  controller.onPieceReleased(piece, position),
-                            );
-                          },
+                        // Puzzle pieces scatter area (background only —
+                        // pieces themselves are positioned directly on
+                        // this Stack below, so their coordinates share
+                        // the same space as the solution area).
+                        Positioned(
+                          top: scatterTop,
+                          left: 0,
+                          width: contentWidth,
+                          height: scatterHeight,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppTheme.fieldFill,
+                              borderRadius: AppTheme.br16,
+                            ),
+                          ),
                         ),
+                        // Solution area (target placement)
+                        Positioned(
+                          top: solutionTop,
+                          left: 0,
+                          width: contentWidth,
+                          height: solutionHeight,
+                          child: Container(
+                            key: controller.solutionAreaKey,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: AppTheme.accentGreen,
+                                width: 2,
+                              ),
+                              borderRadius: AppTheme.br16,
+                              color: AppTheme.accentGreen.withValues(alpha: 0.06),
+                            ),
+                            child: controller.stats.value.correctPlacements == 0
+                                ? Center(
+                                    child: Text(
+                                      '✂️ Solution Area\n(Drag pieces here)',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: AppTheme.accentGreenDark,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ),
+                        // Pieces — rendered last so they paint above both
+                        // the scatter and solution area backgrounds.
+                        ...List.generate(controller.pieces.length, (index) {
+                          final piece = controller.pieces[index];
+                          return PuzzlePieceWidget(
+                            key: ValueKey(piece.id),
+                            piece: piece,
+                            imagePath: puzzle.imagePath,
+                            gridCols: puzzle.gridCols,
+                            gridRows: puzzle.gridRows,
+                            pieceWidth: pieceWidth,
+                            pieceHeight: pieceHeight,
+                            isSelected:
+                                controller.selectedPiece.value?.id == piece.id,
+                            isPlaced: piece.isPlaced,
+                            onFingerDown: () =>
+                                controller.onFingerDown(index, piece),
+                            onFingerUp: () =>
+                                controller.onFingerUp(index, piece),
+                            onDrag: (position) =>
+                                controller.onPieceDragged(piece, position),
+                            onRelease: (position) =>
+                                controller.onPieceReleased(piece, position),
+                          );
+                        }),
                       ],
                     ),
                   ),
-                  // Solution area (target placement)
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    height: 150,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppTheme.accentGreen,
-                          width: 2,
-                          style: BorderStyle.solid,
-                        ),
-                        borderRadius: AppTheme.br16,
-                        color: AppTheme.accentGreen.withValues(alpha: 0.06),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '✂️ Solution Area\n(Drag pieces here)',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppTheme.accentGreenDark,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),

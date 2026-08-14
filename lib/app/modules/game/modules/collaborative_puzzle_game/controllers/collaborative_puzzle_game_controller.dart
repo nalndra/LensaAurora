@@ -15,6 +15,15 @@ class CollaborativePuzzleGameController extends GetxController {
 
   final List<int> _touchedPiecesWithFingers = [];
 
+  // Keys the view attaches to the board Stack and the solution-area
+  // Container so placement checks can use the *actual* rendered geometry
+  // instead of guessed pixel constants — this is what makes drop
+  // detection work correctly at any screen size.
+  final GlobalKey gameBoardKey = GlobalKey();
+  final GlobalKey solutionAreaKey = GlobalKey();
+
+  bool _scatterLaidOut = false;
+
   @override
   void onInit() {
     super.onInit();
@@ -32,17 +41,12 @@ class CollaborativePuzzleGameController extends GetxController {
     puzzles = RxList<PuzzleModel>([
       _createPuzzle(
         id: '1',
-        title: 'Landscape',
-        description: 'Pemandangan alam yang indah',
-        imagePath: 'assets/images/landscape.jpg',
+        title: 'Starry Night',
+        description: 'Lukisan langit malam penuh bintang',
+        imagePath: 'assets/puzzle/starry-night-puzzle.png',
         pieces: 8,
-      ),
-      _createPuzzle(
-        id: '2',
-        title: 'Puzzle Together',
-        description: 'Kolaborasi puzzle bersama',
-        imagePath: 'assets/puzzletogether.jpg',
-        pieces: 12,
+        // Source image is 1280x1014.
+        imageAspectRatio: 1280 / 1014,
       ),
     ]);
   }
@@ -53,6 +57,7 @@ class CollaborativePuzzleGameController extends GetxController {
     required String description,
     required String imagePath,
     required int pieces,
+    required double imageAspectRatio,
   }) {
     final cols = (pieces / 2).ceil();
     final rows = 2;
@@ -66,10 +71,9 @@ class CollaborativePuzzleGameController extends GetxController {
           id: 'piece_$i',
           gridX: x,
           gridY: y,
-          currentPosition: Offset(
-            (x * 100.0) + (y * 50.0),
-            (y * 100.0) + (x * 30.0),
-          ),
+          // Real positions are assigned once the board's actual on-screen
+          // size is known — see ensureScatterLayout below.
+          currentPosition: Offset.zero,
         ),
       );
     }
@@ -82,6 +86,9 @@ class CollaborativePuzzleGameController extends GetxController {
       numberOfPieces: pieces,
       pieces: puzzlePieces,
       boardSize: Size(cols * 100, rows * 100),
+      gridCols: cols,
+      gridRows: rows,
+      imageAspectRatio: imageAspectRatio,
     );
   }
 
@@ -93,7 +100,58 @@ class CollaborativePuzzleGameController extends GetxController {
       gameCompleted.value = false;
       progress.value = 0;
       stats.value = GameStats();
+      _scatterLaidOut = false;
     }
+  }
+
+  /// Scatters pieces across the "pieces" strip of the board using the
+  /// piece size the view just computed from the image's real aspect
+  /// ratio. Safe to call on every build — it only does work once per
+  /// game (until [startGame] resets the flag).
+  void ensureScatterLayout({
+    required double areaWidth,
+    required double areaTop,
+    required double areaHeight,
+    required double pieceWidth,
+    required double pieceHeight,
+  }) {
+    if (_scatterLaidOut || pieces.isEmpty) return;
+    _scatterLaidOut = true;
+
+    final perRow = (areaWidth / pieceWidth).floor().clamp(1, pieces.length);
+    for (var i = 0; i < pieces.length; i++) {
+      final col = i % perRow;
+      final row = i ~/ perRow;
+      pieces[i].currentPosition = Offset(
+        col * pieceWidth + pieceWidth / 2,
+        areaTop + row * pieceHeight + pieceHeight / 2,
+      );
+    }
+  }
+
+  /// Rect of the solution-area Container, in coordinates local to the
+  /// board Stack (i.e. directly usable as a piece's currentPosition).
+  Rect? _solutionAreaRect() {
+    final solutionCtx = solutionAreaKey.currentContext;
+    final boardCtx = gameBoardKey.currentContext;
+    if (solutionCtx == null || boardCtx == null) return null;
+
+    final solutionBox = solutionCtx.findRenderObject() as RenderBox?;
+    final boardBox = boardCtx.findRenderObject() as RenderBox?;
+    if (solutionBox == null || boardBox == null) return null;
+    if (!solutionBox.hasSize || !boardBox.hasSize) return null;
+
+    final topLeft = solutionBox.localToGlobal(Offset.zero, ancestor: boardBox);
+    return topLeft & solutionBox.size;
+  }
+
+  /// Converts a pointer's global screen position into a position local to
+  /// the board Stack, so it lines up with Positioned(left/top: ...).
+  Offset _toBoardLocal(Offset globalPosition) {
+    final boardCtx = gameBoardKey.currentContext;
+    final boardBox = boardCtx?.findRenderObject() as RenderBox?;
+    if (boardBox == null || !boardBox.hasSize) return globalPosition;
+    return boardBox.globalToLocal(globalPosition);
   }
 
   // Enforced Collaboration: Handle multi-touch
@@ -116,19 +174,20 @@ class CollaborativePuzzleGameController extends GetxController {
     }
   }
 
-  void onPieceDragged(PuzzlePiece piece, Offset offset) {
+  void onPieceDragged(PuzzlePiece piece, Offset globalPosition) {
     // Only allow drag if piece has 2+ fingers (collaborative)
     if (piece.hasMultipleFinger() && !piece.isPlaced) {
-      piece.currentPosition = offset;
-      dragOffset.value = offset;
+      final local = _toBoardLocal(globalPosition);
+      piece.currentPosition = local;
+      dragOffset.value = local;
       stats.value.totalMoves++;
     }
   }
 
-  void onPieceReleased(PuzzlePiece piece, Offset releasePosition) {
+  void onPieceReleased(PuzzlePiece piece, Offset globalReleasePosition) {
     if (!piece.isPlaced && piece.hasMultipleFinger()) {
       // Check if placed correctly
-      _checkPiecePlacement(piece, releasePosition);
+      _checkPiecePlacement(piece, _toBoardLocal(globalReleasePosition));
     } else if (!piece.hasMultipleFinger()) {
       // Piece must be touched by 2 fingers - vibrate and reset
       _playRejectAnimation(piece);
@@ -136,37 +195,41 @@ class CollaborativePuzzleGameController extends GetxController {
     selectedPiece.value = null;
   }
 
-  void _checkPiecePlacement(PuzzlePiece piece, Offset position) {
+  void _checkPiecePlacement(PuzzlePiece piece, Offset boardLocalPosition) {
     final puzzle = currentPuzzle.value;
-    if (puzzle == null) return;
+    final solutionRect = _solutionAreaRect();
+    if (puzzle == null || solutionRect == null) return;
 
-    // Simulate solution area (bottom center)
-    final solutionAreaSize = Size(300, 200);
-    final solutionAreaCenter = Offset(200, 350);
     final cellSize = Size(
-      solutionAreaSize.width / (puzzle.numberOfPieces / 2).ceil(),
-      solutionAreaSize.height / 2,
+      solutionRect.width / puzzle.gridCols,
+      solutionRect.height / puzzle.gridRows,
     );
 
-    // Check if within solution area bounds
-    final isInSolutionArea = position.dx > (solutionAreaCenter.dx - 150) &&
-        position.dx < (solutionAreaCenter.dx + 150) &&
-        position.dy > (solutionAreaCenter.dy - 100) &&
-        position.dy < (solutionAreaCenter.dy + 100);
+    final isInSolutionArea = solutionRect.contains(boardLocalPosition);
+    final correctCellCenter = Offset(
+      solutionRect.left + (piece.gridX + 0.5) * cellSize.width,
+      solutionRect.top + (piece.gridY + 0.5) * cellSize.height,
+    );
+    final tolerance = cellSize.shortestSide * 0.4;
+    final isCorrectCell =
+        (boardLocalPosition - correctCellCenter).distance <= tolerance;
 
-    if (isInSolutionArea &&
-        piece.isWithinCorrectPosition(position, solutionAreaCenter, cellSize)) {
-      _onCorrectPlacement(piece);
+    if (isInSolutionArea && isCorrectCell) {
+      _onCorrectPlacement(piece, correctCellCenter);
     } else if (isInSolutionArea) {
       _onIncorrectPlacement(piece);
     }
   }
 
-  void _onCorrectPlacement(PuzzlePiece piece) {
+  void _onCorrectPlacement(PuzzlePiece piece, Offset snapPosition) {
     piece.isPlaced = true;
+    // Snap exactly onto its grid cell so correctly-placed pieces line up
+    // into a clean assembled picture instead of resting wherever they
+    // happened to be dropped within the tolerance radius.
+    piece.currentPosition = snapPosition;
     stats.value.functionalMoves++;
     stats.value.correctPlacements++;
-    
+
     _updateProgress();
     _playSuccessAnimation(piece);
 
