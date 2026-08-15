@@ -43,7 +43,7 @@ class ProgressDetailCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: iconBgColor.withOpacity(0.2),
+                  color: iconBgColor.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -69,7 +69,7 @@ class ProgressDetailCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.15),
+                  color: statusColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -90,7 +90,7 @@ class ProgressDetailCard extends StatelessWidget {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: '${percentage.toStringAsFixed(0)}',
+                  text: percentage.toStringAsFixed(0),
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -102,7 +102,7 @@ class ProgressDetailCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textDark.withOpacity(0.7),
+                    color: AppTheme.textDark.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -115,7 +115,7 @@ class ProgressDetailCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage / 100,
               minHeight: 8,
-              backgroundColor: Colors.grey.withOpacity(0.15),
+              backgroundColor: Colors.grey.withValues(alpha: 0.15),
               valueColor: AlwaysStoppedAnimation<Color>(
                 AppTheme.accentGreen,
               ),

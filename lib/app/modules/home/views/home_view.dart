@@ -5,6 +5,7 @@ import 'package:lensaaurora/app/controllers/accessibility_controller.dart';
 import 'package:lensaaurora/app/controllers/auth_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 import 'package:lensaaurora/app/widgets/chat_fab.dart';
+import 'package:lensaaurora/app/widgets/screening_progress_widgets.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -108,6 +109,7 @@ class HomeView extends GetView<HomeController> {
                       color: AppTheme.primaryBlue,
                       accent: accent,
                       outline: outline,
+                      onTap: () => controller.goToScreeningDomain('gaze'),
                     ),
                     const SizedBox(height: 10),
                     _MetricTile(
@@ -117,6 +119,7 @@ class HomeView extends GetView<HomeController> {
                       color: AppTheme.accentGreen,
                       accent: accent,
                       outline: outline,
+                      onTap: () => controller.goToScreeningDomain('motor'),
                     ),
                     const SizedBox(height: 10),
                     _MetricTile(
@@ -126,6 +129,7 @@ class HomeView extends GetView<HomeController> {
                       color: AppTheme.primaryDark,
                       accent: accent,
                       outline: outline,
+                      onTap: () => controller.goToScreeningDomain('speech'),
                     ),
                     const SizedBox(height: 10),
                     _MetricTile(
@@ -135,7 +139,53 @@ class HomeView extends GetView<HomeController> {
                       color: AppTheme.accentGreenDark,
                       accent: accent,
                       outline: outline,
+                      onTap: () => controller.goToScreeningDomain('cognitive'),
                     ),
+                    // Game Recommendations Section
+                    if (controller.gameRecommendations.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Rekomendasi Game',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...controller.gameRecommendations.take(2).map((rec) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: GameRecommendationCard(
+                            gameTitle: rec.gameName,
+                            reason: rec.reason,
+                            matchScore: rec.matchScore,
+                            skillToImprove: rec.skillToImprove,
+                            priority: rec.priority,
+                            onPlayGame: () => controller.playRecommendedGame(rec.gameId, rec.gameName),
+                            onAddNote: () => _showAddNoteDialog(context, controller, rec.gameId, rec.gameName),
+                          ),
+                        );
+                      }),
+                      if (controller.gameRecommendations.length > 2)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 40,
+                          child: TextButton(
+                            onPressed: () {
+                              Get.toNamed('/screening-dashboard');
+                            },
+                            child: const Text(
+                              'Lihat Semua Rekomendasi',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryBlue,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                     if (controller.gazeHistory.isNotEmpty ||
                         controller.speechHistory.isNotEmpty ||
                         controller.motorHistory.isNotEmpty) ...[
@@ -230,6 +280,7 @@ class _StatusBanner extends StatelessWidget {
     required this.accent,
     required this.outline,
     required this.onScan,
+    this.onSimulate,
   });
 
   final String label;
@@ -237,6 +288,7 @@ class _StatusBanner extends StatelessWidget {
   final Color accent;
   final bool outline;
   final VoidCallback onScan;
+  final VoidCallback? onSimulate;
 
   @override
   Widget build(BuildContext context) {
@@ -295,27 +347,47 @@ class _StatusBanner extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 46,
-            child: FilledButton.icon(
-              onPressed: onScan,
-              icon: const Icon(Icons.camera_alt_outlined, size: 18),
-              label: const Text(
-                'Mulai Skrining',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: accent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTheme.br16,
-                  side: outline
-                      ? BorderSide(color: AppTheme.primaryDark, width: 1.5)
-                      : BorderSide.none,
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: FilledButton.icon(
+                    onPressed: onScan,
+                    icon: const Icon(Icons.camera_alt_outlined, size: 18),
+                    label: const Text(
+                      'Mulai Skrining',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: accent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppTheme.br16,
+                        side: outline
+                            ? BorderSide(color: AppTheme.primaryDark, width: 1.5)
+                            : BorderSide.none,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              if (onSimulate != null && label.contains('Belum')) ...[
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: onSimulate,
+                  icon: const Icon(Icons.auto_fix_high, size: 16, color: Colors.white),
+                  label: const Text(
+                    'Simulasi',
+                    style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: AppTheme.br16),
+                  ),
+                ),
+              ],
+            ],
           ),
         ],
       ),
@@ -404,6 +476,7 @@ class _MetricTile extends StatelessWidget {
     required this.color,
     required this.accent,
     required this.outline,
+    this.onTap,
   });
 
   final String title;
@@ -412,6 +485,7 @@ class _MetricTile extends StatelessWidget {
   final Color color;
   final Color accent;
   final bool outline;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -426,7 +500,9 @@ class _MetricTile extends StatelessWidget {
                     ? 'Baik'
                     : 'Perlu peningkatan';
 
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -495,6 +571,7 @@ class _MetricTile extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
@@ -632,4 +709,40 @@ class _ProgressChart extends StatelessWidget {
       ],
     );
   }
+}
+
+void _showAddNoteDialog(BuildContext context, HomeController controller, String gameId, String gameTitle) {
+  final textController = TextEditingController();
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(
+        'Catatan Terapis: $gameTitle',
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+      ),
+      content: TextField(
+        controller: textController,
+        maxLines: 3,
+        decoration: const InputDecoration(
+          hintText: 'Tuliskan catatan atau instruksi khusus...',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Batal'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final text = textController.text.trim();
+            if (text.isNotEmpty) {
+              controller.addRecommendationNote(gameId, text);
+              Navigator.pop(ctx);
+            }
+          },
+          child: const Text('Simpan'),
+        ),
+      ],
+    ),
+  );
 }

@@ -19,6 +19,7 @@ abstract class Routes {
   static const REGISTER = _Paths.REGISTER;
   static const TERMS = _Paths.TERMS;
   static const ACCOUNT_TYPE = _Paths.ACCOUNT_TYPE;
+  static const SCREENING_DASHBOARD = _Paths.SCREENING_DASHBOARD;
 }
 
 abstract class _Paths {
@@ -39,4 +40,5 @@ abstract class _Paths {
   static const REGISTER = '/register';
   static const TERMS = '/terms';
   static const ACCOUNT_TYPE = '/account-type';
+  static const SCREENING_DASHBOARD = '/screening-dashboard';
 }
