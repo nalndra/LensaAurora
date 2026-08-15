@@ -6,6 +6,9 @@ class GazeResultsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  // In-memory cache for immediate UI updates
+  static final Map<String, int> _cachedScores = {};
+
   /// Save gaze tracking results to Firestore
   Future<void> saveGazeResult({
     required Map<String, dynamic> gazeMetrics,
@@ -13,18 +16,18 @@ class GazeResultsService {
     required DateTime testEndTime,
   }) async {
     try {
+      final score = _calculateGazeScore(gazeMetrics);
+      _cachedScores['gaze'] = score;
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
-        debugPrint('[GazeResultsService] No user logged in');
+        debugPrint('[GazeResultsService] No user logged in, cached gaze score: $score');
         return;
       }
 
       // Create document path: /users/{uid}/gaze_results/{docId}
       final userGazeResultsRef =
           _firestore.collection('users').doc(currentUser.uid).collection('gaze_results');
-
-      // Calculate score/percentage (0-100) based on metrics
-      final score = _calculateGazeScore(gazeMetrics);
 
       // Save the result
       await userGazeResultsRef.add({
@@ -64,21 +67,46 @@ class GazeResultsService {
       debugPrint('[GazeResultsService] Gaze result saved successfully. Score: $score');
     } catch (e) {
       debugPrint('[GazeResultsService] Error saving gaze result: $e');
-      rethrow;
     }
   }
 
   /// Get latest gaze score for user
   Future<int?> getLatestGazeScore() async {
     try {
+      if (_cachedScores.containsKey('gaze')) {
+        return _cachedScores['gaze'];
+      }
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return null;
 
       final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
-      return userDoc.data()?['latestGazeScore']?.toInt() ?? 0;
+      final scoreFromDoc = (userDoc.data()?['latestGazeScore'] as num?)?.toInt();
+      if (scoreFromDoc != null && scoreFromDoc > 0) {
+        _cachedScores['gaze'] = scoreFromDoc;
+        return scoreFromDoc;
+      }
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('gaze_results')
+          .orderBy('testDate', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final score = (snapshot.docs.first.data()['score'] as num?)?.toInt();
+        if (score != null && score > 0) {
+          _cachedScores['gaze'] = score;
+          return score;
+        }
+      }
+
+      return scoreFromDoc ?? 0;
     } catch (e) {
       debugPrint('[GazeResultsService] Error getting latest gaze score: $e');
-      return null;
+      return _cachedScores['gaze'];
     }
   }
 
@@ -104,22 +132,12 @@ class GazeResultsService {
   }
 
   /// Calculate gaze score based on metrics
-  /// Returns a percentage (0-100)
   int _calculateGazeScore(Map<String, dynamic> metrics) {
-    // Weighted calculation based on clinical metrics
-    // Gaze Following: 40% weight (most important for attention)
-    // Social Preference: 35% weight (social interaction)
-    // Fixation Stability: 15% weight (focus)
-    // Other: 10% weight
-
     final gazeFollowing = (metrics['gaze_following'] as num?)?.toDouble() ?? 0.0;
     final socialPref = (metrics['social_preference'] as num?)?.toDouble() ?? 0.0;
     final avgFixation = (metrics['avg_fixation'] as num?)?.toDouble() ?? 0.0;
 
-    // Normalize fixation to 0-100 scale (normal fixation is 0.2-0.5 seconds)
     final fixationScore = (avgFixation / 0.5 * 100).clamp(0.0, 100.0);
-
-    // Calculate weighted score
     double score = (gazeFollowing * 0.40) + (socialPref * 0.35) + (fixationScore * 0.15) + (50 * 0.10);
 
     return score.toInt().clamp(0, 100);
@@ -133,6 +151,8 @@ class GazeResultsService {
     required DateTime testEndTime,
   }) async {
     try {
+      _cachedScores['motor'] = score;
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return;
 
@@ -163,14 +183,40 @@ class GazeResultsService {
   /// Get latest motor behavior score for user
   Future<int?> getLatestMotorScore() async {
     try {
+      if (_cachedScores.containsKey('motor')) {
+        return _cachedScores['motor'];
+      }
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return null;
 
       final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
-      return userDoc.data()?['latestMotorScore']?.toInt() ?? 0;
+      final scoreFromDoc = (userDoc.data()?['latestMotorScore'] as num?)?.toInt();
+      if (scoreFromDoc != null && scoreFromDoc > 0) {
+        _cachedScores['motor'] = scoreFromDoc;
+        return scoreFromDoc;
+      }
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('motor_results')
+          .orderBy('testDate', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final score = (snapshot.docs.first.data()['score'] as num?)?.toInt();
+        if (score != null && score > 0) {
+          _cachedScores['motor'] = score;
+          return score;
+        }
+      }
+
+      return scoreFromDoc ?? 0;
     } catch (e) {
       debugPrint('[GazeResultsService] Error getting latest motor score: $e');
-      return null;
+      return _cachedScores['motor'];
     }
   }
 
@@ -203,6 +249,8 @@ class GazeResultsService {
     required DateTime testEndTime,
   }) async {
     try {
+      _cachedScores['speech'] = score;
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return;
 
@@ -233,14 +281,40 @@ class GazeResultsService {
   /// Get latest speech analysis score for user
   Future<int?> getLatestSpeechScore() async {
     try {
+      if (_cachedScores.containsKey('speech')) {
+        return _cachedScores['speech'];
+      }
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return null;
 
       final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
-      return userDoc.data()?['latestSpeechScore']?.toInt() ?? 0;
+      final scoreFromDoc = (userDoc.data()?['latestSpeechScore'] as num?)?.toInt();
+      if (scoreFromDoc != null && scoreFromDoc > 0) {
+        _cachedScores['speech'] = scoreFromDoc;
+        return scoreFromDoc;
+      }
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('speech_results')
+          .orderBy('testDate', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final score = (snapshot.docs.first.data()['score'] as num?)?.toInt();
+        if (score != null && score > 0) {
+          _cachedScores['speech'] = score;
+          return score;
+        }
+      }
+
+      return scoreFromDoc ?? 0;
     } catch (e) {
       debugPrint('[GazeResultsService] Error getting latest speech score: $e');
-      return null;
+      return _cachedScores['speech'];
     }
   }
 
@@ -265,7 +339,7 @@ class GazeResultsService {
     }
   }
 
-  /// Save cognitive skill results (placeholder - returns 0)
+  /// Save cognitive skill results
   Future<void> saveCognitiveResult({
     required DateTime testStartTime,
     required DateTime testEndTime,
@@ -274,7 +348,6 @@ class GazeResultsService {
       final currentUser = _auth.currentUser;
       if (currentUser == null) return;
 
-      // For now, save placeholder data
       await _firestore
           .collection('users')
           .doc(currentUser.uid)
@@ -287,11 +360,10 @@ class GazeResultsService {
         'createdAt': Timestamp.now(),
       });
 
-      // Update user's latest cognitive score
-      await _firestore.collection('users').doc(currentUser.uid).update({
+      await _firestore.collection('users').doc(currentUser.uid).set({
         'latestCognitiveScore': 0,
         'latestCognitiveTestDate': Timestamp.fromDate(testStartTime),
-      });
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('[GazeResultsService] Error saving cognitive result: $e');
     }

@@ -6,6 +6,8 @@ class GameResultsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  static int? _cachedCognitiveScore;
+
   Future<void> saveGameResult({
     required String gameId,
     required String gameName,
@@ -13,10 +15,11 @@ class GameResultsService {
     required int maxScore,
   }) async {
     try {
+      final percentage = maxScore > 0 ? ((score / maxScore) * 100).round().clamp(0, 100) : 0;
+      _cachedCognitiveScore = percentage;
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return;
-
-      final percentage = maxScore > 0 ? ((score / maxScore) * 100).round().clamp(0, 100) : 0;
 
       await _firestore
           .collection('users')
@@ -46,14 +49,40 @@ class GameResultsService {
 
   Future<int?> getLatestCognitiveScore() async {
     try {
+      if (_cachedCognitiveScore != null) {
+        return _cachedCognitiveScore;
+      }
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return null;
 
       final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
-      return userDoc.data()?['latestCognitiveScore']?.toInt();
+      final scoreFromDoc = (userDoc.data()?['latestCognitiveScore'] as num?)?.toInt();
+      if (scoreFromDoc != null && scoreFromDoc > 0) {
+        _cachedCognitiveScore = scoreFromDoc;
+        return scoreFromDoc;
+      }
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('game_results')
+          .orderBy('playedAt', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final pct = (snapshot.docs.first.data()['percentage'] as num?)?.toInt();
+        if (pct != null && pct > 0) {
+          _cachedCognitiveScore = pct;
+          return pct;
+        }
+      }
+
+      return scoreFromDoc ?? 0;
     } catch (e) {
       debugPrint('[GameResultsService] Error getting cognitive score: $e');
-      return null;
+      return _cachedCognitiveScore;
     }
   }
 

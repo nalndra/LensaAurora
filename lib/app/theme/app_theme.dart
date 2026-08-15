@@ -48,6 +48,7 @@ class AppTheme {
   static const Color lightGreenPale = surfaceTint;
   static const Color successGreen = Color(0xFF28A745);
   static const Color warningOrange = Color(0xFFFFA500);
+  static const Color accentOrange = Color(0xFFFF9800);
 
   // Soft neutral fill used behind inputs/chips instead of a hard border.
   static const Color fieldFill = Color(0xFFF1F5F8);

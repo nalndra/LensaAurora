@@ -16,6 +16,8 @@ import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/scan/bindings/gaze_tracking_binding.dart';
 import '../modules/scan/views/gaze_tracking_view.dart';
+import '../modules/screening_dashboard/bindings/screening_dashboard_binding.dart';
+import '../modules/screening_dashboard/views/screening_dashboard_view.dart';
 import '../modules/speech/bindings/speech_binding.dart';
 import '../modules/speech/views/speech_view.dart';
 import '../modules/speech_analysis/bindings/speech_analysis_binding.dart';
@@ -114,6 +116,11 @@ class AppPages {
       name: _Paths.ACCOUNT_TYPE,
       page: () => const AccountTypeView(),
       binding: AccountTypeBinding(),
+    ),
+    GetPage(
+      name: _Paths.SCREENING_DASHBOARD,
+      page: () => const ScreeningDashboardView(),
+      binding: ScreeningDashboardBinding(),
     ),
   ];
 }

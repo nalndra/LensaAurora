@@ -3,14 +3,13 @@ import 'package:get/get.dart';
 import 'package:lensaaurora/app/controllers/accessibility_controller.dart';
 import 'package:lensaaurora/app/theme/app_theme.dart';
 
-/// Draggable round button. Tap opens Outline + Accent (and extra a11y) beside it.
+/// Draggable round button. Tap opens Outline + Accent (and extra a11y) panel beside it.
 class AccessibilityOverlay extends StatelessWidget {
   const AccessibilityOverlay({super.key});
 
   static const double _fabSize = 52;
-  static const double _panelWidth = 248;
-  static const double _panelGap = 10;
-  static const double _edgeMargin = 8;
+  static const double _panelGap = 12;
+  static const double _edgeMargin = 12;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +20,6 @@ class AccessibilityOverlay extends StatelessWidget {
       final isOpen = controller.isPanelOpen.value;
       final offsetX = controller.offsetX.value;
       final offsetY = controller.offsetY.value;
-      final onRightHalf = offsetX < screenSize.width / 2;
       final accent = controller.accentColor;
       final animDuration = controller.isDragging.value
           ? Duration.zero
@@ -34,33 +32,27 @@ class AccessibilityOverlay extends StatelessWidget {
         accent: accent,
       );
 
-      // Button edges in screen coordinates (it's anchored via `right`).
-      final buttonLeft = screenSize.width - offsetX - _fabSize;
-      final buttonRight = screenSize.width - offsetX;
+      // Dynamic responsive panel width (clamps between 280 and 320 for clean mobile/tablet fit)
+      final panelWidth = (screenSize.width - 32).clamp(280.0, 320.0);
+      final buttonCenter = screenSize.width - offsetX - (_fabSize / 2);
+      final onRightHalf = buttonCenter > screenSize.width / 2;
 
-      // Anchor the panel beside the button, but clamp it within the
-      // screen so it can never be pushed off-screen — e.g. when the
-      // button is snapped to the left edge, opening the panel to its
-      // "left" would otherwise push most of the panel off-screen.
       double? panelLeft;
       double? panelRightInset;
+
       if (onRightHalf) {
-        var panelRight = buttonLeft - _panelGap;
-        var left = panelRight - _panelWidth;
-        if (left < _edgeMargin) {
-          left = _edgeMargin;
-          panelRight = left + _panelWidth;
-        }
-        panelRightInset = screenSize.width - panelRight;
+        // Position panel to the left of the button
+        final panelRight = screenSize.width - offsetX + _panelGap;
+        panelRightInset = panelRight.clamp(_edgeMargin, screenSize.width - panelWidth - _edgeMargin);
       } else {
-        var left = buttonRight + _panelGap;
-        var right = left + _panelWidth;
-        if (right > screenSize.width - _edgeMargin) {
-          right = screenSize.width - _edgeMargin;
-          left = right - _panelWidth;
-        }
-        panelLeft = left;
+        // Position panel to the right of the button
+        final leftPos = offsetX + _fabSize + _panelGap;
+        panelLeft = leftPos.clamp(_edgeMargin, screenSize.width - panelWidth - _edgeMargin);
       }
+
+      // Clamp vertical offset so the panel never overflows top of screen
+      final maxOffsetY = (screenSize.height * 0.15).clamp(16.0, 120.0);
+      final clampedBottom = offsetY.clamp(16.0, screenSize.height - maxOffsetY);
 
       return Positioned.fill(
         child: Stack(
@@ -71,8 +63,11 @@ class AccessibilityOverlay extends StatelessWidget {
                 curve: Curves.easeOut,
                 left: panelLeft,
                 right: panelRightInset,
-                bottom: offsetY,
-                child: _SettingsPanel(controller: controller),
+                bottom: clampedBottom,
+                child: _SettingsPanel(
+                  controller: controller,
+                  panelWidth: panelWidth,
+                ),
               ),
             AnimatedPositioned(
               duration: animDuration,
@@ -136,7 +131,7 @@ class _DraggableAccessibilityButtonState
       },
       child: Semantics(
         label:
-            'Aksesibilitas. Geser untuk pindah, ketuk untuk Outline dan Accent.',
+            'Aksesibilitas. Geser untuk pindah, ketuk untuk membuka menu aksesibilitas.',
         button: true,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -145,12 +140,12 @@ class _DraggableAccessibilityButtonState
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: widget.isOpen ? widget.accent : Colors.white,
-            border: Border.all(color: widget.accent, width: 2),
+            border: Border.all(color: widget.accent, width: 2.5),
             boxShadow: [
               BoxShadow(
-                color: widget.accent.withValues(alpha: 0.28),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+                color: widget.accent.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -166,152 +161,213 @@ class _DraggableAccessibilityButtonState
 }
 
 class _SettingsPanel extends StatelessWidget {
-  const _SettingsPanel({required this.controller});
+  const _SettingsPanel({
+    required this.controller,
+    required this.panelWidth,
+  });
 
   final AccessibilityController controller;
+  final double panelWidth;
 
   @override
   Widget build(BuildContext context) {
     final accent = controller.accentColor;
+    final screenSize = MediaQuery.sizeOf(context);
 
     return ConstrainedBox(
-      // Cap the panel's height and let it scroll instead of overflowing
-      // off the top of the screen when the button is dragged up high.
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.sizeOf(context).height * 0.75,
+        maxWidth: panelWidth,
+        maxHeight: screenSize.height * 0.72,
       ),
       child: Material(
-      elevation: 10,
-      borderRadius: BorderRadius.circular(16),
-      color: Colors.white,
-      child: Container(
-        width: 248,
-        padding: const EdgeInsets.fromLTRB(16, 12, 12, 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accent, width: 1.5),
-        ),
-        child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        elevation: 12,
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        child: Container(
+          width: panelWidth,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: accent.withValues(alpha: 0.4), width: 1.5),
+            boxShadow: AppTheme.shadowLg,
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.accessibility_new_rounded, color: accent, size: 20),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text(
-                    'Aksesibilitas',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                // Header Row
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: accent.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.accessibility_new_rounded, color: accent, size: 20),
                     ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: controller.closePanel,
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
-                  tooltip: 'Tutup',
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Obx(() => _ToggleRow(
-                  label: 'Outline',
-                  subtitle: 'Tepi tombol & kartu lebih tegas',
-                  value: controller.useOutline.value,
-                  onChanged: controller.setOutline,
-                  accent: accent,
-                )),
-            Obx(() => _ToggleRow(
-                  label: 'Accent',
-                  subtitle: controller.useAltAccent.value
-                      ? 'Warna biru'
-                      : 'Warna hijau tosca',
-                  value: controller.useAltAccent.value,
-                  onChanged: controller.setAltAccent,
-                  accent: accent,
-                )),
-            const Divider(height: 20),
-            Obx(() => _ToggleRow(
-                  label: 'Opacity',
-                  subtitle: 'Redakan intensitas layar',
-                  value: controller.reduceOpacity.value,
-                  onChanged: controller.setOpacityEnabled,
-                  accent: accent,
-                )),
-            Obx(() {
-              if (!controller.reduceOpacity.value) {
-                return const SizedBox.shrink();
-              }
-              return Slider(
-                value: controller.opacityLevel.value,
-                min: 0.5,
-                max: 1.0,
-                activeColor: accent,
-                inactiveColor: AppTheme.lightCyan,
-                onChanged: controller.setOpacityLevel,
-              );
-            }),
-            Obx(() => _ToggleRow(
-                  label: 'Kontras',
-                  subtitle: 'Teks dan tepi lebih jelas',
-                  value: controller.highContrast.value,
-                  onChanged: controller.setHighContrast,
-                  accent: accent,
-                )),
-            const SizedBox(height: 10),
-            const Text(
-              'Font',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textDark,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Obx(() => Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: AccessibilityFont.values.map((font) {
-                    final selected = controller.selectedFont.value == font;
-                    return ChoiceChip(
-                      label: Text(
-                        font.label,
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'Aksesibilitas',
                         style: TextStyle(
-                          fontSize: 10,
-                          color: selected ? Colors.white : AppTheme.textDark,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textDark,
                         ),
                       ),
-                      selected: selected,
-                      selectedColor: accent,
-                      backgroundColor: AppTheme.surfaceTint,
-                      side: BorderSide(
-                        color: selected ? accent : AppTheme.primaryBlue,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      onPressed: controller.closePanel,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      tooltip: 'Tutup',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Divider(height: 12),
+                const SizedBox(height: 4),
+
+                // Toggles
+                Obx(() => _ToggleRow(
+                      label: 'Outline',
+                      subtitle: 'Tepi tombol & kartu lebih tegas',
+                      value: controller.useOutline.value,
+                      onChanged: controller.setOutline,
+                      accent: accent,
+                    )),
+                Obx(() => _ToggleRow(
+                      label: 'Accent',
+                      subtitle: controller.useAltAccent.value
+                          ? 'Warna biru utama'
+                          : 'Warna hijau tosca',
+                      value: controller.useAltAccent.value,
+                      onChanged: controller.setAltAccent,
+                      accent: accent,
+                    )),
+                const Divider(height: 20),
+                Obx(() => _ToggleRow(
+                      label: 'Opacity',
+                      subtitle: 'Redakan intensitas layar',
+                      value: controller.reduceOpacity.value,
+                      onChanged: controller.setOpacityEnabled,
+                      accent: accent,
+                    )),
+                Obx(() {
+                  if (!controller.reduceOpacity.value) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, left: 4),
+                        child: Text(
+                          'Tingkat Opasitas: ${(controller.opacityLevel.value * 100).round()}%',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
                       ),
-                      onSelected: (_) => controller.setFont(font),
-                    );
-                  }).toList(),
-                )),
-            const SizedBox(height: 8),
-            Obx(() => Slider(
-                  value: controller.fontScale.value,
-                  min: 0.85,
-                  max: 1.5,
-                  divisions: 13,
-                  activeColor: accent,
-                  inactiveColor: AppTheme.lightCyan,
-                  onChanged: controller.setFontScale,
-                )),
-          ],
+                      Slider(
+                        value: controller.opacityLevel.value,
+                        min: 0.5,
+                        max: 1.0,
+                        activeColor: accent,
+                        inactiveColor: AppTheme.lightCyan,
+                        onChanged: controller.setOpacityLevel,
+                      ),
+                    ],
+                  );
+                }),
+                Obx(() => _ToggleRow(
+                      label: 'Kontras',
+                      subtitle: 'Teks dan tepi lebih jelas',
+                      value: controller.highContrast.value,
+                      onChanged: controller.setHighContrast,
+                      accent: accent,
+                    )),
+                const Divider(height: 20),
+
+                // Font Family Section
+                const Text(
+                  'Jenis Font',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textDark,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Obx(() => Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: AccessibilityFont.values.map((font) {
+                        final selected = controller.selectedFont.value == font;
+                        return ChoiceChip(
+                          label: Text(
+                            font.label,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                              color: selected ? Colors.white : AppTheme.textDark,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          selected: selected,
+                          selectedColor: accent,
+                          backgroundColor: AppTheme.surfaceTint,
+                          side: BorderSide(
+                            color: selected ? accent : AppTheme.primaryBlue.withValues(alpha: 0.5),
+                          ),
+                          onSelected: (_) => controller.setFont(font),
+                        );
+                      }).toList(),
+                    )),
+                const SizedBox(height: 14),
+
+                // Font Size Scale Section
+                Obx(() => Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Ukuran Teks',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textDark,
+                          ),
+                        ),
+                        Text(
+                          '${(controller.fontScale.value * 100).round()}%',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: accent,
+                          ),
+                        ),
+                      ],
+                    )),
+                const SizedBox(height: 4),
+                Obx(() => Slider(
+                      value: controller.fontScale.value,
+                      min: 0.85,
+                      max: 1.4,
+                      divisions: 11,
+                      activeColor: accent,
+                      inactiveColor: AppTheme.lightCyan,
+                      onChanged: controller.setFontScale,
+                    )),
+              ],
+            ),
+          ),
         ),
-        ),
-      ),
       ),
     );
   }
@@ -335,7 +391,7 @@ class _ToggleRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Expanded(
@@ -363,8 +419,9 @@ class _ToggleRow extends StatelessWidget {
           ),
           Switch(
             value: value,
-            activeColor: accent,
-            activeTrackColor: accent.withValues(alpha: 0.35),
+            activeTrackColor: accent,
+            thumbColor: WidgetStateProperty.all(Colors.white),
+            inactiveTrackColor: AppTheme.fieldFill,
             onChanged: onChanged,
           ),
         ],

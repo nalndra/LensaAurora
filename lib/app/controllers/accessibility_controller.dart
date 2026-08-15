@@ -92,6 +92,19 @@ class AccessibilityController extends GetxController {
         end: Alignment.bottomRight,
       );
 
+  String get fontFamily {
+    switch (selectedFont.value) {
+      case AccessibilityFont.lexend:
+        return GoogleFonts.lexend().fontFamily ?? 'Lexend';
+      case AccessibilityFont.openSans:
+        return GoogleFonts.openSans().fontFamily ?? 'Open Sans';
+      case AccessibilityFont.atkinson:
+        return GoogleFonts.atkinsonHyperlegible().fontFamily ?? 'Atkinson Hyperlegible';
+      case AccessibilityFont.plusJakarta:
+        return GoogleFonts.plusJakartaSans().fontFamily ?? 'Plus Jakarta Sans';
+    }
+  }
+
   void togglePanel() => isPanelOpen.value = !isPanelOpen.value;
 
   void closePanel() => isPanelOpen.value = false;
@@ -99,11 +112,13 @@ class AccessibilityController extends GetxController {
   void setOutline(bool value) {
     useOutline.value = value;
     _box.write(_kOutline, value);
+    Get.changeTheme(applyToTheme(AppTheme.lightTheme));
   }
 
   void setAltAccent(bool value) {
     useAltAccent.value = value;
     _box.write(_kAltAccent, value);
+    Get.changeTheme(applyToTheme(AppTheme.lightTheme));
   }
 
   void setOpacityEnabled(bool value) {
@@ -119,16 +134,19 @@ class AccessibilityController extends GetxController {
   void setHighContrast(bool value) {
     highContrast.value = value;
     _box.write(_kHighContrast, value);
+    Get.changeTheme(applyToTheme(AppTheme.lightTheme));
   }
 
   void setFont(AccessibilityFont font) {
     selectedFont.value = font;
     _box.write(_kFont, font.name);
+    Get.changeTheme(applyToTheme(AppTheme.lightTheme));
   }
 
   void setFontScale(double value) {
     fontScale.value = value.clamp(0.85, 1.5);
     _box.write(_kFontScale, fontScale.value);
+    Get.changeTheme(applyToTheme(AppTheme.lightTheme));
   }
 
   void updatePosition(double dx, double dy, Size screenSize) {
@@ -204,7 +222,7 @@ class AccessibilityController extends GetxController {
             prefixIconColor: accent,
           );
 
-    final textTheme = _buildTextTheme(base.textTheme);
+    final textTheme = _buildTextTheme(base.textTheme).apply(fontFamily: fontFamily);
 
     var theme = base.copyWith(
       textTheme: textTheme,

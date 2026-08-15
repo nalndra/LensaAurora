@@ -48,34 +48,22 @@ class MyApp extends StatelessWidget {
 
         return Obx(() {
           final baseTheme = accessibility.applyToTheme(AppTheme.lightTheme);
+          final fontScale = accessibility.fontScale.value;
+          final currentFontFamily = accessibility.fontFamily;
 
-          // Most screens read colors from AppTheme's static getters
-          // directly instead of Theme.of(context), so a Theme change alone
-          // doesn't repaint them (Flutter skips rebuilding `child` since
-          // it's the same widget instance every time). Re-keying it forces
-          // Flutter to tear down and rebuild the whole route tree whenever
-          // a setting that changes those getters' output is toggled, so
-          // Outline/Accent/Kontras actually take effect everywhere.
           final rebuildKey = ValueKey(
             '${accessibility.useOutline.value}_'
             '${accessibility.useAltAccent.value}_'
-            '${accessibility.highContrast.value}',
+            '${accessibility.highContrast.value}_'
+            '${accessibility.selectedFont.value.name}_'
+            '$fontScale',
           );
 
-          final scaledChild = MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: TextScaler.linear(accessibility.fontScale.value),
-            ),
-            child: Theme(
-              data: baseTheme,
-              child: KeyedSubtree(
-                key: rebuildKey,
-                child: child ?? const SizedBox.shrink(),
-              ),
-            ),
+          Widget content = KeyedSubtree(
+            key: rebuildKey,
+            child: child ?? const SizedBox.shrink(),
           );
 
-          Widget content = scaledChild;
           if (accessibility.reduceOpacity.value) {
             content = Opacity(
               opacity: accessibility.opacityLevel.value,
@@ -83,22 +71,32 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // GetMaterialApp's builder runs above the Navigator, so this Stack
-          // sits outside the Overlay the Navigator provides. Widgets in
-          // AccessibilityOverlay (e.g. the settings panel's Tooltip) need
-          // their own Overlay ancestor or they throw "No Overlay widget
-          // found" the moment they try to render.
-          return Overlay(
-            initialEntries: [
-              OverlayEntry(
-                builder: (context) => Stack(
-                  children: [
-                    content,
-                    const AccessibilityOverlay(),
+          final textStyle = (baseTheme.textTheme.bodyMedium ?? const TextStyle()).copyWith(
+            fontFamily: currentFontFamily,
+          );
+
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(fontScale),
+            ),
+            child: Theme(
+              data: baseTheme,
+              child: DefaultTextStyle(
+                style: textStyle,
+                child: Overlay(
+                  initialEntries: [
+                    OverlayEntry(
+                      builder: (context) => Stack(
+                        children: [
+                          content,
+                          const AccessibilityOverlay(),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
+            ),
           );
         });
       },
