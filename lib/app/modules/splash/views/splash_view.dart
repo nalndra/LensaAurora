@@ -17,16 +17,17 @@ class _SplashViewState extends State<SplashView> {
     _checkLoginStatus();
   }
 
-  /// Check if user is already logged in
+  /// Check if user is already logged in after 4 seconds branding presentation
   Future<void> _checkLoginStatus() async {
-    // Minimal delay for splash screen visibility (400ms instead of 2s)
-    await Future.delayed(const Duration(milliseconds: 400));
+    // 4 seconds delay so user can recognize and appreciate product branding
+    await Future.delayed(const Duration(seconds: 4));
+
+    if (!mounted) return;
 
     // Check login status
     if (Get.isRegistered<AuthController>()) {
       await Get.find<AuthController>().checkLoginStatus();
     } else {
-      // Register controller if not yet registered
       Get.put(AuthController());
       await Get.find<AuthController>().checkLoginStatus();
     }
@@ -35,9 +36,7 @@ class _SplashViewState extends State<SplashView> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    // Scale off the smaller dimension and cap it so wide/short viewports
-    // (e.g. a desktop browser window) don't blow the column past its height.
-    final logoSize = (screenSize.shortestSide * 0.34).clamp(96.0, 160.0);
+    final logoSize = (screenSize.shortestSide * 0.36).clamp(100.0, 170.0);
 
     return Scaffold(
       body: Container(
@@ -52,7 +51,7 @@ class _SplashViewState extends State<SplashView> {
         ),
         child: Stack(
           children: [
-            // Soft ambient glows for depth.
+            // Ambient depth glows
             Positioned(
               top: -80,
               right: -60,
@@ -90,19 +89,32 @@ class _SplashViewState extends State<SplashView> {
                         const Text(
                           'Lensa Aurora',
                           style: TextStyle(
-                            fontSize: 30,
+                            fontSize: 32,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
-                            letterSpacing: 0.2,
+                            letterSpacing: 0.3,
                           ),
                         ),
                         const SizedBox(height: AppTheme.space12),
                         Text(
-                          'Speech & Motor Behavior Analysis',
+                          'Platform Skrining Dini & Intervensi Tumbuh Tumbuh Anak',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.75),
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.85),
+                            height: 1.4,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Gaze Tracking • Motor Behavior • Speech Analysis',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.lightCyan.withValues(alpha: 0.9),
                             letterSpacing: 0.4,
                           ),
                         ),
@@ -130,8 +142,6 @@ class _SplashViewState extends State<SplashView> {
   }
 }
 
-/// A large, softly-blurred circle used to add ambient depth to a gradient
-/// background without a real ImageFilter blur (cheaper, works on web).
 class _Glow extends StatelessWidget {
   const _Glow({required this.color});
 
